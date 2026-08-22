@@ -30,6 +30,13 @@ Inspect scanner and OCR logs. The rescue PDF remains in the scan directory with 
 
 OCR scratch data cannot grow persistently: it exists only in a 2 GiB tmpfs and per-job directories are deleted. Restarting OCR clears the complete work area.
 
-## A PDF remains in the print jobs folder
+## A PDF remains in the print hotfolder
 
-This is intentional after a failed CUPS submission. Correct the printer problem and submit it again.
+The web service leaves incomplete, changing, oversized, or invalid PDFs in the
+folder. A complete file must contain a PDF header and `%%EOF` near its end and
+must remain unchanged for `HOTFOLDER_STABLE_SECONDS`.
+
+After a CUPS failure, the complete PDF remains in place and is retried after
+`HOTFOLDER_RETRY_SECONDS`. Correct the printer or queue problem, then inspect:
+
+    docker compose logs --tail=100 web cups

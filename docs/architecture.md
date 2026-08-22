@@ -17,7 +17,13 @@ Only web publishes a port. CUPS, scanner, and OCR communicate on the private Com
 
 ## Data lifecycle
 
-Print uploads are atomically stored in data/jobs and removed only after CUPS accepts them. Saved labels live in SQLite under data/labels.
+Print uploads are atomically stored in data/jobs and removed only after CUPS
+accepts them. The same directory is a print hotfolder: visible PDF files are
+submitted to the configured default document printer only after their size and
+modification time have remained unchanged for the configured interval, their
+header identifies a PDF, and their final bytes contain a PDF end marker. Failed
+CUPS submissions remain in place and are retried. Saved labels live in SQLite
+under data/labels.
 
 The label editor follows a paper-sheet model: one custom HTML sheet is exactly
 88 mm × 34 mm with a 2 mm safe inset and typography expressed in points. The

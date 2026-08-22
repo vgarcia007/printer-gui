@@ -6,6 +6,7 @@ from flask import Flask, render_template
 from config import Config
 
 from .extensions import csrf, db
+from .services.document_hotfolder import DocumentHotfolderService
 from .services.document_service import DocumentPrintService
 from .services.image_service import ImageService
 from .services.label_print_service import LabelPrintService
@@ -43,11 +44,20 @@ def create_app(config_object=None):
         landscape_shrink_mm=app.config["DYMO_LANDSCAPE_SHRINK_MM"],
         landscape_start_trim_mm=app.config["DYMO_LANDSCAPE_START_TRIM_MM"],
     )
-    app.extensions["document_print_service"] = DocumentPrintService(
+    document_print_service = DocumentPrintService(
         jobs_dir=app.config["JOBS_DIR"],
         config_path=app.config["PRINTER_CONFIG"],
         cups_server=app.config["CUPS_SERVER"],
     )
+    app.extensions["document_print_service"] = document_print_service
+    document_hotfolder_service = DocumentHotfolderService(
+        document_service=document_print_service,
+        stable_seconds=app.config["HOTFOLDER_STABLE_SECONDS"],
+        poll_seconds=app.config["HOTFOLDER_POLL_SECONDS"],
+        retry_seconds=app.config["HOTFOLDER_RETRY_SECONDS"],
+        logger=app.logger,
+    )
+    app.extensions["document_hotfolder_service"] = document_hotfolder_service
     app.extensions["scanner_client"] = ScannerClient(
         app.config["SCANNER_URL"], app.config["SCANNER_TIMEOUT_SECONDS"]
     )
@@ -104,6 +114,9 @@ def create_app(config_object=None):
 
     with app.app_context():
         db.create_all()
+
+    if app.config["HOTFOLDER_ENABLED"] and not app.testing:
+        document_hotfolder_service.start()
 
     if not app.debug:
         logging.getLogger("werkzeug").setLevel(logging.INFO)

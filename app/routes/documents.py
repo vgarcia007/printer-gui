@@ -23,16 +23,6 @@ def status():
         return jsonify(ok=False, error=str(exc)), 503
 
 
-@bp.post("/api/print-jobs")
-def print_jobs():
-    try:
-        payload = request.get_json(silent=True) or {}
-        count = service().print_files(str(payload.get("printer", "")), service().pdf_jobs())
-        return jsonify(ok=True, printed=count)
-    except DocumentPrintError as exc:
-        return jsonify(ok=False, error=str(exc)), 422
-
-
 @bp.post("/api/print-pdf")
 def print_pdf():
     try:
@@ -46,4 +36,3 @@ def print_pdf():
         return jsonify(ok=True, printed=count)
     except DocumentPrintError as exc:
         return jsonify(ok=False, error=str(exc)), 422
-

@@ -30,6 +30,11 @@ of the target database before writing.
 
 Persistent paths are data/cups, data/spool, data/jobs, data/labels, the selected scan directory, and a tiny scanner state directory. OCR has no persistent volume.
 
+`data/jobs`, or the path selected with `JOBS_HOST_DIR`, is an automatic print
+hotfolder. Share that host directory over the trusted LAN if required. Copying
+a complete PDF into it sends the file to `defaultDocumentPrinter`; the web
+service waits for a stable file and a valid PDF end marker before submission.
+
 Every service uses restart: unless-stopped. Docker restarts them after a process failure and after a host reboot unless an administrator explicitly stopped them.
 
 ## Updates

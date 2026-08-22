@@ -36,6 +36,21 @@ class Config:
         os.environ.get("PRINTER_CONFIG", "/config/printers.json")
     )
     JOBS_DIR = Path(os.environ.get("JOBS_DIR", "/data/jobs"))
+    HOTFOLDER_ENABLED = os.environ.get("HOTFOLDER_ENABLED", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    HOTFOLDER_STABLE_SECONDS = float(
+        os.environ.get("HOTFOLDER_STABLE_SECONDS", "15")
+    )
+    HOTFOLDER_POLL_SECONDS = float(
+        os.environ.get("HOTFOLDER_POLL_SECONDS", "2")
+    )
+    HOTFOLDER_RETRY_SECONDS = float(
+        os.environ.get("HOTFOLDER_RETRY_SECONDS", "30")
+    )
     SCANS_DIR = Path(os.environ.get("SCANS_DIR", "/data/scans"))
     SCANNER_URL = os.environ.get("SCANNER_URL", "http://scanner:8080")
     SCANNER_TIMEOUT_SECONDS = int(

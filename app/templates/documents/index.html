@@ -10,13 +10,9 @@
   <label for="printer">Printer</label>
   <select id="printer" disabled><option>Loading printers…</option></select>
 </div>
-<section class="panel job-panel">
-  <div><h2>Print waiting PDFs</h2><p id="jobsHint">Checking the jobs folder…</p></div>
-  <button id="printJobs" class="primary" disabled><i class="fa-solid fa-print button-icon" aria-hidden="true"></i>Print all</button>
-</section>
-<div class="separator">or</div>
 <label id="dropZone" class="drop-zone" for="fileInput">
   <input id="fileInput" type="file" accept="application/pdf,.pdf">
+  <i class="fa-solid fa-file-arrow-up drop-zone-icon" aria-hidden="true"></i>
   <strong>Drop a PDF here</strong>
   <span>or tap to choose a file</span>
 </label>
@@ -28,4 +24,4 @@
 <div id="documentStatus" class="status-line" role="status" aria-live="polite">Connecting…</div>
 <div id="toast" class="toast-message" role="status" aria-live="polite" hidden></div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/documents.js') }}"></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/documents.js', v='20260822-2') }}"></script>{% endblock %}

@@ -107,6 +107,10 @@ services:
       DATABASE_URL: sqlite:////data/labels/labels.db
       CUPS_SERVER: cups:631
       JOBS_DIR: /data/jobs
+      HOTFOLDER_ENABLED: ${HOTFOLDER_ENABLED:-true}
+      HOTFOLDER_STABLE_SECONDS: ${HOTFOLDER_STABLE_SECONDS:-15}
+      HOTFOLDER_POLL_SECONDS: ${HOTFOLDER_POLL_SECONDS:-2}
+      HOTFOLDER_RETRY_SECONDS: ${HOTFOLDER_RETRY_SECONDS:-30}
       SCANS_DIR: /data/scans
       SCANNER_URL: http://scanner:8080
       PRINTER_CONFIG: /config/printers.json
@@ -118,7 +122,7 @@ services:
       TZ: ${TZ:-Europe/Berlin}
     volumes:
       - ${PRINTER_CONFIG_FILE:-./config/printers.json}:/config/printers.json:ro
-      - ./data/jobs:/data/jobs
+      - ${JOBS_HOST_DIR:-./data/jobs}:/data/jobs
       - ./data/labels:/data/labels
       - ${SCANS_HOST_DIR:-./data/scans}:/data/scans
     ports:

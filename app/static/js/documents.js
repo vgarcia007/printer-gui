@@ -1,8 +1,6 @@
 (() => {
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
   const printer = document.getElementById("printer");
-  const jobsHint = document.getElementById("jobsHint");
-  const printJobs = document.getElementById("printJobs");
   const dropZone = document.getElementById("dropZone");
   const input = document.getElementById("fileInput");
   const card = document.getElementById("fileCard");
@@ -21,7 +19,6 @@
     return payload;
   };
   const busy = value => {
-    printJobs.disabled = value || Number(printJobs.dataset.count || 0) < 1 || !printer.value;
     printFile.disabled = value || !selectedFile || !printer.value;
     printer.disabled = value;
   };
@@ -55,8 +52,6 @@
         option.textContent = "No document printer available";
         printer.append(option);
       }
-      printJobs.dataset.count = data.jobCount;
-      jobsHint.textContent = data.jobCount === 1 ? "1 PDF is waiting." : data.jobCount + " PDFs are waiting.";
       status.textContent = data.printers.length ? "Ready." : "No configured document printer is available.";
       printer.disabled = !data.printers.length;
       busy(false);
@@ -73,15 +68,6 @@
   for (const eventName of ["dragleave", "drop"]) dropZone.addEventListener(eventName, event => { event.preventDefault(); dropZone.classList.remove("dragging"); });
   dropZone.addEventListener("drop", event => setFile(event.dataTransfer.files[0]));
 
-  printJobs.addEventListener("click", async () => {
-    if (!window.confirm("Print all " + printJobs.dataset.count + " waiting PDF files?")) return;
-    busy(true); status.textContent = "Sending PDFs to the printer…";
-    try {
-      const data = await request("/documents/api/print-jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ printer: printer.value }) });
-      status.textContent = data.printed + " PDF " + (data.printed === 1 ? "was" : "were") + " sent to the printer.";
-      await load();
-    } catch (error) { status.textContent = error.message; busy(false); }
-  });
   printFile.addEventListener("click", async () => {
     if (!selectedFile) return;
     busy(true); status.textContent = "Uploading and sending the PDF…";

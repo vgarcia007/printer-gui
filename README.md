@@ -4,7 +4,8 @@ Print & Scan Hub is a self-hosted, beginner-friendly web interface for household
 
 ## Features
 
-- Print one PDF or every PDF waiting in a shared folder
+- Print a PDF from the browser
+- Automatically print complete PDFs copied into a shared hotfolder
 - Choose between configured document printers
 - Create DYMO labels in a rich-text editor
 - Paste images into labels, preview, save, reopen, copy, and delete them
@@ -29,6 +30,12 @@ The deployment has exactly four containers:
 | ocr | Isolated OCRmyPDF and Tesseract processing in German and English |
 
 Only the web service is published, on port **8081**. All services use restart: unless-stopped.
+
+PDFs copied into `data/jobs` are automatically sent to
+`defaultDocumentPrinter`. A file must remain unchanged for 15 seconds and pass
+PDF header and end-marker checks before it is submitted, which prevents an
+in-progress network copy from being printed. CUPS failures leave the PDF in the
+folder for an automatic retry.
 
 OCR has no persistent volume. Scanner and OCR working directories are separate 2 GiB tmpfs mounts, so temporary files disappear on restart and cannot grow without a fixed limit. Every OCR request uses its own temporary directory with guaranteed cleanup.
 

@@ -26,6 +26,9 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("/work:size=2g", compose)
         self.assertIn("read_only: true", compose)
         self.assertNotIn("ocr-data", compose)
+        self.assertIn("HOTFOLDER_STABLE_SECONDS", compose)
+        self.assertIn("JOBS_HOST_DIR:-./data/jobs", compose)
+        self.assertIn('"--workers", "1"', (ROOT / "app" / "Dockerfile").read_text())
 
     def test_printer_configuration_uses_schema_two(self) -> None:
         import json

@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from app import create_app
 from app.extensions import db
+from app.services.document_hotfolder import DocumentHotfolderService
 from app.services.document_service import (
     DocumentPrintError,
     DocumentPrintService,
@@ -90,7 +91,8 @@ class DocumentServiceTest(unittest.TestCase):
         (self.jobs / "ignore.txt").write_text("no", encoding="utf-8")
         status = self.service.status()
         self.assertEqual([item["name"] for item in status["printers"]], ["mfc", "hp-color"])
-        self.assertEqual(status["jobs"], ["A.pdf"])
+        self.assertNotIn("jobs", status)
+        self.assertEqual([path.name for path in self.service.pdf_jobs()], ["A.pdf"])
 
     def test_upload_is_validated_and_sanitized(self):
         path = self.service.save_upload("../invoice<script>.PDF", b"%PDF-1.7\nbody")
@@ -121,6 +123,56 @@ class DocumentServiceTest(unittest.TestCase):
         with self.assertRaises(DocumentPrintError):
             self.service.print_files("hp-color", [failed])
         self.assertTrue(failed.exists())
+
+    @patch("app.services.document_service.subprocess.run")
+    def test_hotfolder_waits_for_a_complete_stable_pdf(self, run):
+        run.side_effect = self.lpstat
+        worker = DocumentHotfolderService(
+            self.service,
+            stable_seconds=15,
+            poll_seconds=1,
+            retry_seconds=5,
+        )
+        path = self.jobs / "network-copy.pdf"
+        path.write_bytes(b"%PDF-1.7\npart of the file")
+
+        self.assertEqual(worker.poll_once(now=100), 0)
+        self.assertEqual(worker.poll_once(now=115), 0)
+        self.assertTrue(path.exists())
+
+        path.write_bytes(b"%PDF-1.7\ncomplete file\n%%EOF\n")
+        self.assertEqual(worker.poll_once(now=120), 0)
+        self.assertEqual(worker.poll_once(now=134.9), 0)
+        self.assertEqual(worker.poll_once(now=135), 1)
+        self.assertFalse(path.exists())
+        lpr_calls = [call.args[0] for call in run.call_args_list if call.args[0][0] == "lpr"]
+        self.assertEqual(lpr_calls[0][4], "hp-color")
+
+    @patch("app.services.document_service.subprocess.run")
+    def test_hotfolder_keeps_a_complete_pdf_when_cups_rejects_it(self, run):
+        def reject(args, **_kwargs):
+            if args[0] == "lpr":
+                return subprocess.CompletedProcess(args, 1, "", "printer unavailable")
+            return self.lpstat(args)
+
+        run.side_effect = reject
+        worker = DocumentHotfolderService(
+            self.service,
+            stable_seconds=1,
+            poll_seconds=1,
+            retry_seconds=30,
+        )
+        path = self.jobs / "retry.pdf"
+        path.write_bytes(b"%PDF-1.7\n%%EOF\n")
+
+        worker.poll_once(now=10)
+        self.assertEqual(worker.poll_once(now=11), 0)
+        self.assertTrue(path.exists())
+        self.assertEqual(worker.poll_once(now=20), 0)
+        self.assertEqual(
+            len([call for call in run.call_args_list if call.args[0][0] == "lpr"]),
+            1,
+        )
 
 
 class EditorDocumentTest(unittest.TestCase):
@@ -214,6 +266,10 @@ class PageSmokeTest(unittest.TestCase):
             self.assertIn(b"Print & Scan Hub", response.data)
             self.assertEqual(response.headers["X-Frame-Options"], "DENY")
             self.assertIn("default-src 'self'", response.headers["Content-Security-Policy"])
+
+        documents = self.client.get("/documents")
+        self.assertNotIn(b"Print waiting PDFs", documents.data)
+        self.assertEqual(self.client.post("/documents/api/print-jobs").status_code, 404)
 
 
 if __name__ == "__main__":

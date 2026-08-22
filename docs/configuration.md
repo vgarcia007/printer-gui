@@ -27,6 +27,11 @@ Important .env values:
 - SCANNER_IP: Brother scanner address
 - SCANNER_MODEL: brscan4 model identifier; MFC-L2700DW is compatible with the reference device
 - SCANS_HOST_DIR: final PDF directory or NAS mount
+- JOBS_HOST_DIR: local or network-backed PDF hotfolder; default ./data/jobs
+- HOTFOLDER_ENABLED: automatically print PDFs from JOBS_HOST_DIR; default true
+- HOTFOLDER_STABLE_SECONDS: required unchanged time before printing; default 15
+- HOTFOLDER_POLL_SECONDS: folder check interval; default 2
+- HOTFOLDER_RETRY_SECONDS: delay after an incomplete file or print failure; default 30
 - APP_UID and APP_GID: owner used for label and scan files
 - SECRET_KEY: long random value used for browser CSRF protection
 - DYMO_LANDSCAPE_OFFSET_MM: feed-direction correction in millimeters; default 0

@@ -133,19 +133,19 @@ class DocumentPrintService:
             (
                 path
                 for path in self.jobs_dir.iterdir()
-                if path.is_file() and not path.is_symlink() and path.suffix.lower() == ".pdf"
+                if path.is_file()
+                and not path.is_symlink()
+                and not path.name.startswith(".")
+                and path.suffix.lower() == ".pdf"
             ),
             key=lambda path: path.name.casefold(),
         )
 
     def status(self) -> dict[str, object]:
         printers, default = self.printers()
-        jobs = self.pdf_jobs()
         return {
             "printers": printers,
             "defaultPrinter": default,
-            "jobCount": len(jobs),
-            "jobs": [path.name for path in jobs],
         }
 
     def _validate_printer(self, name: str) -> None:
@@ -195,4 +195,3 @@ class DocumentPrintService:
         finally:
             temporary.unlink(missing_ok=True)
         return candidate
-
