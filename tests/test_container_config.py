@@ -49,6 +49,19 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("inset:5.88% 2.27%", css)
         self.assertIn("padding:2.27%", css)
 
+    def test_label_editor_uses_exact_dom_capture_and_familiar_controls(self) -> None:
+        template = (ROOT / "app" / "templates" / "labels" / "editor.html").read_text()
+        javascript = (ROOT / "app" / "static" / "js" / "editor.js").read_text()
+
+        self.assertLess(template.index("editor-toolbar"), template.index("label-stage"))
+        self.assertIn('id="insertImage"', template)
+        self.assertIn("Image size", template)
+        self.assertIn("editor-statusbar", template)
+        self.assertIn("window.html2canvas(editor", javascript)
+        self.assertIn("normalizedDocument(content)", javascript)
+        self.assertNotIn("context.fillText", javascript)
+        self.assertIn("html2canvas/releases/download/v1.4.1", (ROOT / "app" / "Dockerfile").read_text())
+
 
 if __name__ == "__main__":
     unittest.main()

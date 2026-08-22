@@ -7,10 +7,12 @@
   const fontFamily = document.getElementById("fontFamily");
   const fontSize = document.getElementById("fontSize");
   const clearButton = document.getElementById("clearEditor");
+  const insertImageButton = document.getElementById("insertImage");
+  const imageFile = document.getElementById("imageFile");
   const imageTools = document.getElementById("imageTools");
-  const imageSmaller = document.getElementById("imageSmaller");
-  const imageLarger = document.getElementById("imageLarger");
+  const imageSizeButtons = document.querySelectorAll("[data-image-size-choice]");
   const imageDelete = document.getElementById("imageDelete");
+  const editorStatus = document.getElementById("editorStatus");
   if (!form || !editor || !submitButton || !saveButton) return;
 
   const storageKey = `dymo-label-editor-v2-${form.dataset.editorId || "new"}`;
@@ -55,12 +57,46 @@
   const hasImage = () => Boolean(editor.querySelector(".editor-image"));
   const hasContent = () => Boolean(labelText() || hasImage());
 
+  const normalizeFormatting = root => {
+    root.querySelectorAll("[style]").forEach(node => {
+      if (["DIV", "P"].includes(node.tagName)) {
+        const alignment = (node.style.textAlign || "").toLowerCase();
+        if (["left", "center", "right"].includes(alignment)) {
+          node.setAttribute("align", alignment);
+        }
+      }
+      node.removeAttribute("style");
+    });
+    return root;
+  };
+
+  const normalizedDocument = content => {
+    const parsed = new DOMParser().parseFromString(content, "text/html");
+    return normalizeFormatting(parsed.body).innerHTML;
+  };
+
+  const updateResponsiveFontSizes = () => {
+    const width = editor.clientWidth;
+    if (!width) return;
+    editor.style.setProperty("--label-font-small", `${width * 0.03}px`);
+    editor.style.setProperty("--label-font-medium", `${width * 0.04}px`);
+    editor.style.setProperty("--label-font-large", `${width * 0.052}px`);
+    editor.style.setProperty("--label-font-extra-large", `${width * 0.065}px`);
+    editor.style.setProperty("--label-font-largest", `${width * 0.08}px`);
+  };
+
+  const updateEditorStatus = saved => {
+    const count = labelText().length;
+    const state = saved && hasContent() ? "Draft saved" : "Ready";
+    editorStatus.textContent = `${state} · ${count.toLocaleString("en-US")} / 2,000 characters`;
+  };
+
   const serializedDocument = () => {
     const documentClone = editor.cloneNode(true);
     documentClone.querySelectorAll(".is-selected").forEach(node =>
       node.classList.remove("is-selected")
     );
-    return documentClone.innerHTML;
+    return normalizeFormatting(documentClone).innerHTML;
   };
 
   const selectImage = wrapper => {
@@ -68,6 +104,14 @@
     selectedImage = wrapper;
     if (selectedImage) selectedImage.classList.add("is-selected");
     imageTools.hidden = !selectedImage;
+    imageSizeButtons.forEach(button => {
+      const active = Boolean(
+        selectedImage &&
+        button.dataset.imageSizeChoice === selectedImage.dataset.imageSize
+      );
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
   };
 
   const updateOverflowState = () => {
@@ -89,9 +133,11 @@
     } catch (_error) {
       // The editor remains fully usable when private browsing blocks storage.
     }
+    updateEditorStatus(true);
   };
 
   try {
+    document.execCommand("styleWithCSS", false, false);
     const draft = localStorage.getItem(storageKey);
     const initialDocumentNode = document.getElementById("initialEditorDocument");
     const initialDocument = initialDocumentNode
@@ -101,7 +147,7 @@
       ? initialDocument
       : draft || initialDocument;
     if (content) {
-      editor.innerHTML = content;
+      editor.innerHTML = normalizedDocument(content);
       editor.querySelectorAll(".is-selected").forEach(node => node.classList.remove("is-selected"));
       editor.querySelectorAll(".editor-image").forEach(image => {
         image.addEventListener("load", updateOverflowState, { once: true });
@@ -117,9 +163,12 @@
       const command = button.dataset.command;
       if (!["bold", "italic", "underline", "justifyLeft", "justifyCenter", "justifyRight"].includes(command)) return;
       try {
-        button.classList.toggle("is-active", document.queryCommandState(command));
+        const active = document.queryCommandState(command);
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
       } catch (_error) {
         button.classList.remove("is-active");
+        button.setAttribute("aria-pressed", "false");
       }
     });
   });
@@ -130,16 +179,16 @@
     saveDraft();
   });
 
-  const imageFromClipboard = async file => {
+  const imageFromFile = async file => {
     if (file.size > 20 * 1024 * 1024) {
-      throw new Error("The clipboard image is too large.");
+      throw new Error("The selected image is too large.");
     }
     const objectUrl = URL.createObjectURL(file);
     const source = new Image();
     try {
       await new Promise((resolve, reject) => {
         source.onload = resolve;
-        source.onerror = () => reject(new Error("The clipboard image could not be read."));
+        source.onerror = () => reject(new Error("The selected image could not be read."));
         source.src = objectUrl;
       });
 
@@ -208,7 +257,7 @@
       try {
         const file = imageItem.getAsFile();
         if (!file) throw new Error("No readable image was found on the clipboard.");
-        insertImage(await imageFromClipboard(file));
+        insertImage(await imageFromFile(file));
       } catch (error) {
         showError(error.message || "The image could not be pasted.");
       }
@@ -223,6 +272,19 @@
   editor.addEventListener("click", event => {
     const wrapper = event.target.closest(".editor-image-wrap");
     selectImage(wrapper && editor.contains(wrapper) ? wrapper : null);
+  });
+
+  insertImageButton.addEventListener("click", () => imageFile.click());
+  imageFile.addEventListener("change", async () => {
+    const file = imageFile.files && imageFile.files[0];
+    if (!file) return;
+    try {
+      insertImage(await imageFromFile(file));
+    } catch (error) {
+      showError(error.message || "The image could not be inserted.");
+    } finally {
+      imageFile.value = "";
+    }
   });
 
   document.querySelectorAll("[data-command]").forEach(button => {
@@ -265,18 +327,19 @@
     editor.focus();
   });
 
-  const imageSizes = ["small", "medium", "large", "full"];
-  const resizeSelectedImage = direction => {
+  const setSelectedImageSize = size => {
     if (!selectedImage) return;
-    const current = imageSizes.indexOf(selectedImage.dataset.imageSize || "medium");
-    const next = Math.min(imageSizes.length - 1, Math.max(0, current + direction));
-    selectedImage.dataset.imageSize = imageSizes[next];
+    selectedImage.dataset.imageSize = size;
+    selectImage(selectedImage);
     saveDraft();
     updateOverflowState();
   };
 
-  imageSmaller.addEventListener("click", () => resizeSelectedImage(-1));
-  imageLarger.addEventListener("click", () => resizeSelectedImage(1));
+  imageSizeButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      setSelectedImageSize(button.dataset.imageSizeChoice);
+    });
+  });
   imageDelete.addEventListener("click", () => {
     if (!selectedImage) return;
     const wrapper = selectedImage;
@@ -288,87 +351,35 @@
     editor.focus();
   });
 
-  const renderToCanvas = () => {
+  const renderToCanvas = async () => {
+    if (typeof window.html2canvas !== "function") {
+      throw new Error("The print renderer did not load. Reload the page and try again.");
+    }
     const width = Number(form.dataset.outputWidth);
     const height = Number(form.dataset.outputHeight);
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
     const editorRect = editor.getBoundingClientRect();
-    const scaleX = width / editorRect.width;
-    const scaleY = height / editorRect.height;
+    const renderedEditor = await window.html2canvas(editor, {
+      backgroundColor: "#ffffff",
+      logging: false,
+      scale: Math.max(width / editorRect.width, height / editorRect.height),
+      useCORS: false,
+      onclone: clonedDocument => {
+        const clonedEditor = clonedDocument.getElementById("labelEditor");
+        clonedEditor.removeAttribute("contenteditable");
+        clonedEditor.querySelectorAll(".is-selected").forEach(node => {
+          node.classList.remove("is-selected");
+        });
+      },
+    });
 
+    const output = document.createElement("canvas");
+    output.width = width;
+    output.height = height;
+    const context = output.getContext("2d");
     context.fillStyle = "#fff";
     context.fillRect(0, 0, width, height);
-    context.fillStyle = "#000";
-    context.textBaseline = "alphabetic";
-
-    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
-    let textNode = walker.nextNode();
-    while (textNode) {
-      const style = getComputedStyle(textNode.parentElement || editor);
-      const screenFontSize = parseFloat(style.fontSize) || 16;
-      const outputFontSize = screenFontSize * scaleY;
-      context.font = [
-        style.fontStyle,
-        style.fontWeight,
-        `${outputFontSize}px`,
-        style.fontFamily,
-      ].join(" ");
-      context.fillStyle = "#000";
-
-      for (let index = 0; index < textNode.data.length; index += 1) {
-        const character = textNode.data[index];
-        if (character === "\n" || character === "\r") continue;
-        const range = document.createRange();
-        range.setStart(textNode, index);
-        range.setEnd(textNode, index + 1);
-        const rect = range.getClientRects()[0];
-        if (!rect) continue;
-
-        const x = (rect.left - editorRect.left) * scaleX;
-        const baselineOnScreen =
-          rect.top - editorRect.top +
-          Math.max(0, (rect.height - screenFontSize) / 2) +
-          screenFontSize * 0.8;
-        const baseline = baselineOnScreen * scaleY;
-        context.fillText(character, x, baseline);
-
-        const decoration = style.textDecorationLine || "";
-        if (decoration.includes("underline") && character.trim()) {
-          const y = baseline + Math.max(1, outputFontSize * 0.08);
-          context.fillRect(
-            x,
-            y,
-            Math.max(1, rect.width * scaleX),
-            Math.max(1, outputFontSize * 0.045)
-          );
-        }
-        if (decoration.includes("line-through") && character.trim()) {
-          const y = baseline - outputFontSize * 0.3;
-          context.fillRect(
-            x,
-            y,
-            Math.max(1, rect.width * scaleX),
-            Math.max(1, outputFontSize * 0.045)
-          );
-        }
-      }
-      textNode = walker.nextNode();
-    }
-
-    editor.querySelectorAll(".editor-image").forEach(image => {
-      const rect = image.getBoundingClientRect();
-      context.drawImage(
-        image,
-        (rect.left - editorRect.left) * scaleX,
-        (rect.top - editorRect.top) * scaleY,
-        rect.width * scaleX,
-        rect.height * scaleY
-      );
-    });
-    return canvas;
+    context.drawImage(renderedEditor, 0, 0, width, height);
+    return output;
   };
 
   const waitForImages = () => Promise.all(
@@ -425,7 +436,7 @@
     try {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       await waitForImages();
-      const blob = await canvasBlob(renderToCanvas());
+      const blob = await canvasBlob(await renderToCanvas());
       const formData = new FormData(form);
       formData.set("editor_text", text);
       formData.set("editor_content", serializedDocument());
@@ -455,4 +466,14 @@
   });
 
   updateOverflowState();
+  updateEditorStatus(false);
+  updateResponsiveFontSizes();
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => {
+      updateResponsiveFontSizes();
+      updateOverflowState();
+    }).observe(editor);
+  } else {
+    window.addEventListener("resize", updateResponsiveFontSizes);
+  }
 })();

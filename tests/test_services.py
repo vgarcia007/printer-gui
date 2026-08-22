@@ -15,6 +15,7 @@ from app.services.document_service import (
     PrinterConfig,
 )
 from app.services.scan_file_service import ScanFileError, ScanFileService
+from app.services.editor_document import sanitize_editor_document
 
 
 CONFIG = {
@@ -120,6 +121,16 @@ class DocumentServiceTest(unittest.TestCase):
         with self.assertRaises(DocumentPrintError):
             self.service.print_files("hp-color", [failed])
         self.assertTrue(failed.exists())
+
+
+class EditorDocumentTest(unittest.TestCase):
+    def test_alignment_is_stored_without_csp_blocked_inline_styles(self):
+        content = sanitize_editor_document(
+            '<div style="text-align: center;"><b>Centered label</b></div>'
+        )
+
+        self.assertEqual(content, '<div align="center"><b>Centered label</b></div>')
+        self.assertNotIn("style=", content)
 
 
 class ScanFileServiceTest(unittest.TestCase):

@@ -3,6 +3,10 @@
 Print & Scan Hub is GPL-3.0 software. Container images also install or download third-party components under their respective licenses.
 
 - Bootstrap assets are distributed under the MIT License.
+- html2canvas 1.4.1 renders the label editor into the print bitmap and is
+  distributed under the MIT License. Its minified release is downloaded and
+  checksum-verified while building the web image; the license text is included
+  beside the built asset.
 - The CUPS image is based on olbat/cupsd and includes CUPS and Debian printer drivers.
 - printer-driver-dymo provides the DYMO LabelWriter driver.
 - HP Unified Linux Driver components are downloaded from HP during the build, checksum-verified, and are not stored in this repository. HP's license terms apply.

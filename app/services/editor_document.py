@@ -47,9 +47,9 @@ class _EditorDocumentSanitizer(HTMLParser):
             style = attributes.get("style", "")
             match = _ALIGN_STYLE_RE.fullmatch(style)
             if match:
-                clean_attributes.append(("style", f"text-align: {match.group(1).lower()};"))
+                clean_attributes.append(("align", match.group(1).lower()))
             align = attributes.get("align", "").lower()
-            if align in {"left", "center", "right"}:
+            if align in {"left", "center", "right"} and not match:
                 clean_attributes.append(("align", align))
         elif tag == "font":
             face = attributes.get("face", "")

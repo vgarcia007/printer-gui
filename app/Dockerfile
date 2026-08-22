@@ -10,6 +10,8 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY config.py run.py /app/
 COPY app /app/app
+ADD --checksum=sha256:e87e550794322e574a1fda0c1549a3c70dae5a93d9113417a429016838eab8cb https://github.com/niklasvh/html2canvas/releases/download/v1.4.1/html2canvas.min.js /app/app/static/vendor/html2canvas.min.js
+RUN chmod 0644 /app/app/static/vendor/html2canvas.min.js
 COPY label_templates /app/label_templates
 COPY tests /app/tests
 COPY app/entrypoint.sh /usr/local/bin/print-scan-hub-entrypoint
