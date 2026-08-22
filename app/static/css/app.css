@@ -44,6 +44,10 @@
   border-right:1px solid #d8ded9
 }
 .toolbar-group:last-child{padding-right:0;margin-right:0;border-right:0}
+.topbar nav a{display:inline-flex;align-items:center;gap:7px}
+.button-icon{margin-right:.48em}
+.button-icon-after{margin-left:.48em}
+.mode-icon{margin-bottom:8px;color:var(--accent);font-size:22px}
 .tool-button,.tool-select,.context-button{
   min-height:36px;
   height:36px;
@@ -62,15 +66,7 @@
 }
 .tool-button.is-active,.tool-button[aria-pressed=true]{border-color:#9fc5b6;background:#dceee6;color:#10593f}
 .icon-button{width:36px;padding:0}
-.tool-button svg{
-  width:18px;
-  height:18px;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:1.8;
-  stroke-linecap:round;
-  stroke-linejoin:round
-}
+.tool-button>.fa-solid{font-size:16px}
 .labeled-tool{gap:6px;white-space:nowrap}
 .tool-bold{font-weight:850}
 .tool-italic{font-family:Georgia,serif;font-style:italic}
@@ -87,6 +83,7 @@
 .label-canvas font[size="5"]{font-size:13pt}
 .label-canvas font[size="6"]{font-size:16pt}
 .label-canvas font[size="7"]{font-size:20pt}
+.label-canvas u,.label-canvas u *{text-decoration-line:underline;text-decoration-style:solid}
 .label-canvas:focus{box-shadow:inset 0 0 0 2px rgba(23,107,77,.16)}
 .editor-context-bar{
   display:flex;
@@ -115,12 +112,12 @@
   background:#fafbfa;
   font-size:12px
 }
-.editor-image-wrap{display:inline-block;max-width:86%;margin:.08em .12em;vertical-align:middle;line-height:0;border:0}
+.editor-image-wrap{position:absolute;z-index:1;display:block;max-width:86%;margin:0;line-height:0;border:0;cursor:move;touch-action:none}
 .editor-image-wrap[data-image-size=small]{width:24%}
 .editor-image-wrap[data-image-size=medium]{width:42%}
 .editor-image-wrap[data-image-size=large]{width:62%}
 .editor-image-wrap[data-image-size=full]{width:84%}
-.editor-image-wrap.is-selected{border:0;outline:2px solid var(--accent);outline-offset:3px}
+.editor-image-wrap.is-selected{z-index:3;border:0;outline:2px solid var(--accent);outline-offset:3px}
 .editor-image{display:block;width:100%;max-width:100%;height:auto;filter:grayscale(1);user-select:none}
 .editor-footer p{max-width:390px;margin:0;color:var(--muted);font-size:13px;line-height:1.45}
 .editor-submit-actions .primary{min-width:210px}

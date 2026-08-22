@@ -11,8 +11,16 @@
     return data;
   };
   const formatSize = bytes => bytes < 1024 * 1024 ? Math.ceil(bytes / 1024) + " KB" : (bytes / 1024 / 1024).toFixed(1) + " MB";
-  const makeButton = (label, className = "secondary") => {
-    const node = document.createElement("button"); node.type = "button"; node.className = className; node.textContent = label; return node;
+  const addIconLabel = (node, icon, label) => {
+    const symbol = document.createElement("i");
+    symbol.className = `fa-solid ${icon} button-icon`;
+    symbol.setAttribute("aria-hidden", "true");
+    node.append(symbol, label);
+    return node;
+  };
+  const makeButton = (label, className = "secondary", icon = "fa-pen") => {
+    const node = document.createElement("button"); node.type = "button"; node.className = className;
+    return addIconLabel(node, icon, label);
   };
   const load = async () => {
     root.replaceChildren(); message.textContent = "Loading files…";
@@ -28,9 +36,9 @@
         meta.textContent = new Date(file.modified).toLocaleString() + " · " + formatSize(file.size) + (file.ocrFailed ? " · OCR needs attention" : "");
         info.append(title, meta); head.append(info); article.append(head);
         const actions = document.createElement("div"); actions.className = "file-actions";
-        const download = document.createElement("a"); download.className = "primary link-button"; download.textContent = "Download";
+        const download = document.createElement("a"); download.className = "primary link-button"; addIconLabel(download, "fa-download", "Download");
         download.href = "/scans/api/files/" + encodeURIComponent(file.filename) + "/download";
-        const rename = makeButton("Rename"); const remove = makeButton("Delete", "secondary danger");
+        const rename = makeButton("Rename"); const remove = makeButton("Delete", "secondary danger", "fa-trash-can");
         actions.append(download, rename, remove); article.append(actions);
         const form = document.createElement("form"); form.className = "rename-form"; form.hidden = true;
         const input = document.createElement("input"); input.required = true; input.maxLength = 200;
@@ -41,7 +49,7 @@
           radio.type = "radio"; radio.name = "prefix-" + file.filename; radio.value = value; radio.checked = index === 0;
           holder.append(radio, " " + label); prefix.append(holder);
         });
-        const save = document.createElement("button"); save.className = "primary"; save.textContent = "Save name";
+        const save = document.createElement("button"); save.className = "primary"; addIconLabel(save, "fa-floppy-disk", "Save name");
         form.append(input, prefix, save); article.append(form);
         rename.addEventListener("click", () => { form.hidden = !form.hidden; if (!form.hidden) input.focus(); });
         remove.addEventListener("click", async () => {

@@ -132,6 +132,28 @@ class EditorDocumentTest(unittest.TestCase):
         self.assertEqual(content, '<div align="center"><b>Centered label</b></div>')
         self.assertNotIn("style=", content)
 
+    def test_nested_rich_text_formatting_is_preserved(self):
+        content = sanitize_editor_document(
+            '<u><font face="Arial, sans-serif" size="3"><b>Formatted</b></font></u>'
+        )
+
+        self.assertEqual(
+            content,
+            '<u><font face="Arial, sans-serif" size="3"><b>Formatted</b></font></u>',
+        )
+
+    def test_positioned_image_coordinates_are_validated(self):
+        tiny_png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+        content = sanitize_editor_document(
+            '<span class="editor-image-wrap" data-image-size="small" '
+            'data-image-x="12.5" data-image-y="8.25" style="left:999px">'
+            f'<img src="data:image/png;base64,{tiny_png}"></span>'
+        )
+
+        self.assertIn('data-image-x="12.5"', content)
+        self.assertIn('data-image-y="8.25"', content)
+        self.assertNotIn("style=", content)
+
 
 class ScanFileServiceTest(unittest.TestCase):
     def setUp(self):

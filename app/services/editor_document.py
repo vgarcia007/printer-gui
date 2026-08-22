@@ -26,6 +26,7 @@ _FONT_FACES = {
     '"Courier New", monospace',
 }
 _IMAGE_SIZES = {"small", "medium", "large", "full"}
+_IMAGE_COORDINATE_RE = re.compile(r"^(?:100(?:\.0{1,3})?|\d{1,2}(?:\.\d{1,3})?)$")
 
 
 class _EditorDocumentSanitizer(HTMLParser):
@@ -65,6 +66,10 @@ class _EditorDocumentSanitizer(HTMLParser):
                 clean_attributes.append(
                     ("data-image-size", size if size in _IMAGE_SIZES else "medium")
                 )
+                for coordinate in ("x", "y"):
+                    value = attributes.get(f"data-image-{coordinate}", "")
+                    if _IMAGE_COORDINATE_RE.fullmatch(value):
+                        clean_attributes.append((f"data-image-{coordinate}", value))
                 clean_attributes.append(("contenteditable", "false"))
         elif tag == "img":
             source = attributes.get("src", "")

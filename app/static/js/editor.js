@@ -5,6 +5,8 @@
   const labelStage = document.getElementById("labelStage");
   const submitButton = document.getElementById("editorSubmit");
   const saveButton = document.getElementById("editorSave");
+  const saveButtonLabel = saveButton.querySelector(".button-label");
+  const submitButtonLabel = submitButton.querySelector(".button-label");
   const errorBox = document.getElementById("editorError");
   const fontFamily = document.getElementById("fontFamily");
   const fontSize = document.getElementById("fontSize");
@@ -119,6 +121,102 @@
     });
   };
 
+  const coordinate = value => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const setImagePosition = (wrapper, xPercent, yPercent) => {
+    const widthPercent = editor.clientWidth
+      ? wrapper.offsetWidth / editor.clientWidth * 100
+      : 0;
+    const heightPercent = editor.clientHeight
+      ? wrapper.offsetHeight / editor.clientHeight * 100
+      : 0;
+    const x = Math.max(0, Math.min(100 - widthPercent, xPercent));
+    const y = Math.max(0, Math.min(100 - heightPercent, yPercent));
+    wrapper.dataset.imageX = x.toFixed(3).replace(/\.?0+$/, "");
+    wrapper.dataset.imageY = y.toFixed(3).replace(/\.?0+$/, "");
+    wrapper.style.left = `${x}%`;
+    wrapper.style.top = `${y}%`;
+  };
+
+  const applyImagePosition = wrapper => {
+    setImagePosition(
+      wrapper,
+      coordinate(wrapper.dataset.imageX || "2.273"),
+      coordinate(wrapper.dataset.imageY || "5.882")
+    );
+  };
+
+  const prepareImageWrapper = wrapper => {
+    if (!wrapper.dataset.imageSize) wrapper.dataset.imageSize = "medium";
+    if (!wrapper.dataset.imageX) wrapper.dataset.imageX = "2.273";
+    if (!wrapper.dataset.imageY) wrapper.dataset.imageY = "5.882";
+    wrapper.contentEditable = "false";
+    wrapper.tabIndex = 0;
+    wrapper.setAttribute("aria-label", "Positioned image. Drag it or use the arrow keys to move it.");
+    applyImagePosition(wrapper);
+    if (wrapper._positioningReady) return;
+    wrapper._positioningReady = true;
+
+    wrapper.addEventListener("pointerdown", event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      selectImage(wrapper);
+      wrapper.focus({ preventScroll: true });
+      const editorRect = editor.getBoundingClientRect();
+      const scaleX = editor.clientWidth / editorRect.width;
+      const scaleY = editor.clientHeight / editorRect.height;
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const startLeft = wrapper.offsetLeft;
+      const startTop = wrapper.offsetTop;
+      wrapper.setPointerCapture(event.pointerId);
+
+      const move = moveEvent => {
+        const left = startLeft + (moveEvent.clientX - startX) * scaleX;
+        const top = startTop + (moveEvent.clientY - startY) * scaleY;
+        setImagePosition(
+          wrapper,
+          left / editor.clientWidth * 100,
+          top / editor.clientHeight * 100
+        );
+      };
+      const finish = () => {
+        wrapper.removeEventListener("pointermove", move);
+        wrapper.removeEventListener("pointerup", finish);
+        wrapper.removeEventListener("pointercancel", finish);
+        saveDraft();
+        updateOverflowState();
+      };
+      wrapper.addEventListener("pointermove", move);
+      wrapper.addEventListener("pointerup", finish);
+      wrapper.addEventListener("pointercancel", finish);
+    });
+
+    wrapper.addEventListener("keydown", event => {
+      const directions = {
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+        ArrowUp: [0, -1],
+        ArrowDown: [0, 1],
+      };
+      if (!directions[event.key]) return;
+      event.preventDefault();
+      const stepMm = event.shiftKey ? 2 : 0.5;
+      const stepPx = stepMm * cssDpi / 25.4;
+      const [horizontal, vertical] = directions[event.key];
+      setImagePosition(
+        wrapper,
+        (wrapper.offsetLeft + horizontal * stepPx) / editor.clientWidth * 100,
+        (wrapper.offsetTop + vertical * stepPx) / editor.clientHeight * 100
+      );
+      saveDraft();
+    });
+  };
+
   const updateOverflowState = () => {
     const overflows =
       editor.scrollHeight > editor.clientHeight + 2 ||
@@ -154,8 +252,12 @@
     if (content) {
       editor.innerHTML = normalizedDocument(content);
       editor.querySelectorAll(".is-selected").forEach(node => node.classList.remove("is-selected"));
+      editor.querySelectorAll(".editor-image-wrap").forEach(prepareImageWrapper);
       editor.querySelectorAll(".editor-image").forEach(image => {
-        image.addEventListener("load", updateOverflowState, { once: true });
+        image.addEventListener("load", () => {
+          applyImagePosition(image.closest(".editor-image-wrap"));
+          updateOverflowState();
+        }, { once: true });
       });
     }
   } catch (_error) {
@@ -223,6 +325,8 @@
     const wrapper = document.createElement("span");
     wrapper.className = "editor-image-wrap";
     wrapper.dataset.imageSize = "medium";
+    wrapper.dataset.imageX = "2.273";
+    wrapper.dataset.imageY = "5.882";
     wrapper.contentEditable = "false";
 
     const image = document.createElement("img");
@@ -230,22 +334,13 @@
     image.src = source;
     image.alt = "Pasted image";
     image.draggable = false;
-    image.addEventListener("load", updateOverflowState, { once: true });
+    image.addEventListener("load", () => {
+      applyImagePosition(wrapper);
+      updateOverflowState();
+    }, { once: true });
     wrapper.append(image);
-
-    let range = savedRange;
-    if (!range || !editor.contains(range.commonAncestorContainer)) {
-      range = document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false);
-    }
-    range.deleteContents();
-    range.insertNode(wrapper);
-    const spacer = document.createTextNode("\u00a0");
-    wrapper.after(spacer);
-    range.setStartAfter(spacer);
-    range.collapse(true);
-    savedRange = range.cloneRange();
+    prepareImageWrapper(wrapper);
+    editor.append(wrapper);
     selectImage(wrapper);
     hideError();
     saveDraft();
@@ -336,8 +431,11 @@
     if (!selectedImage) return;
     selectedImage.dataset.imageSize = size;
     selectImage(selectedImage);
-    saveDraft();
-    updateOverflowState();
+    requestAnimationFrame(() => {
+      applyImagePosition(selectedImage);
+      saveDraft();
+      updateOverflowState();
+    });
   };
 
   imageSizeButtons.forEach(button => {
@@ -443,9 +541,9 @@
     saveButton.disabled = true;
     submitButton.classList.add("is-loading");
     if (activeButton === saveButton) {
-      saveButton.textContent = "Saving…";
+      saveButtonLabel.textContent = "Saving…";
     } else {
-      submitButton.firstChild.textContent = "Creating preview… ";
+      submitButtonLabel.textContent = "Creating preview…";
     }
 
     try {
@@ -474,8 +572,8 @@
       submitButton.disabled = false;
       saveButton.disabled = false;
       submitButton.classList.remove("is-loading");
-      submitButton.firstChild.textContent = "Continue to print →";
-      saveButton.textContent = "Save";
+      submitButtonLabel.textContent = "Continue to print";
+      saveButtonLabel.textContent = "Save";
       showError(error.message || "The label could not be created.");
     }
   });

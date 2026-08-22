@@ -3,6 +3,10 @@
 Print & Scan Hub is GPL-3.0 software. Container images also install or download third-party components under their respective licenses.
 
 - Bootstrap assets are distributed under the MIT License.
+- Font Awesome Free 7.2.0 supplies the interface icons. Its CSS code is MIT
+  licensed, its font is available under SIL OFL 1.1, and its icons are
+  available under CC BY 4.0. The pinned, checksum-verified webfont build and
+  combined license text are downloaded into the web image during the build.
 - html2canvas 1.4.1 renders the label editor into the print bitmap and is
   distributed under the MIT License. Its minified release is downloaded and
   checksum-verified while building the web image; the license text is included

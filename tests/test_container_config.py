@@ -67,9 +67,29 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("width:88mm;height:34mm", css)
         self.assertIn("padding:2mm", css)
         self.assertIn("font-size:10pt", css)
+        self.assertIn(".label-canvas u,.label-canvas u *", css)
         self.assertIn("@page dymo-30321{size:88mm 34mm;margin:0}", css)
         self.assertIn('class="label-stage label-sheet"', template)
         self.assertIn("html2canvas/releases/download/v1.4.1", (ROOT / "app" / "Dockerfile").read_text())
+
+    def test_interface_uses_self_hosted_font_awesome_icons(self) -> None:
+        dockerfile = (ROOT / "app" / "Dockerfile").read_text()
+        base = (ROOT / "app" / "templates" / "base.html").read_text()
+        templates = "\n".join(
+            path.read_text() for path in (ROOT / "app" / "templates").rglob("*.html")
+        )
+
+        self.assertIn("Font-Awesome/7.2.0/css/fontawesome.min.css", dockerfile)
+        self.assertIn("Font-Awesome/7.2.0/webfonts/fa-solid-900.woff2", dockerfile)
+        self.assertIn("--checksum=sha256:b164a2d2905748e1d48512f1e985606b4282c9438bbc0ee2958e56f658695d2b", dockerfile)
+        self.assertIn("vendor/fontawesome/css/fontawesome.min.css", base)
+        self.assertIn("vendor/fontawesome/css/solid.min.css", base)
+        self.assertIn('class="fa-solid fa-file-pdf"', templates)
+        self.assertIn('class="fa-solid fa-file-import"', templates)
+        self.assertIn('class="fa-solid fa-bold"', templates)
+        self.assertNotIn("<svg", templates)
+        for replaced_symbol in ("▤", "▰", "▱", "→"):
+            self.assertNotIn(replaced_symbol, templates)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@
 </div>
 <section class="panel job-panel">
   <div><h2>Print waiting PDFs</h2><p id="jobsHint">Checking the jobs folder…</p></div>
-  <button id="printJobs" class="primary" disabled>Print all</button>
+  <button id="printJobs" class="primary" disabled><i class="fa-solid fa-print button-icon" aria-hidden="true"></i>Print all</button>
 </section>
 <div class="separator">or</div>
 <label id="dropZone" class="drop-zone" for="fileInput">
@@ -22,11 +22,10 @@
 </label>
 <div id="fileCard" class="file-card" hidden>
   <div><strong id="fileName"></strong><small id="fileSize"></small></div>
-  <button id="removeFile" class="text-button">Remove</button>
+  <button id="removeFile" class="text-button"><i class="fa-solid fa-xmark button-icon" aria-hidden="true"></i>Remove</button>
 </div>
-<button id="printFile" class="primary wide" disabled>Print PDF</button>
+<button id="printFile" class="primary wide" disabled><i class="fa-solid fa-print button-icon" aria-hidden="true"></i>Print PDF</button>
 <div id="documentStatus" class="status-line" role="status" aria-live="polite">Connecting…</div>
 <div id="toast" class="toast-message" role="status" aria-live="polite" hidden></div>
 {% endblock %}
 {% block scripts %}<script src="{{ url_for('static', filename='js/documents.js') }}"></script>{% endblock %}
-

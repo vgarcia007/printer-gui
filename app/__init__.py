@@ -79,7 +79,7 @@ def create_app(config_object=None):
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; img-src 'self' data: blob:; "
-            "style-src 'self'; script-src 'self'; connect-src 'self'; "
+            "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'; "
             "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; "
             "form-action 'self'",
         )
