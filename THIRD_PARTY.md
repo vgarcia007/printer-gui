@@ -7,6 +7,9 @@ Print & Scan Hub is GPL-3.0 software. Container images also install or download 
   distributed under the MIT License. Its minified release is downloaded and
   checksum-verified while building the web image; the license text is included
   beside the built asset.
+- The custom millimeter-based label sheet follows the layout approach described
+  by the MIT-licensed [Paper CSS](https://github.com/cognitom/paper-css)
+  project. Paper CSS source code is not bundled.
 - The CUPS image is based on olbat/cupsd and includes CUPS and Debian printer drivers.
 - printer-driver-dymo provides the DYMO LabelWriter driver.
 - HP Unified Linux Driver components are downloaded from HP during the build, checksum-verified, and are not stored in this repository. HP's license terms apply.

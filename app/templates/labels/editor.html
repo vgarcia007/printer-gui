@@ -82,9 +82,11 @@
         </div>
         <button id="imageDelete" class="context-button context-delete" type="button">Delete image</button>
       </div>
-      <div class="label-stage">
-        <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
-             aria-multiline="true" aria-label="Label content" data-placeholder="Start typing your label…" spellcheck="true"></div>
+      <div id="labelViewport" class="label-viewport">
+        <div id="labelStage" class="label-stage label-sheet">
+          <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
+               aria-multiline="true" aria-label="Label content" data-placeholder="Start typing your label…" spellcheck="true"></div>
+        </div>
       </div>
       <div class="editor-statusbar">
         <span>DYMO 30321 · 88 × 34 mm printable area</span>
@@ -104,5 +106,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='vendor/html2canvas.min.js', v='1.4.1') }}"></script>
-<script src="{{ url_for('static', filename='js/editor.js', v='20260822-3') }}"></script>
+<script src="{{ url_for('static', filename='js/editor.js', v='20260822-4') }}"></script>
 {% endblock %}

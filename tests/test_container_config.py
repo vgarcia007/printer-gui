@@ -52,6 +52,7 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
     def test_label_editor_uses_exact_dom_capture_and_familiar_controls(self) -> None:
         template = (ROOT / "app" / "templates" / "labels" / "editor.html").read_text()
         javascript = (ROOT / "app" / "static" / "js" / "editor.js").read_text()
+        css = (ROOT / "app" / "static" / "css" / "app.css").read_text()
 
         self.assertLess(template.index("editor-toolbar"), template.index("label-stage"))
         self.assertIn('id="insertImage"', template)
@@ -60,6 +61,14 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("window.html2canvas(editor", javascript)
         self.assertIn("normalizedDocument(content)", javascript)
         self.assertNotIn("context.fillText", javascript)
+        self.assertIn("scale: printDpi / cssDpi", javascript)
+        self.assertIn('output.width = outputWidth', javascript)
+        self.assertIn('context.drawImage(renderedEditor, 0, 0)', javascript)
+        self.assertIn("width:88mm;height:34mm", css)
+        self.assertIn("padding:2mm", css)
+        self.assertIn("font-size:10pt", css)
+        self.assertIn("@page dymo-30321{size:88mm 34mm;margin:0}", css)
+        self.assertIn('class="label-stage label-sheet"', template)
         self.assertIn("html2canvas/releases/download/v1.4.1", (ROOT / "app" / "Dockerfile").read_text())
 
 

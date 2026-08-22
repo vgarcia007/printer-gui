@@ -1,6 +1,8 @@
 (() => {
   const form = document.getElementById("labelEditorForm");
   const editor = document.getElementById("labelEditor");
+  const labelViewport = document.getElementById("labelViewport");
+  const labelStage = document.getElementById("labelStage");
   const submitButton = document.getElementById("editorSubmit");
   const saveButton = document.getElementById("editorSave");
   const errorBox = document.getElementById("editorError");
@@ -15,6 +17,10 @@
   const editorStatus = document.getElementById("editorStatus");
   if (!form || !editor || !submitButton || !saveButton) return;
 
+  const outputWidth = Number(form.dataset.outputWidth);
+  const outputHeight = Number(form.dataset.outputHeight);
+  const printDpi = 300;
+  const cssDpi = 96;
   const storageKey = `dymo-label-editor-v2-${form.dataset.editorId || "new"}`;
   let savedRange = null;
   let submitting = false;
@@ -75,14 +81,13 @@
     return normalizeFormatting(parsed.body).innerHTML;
   };
 
-  const updateResponsiveFontSizes = () => {
-    const width = editor.clientWidth;
-    if (!width) return;
-    editor.style.setProperty("--label-font-small", `${width * 0.03}px`);
-    editor.style.setProperty("--label-font-medium", `${width * 0.04}px`);
-    editor.style.setProperty("--label-font-large", `${width * 0.052}px`);
-    editor.style.setProperty("--label-font-extra-large", `${width * 0.065}px`);
-    editor.style.setProperty("--label-font-largest", `${width * 0.08}px`);
+  const updateViewportScale = () => {
+    const stageStyle = getComputedStyle(labelStage);
+    const intrinsicWidth = parseFloat(stageStyle.width);
+    const intrinsicHeight = parseFloat(stageStyle.height);
+    const scale = labelViewport.clientWidth / intrinsicWidth;
+    labelStage.style.transform = `scale(${scale})`;
+    labelViewport.style.height = `${intrinsicHeight * scale}px`;
   };
 
   const updateEditorStatus = saved => {
@@ -355,30 +360,40 @@
     if (typeof window.html2canvas !== "function") {
       throw new Error("The print renderer did not load. Reload the page and try again.");
     }
-    const width = Number(form.dataset.outputWidth);
-    const height = Number(form.dataset.outputHeight);
-    const editorRect = editor.getBoundingClientRect();
+    const editorStyle = getComputedStyle(editor);
+    const cssWidth = parseFloat(editorStyle.width);
+    const cssHeight = parseFloat(editorStyle.height);
     const renderedEditor = await window.html2canvas(editor, {
       backgroundColor: "#ffffff",
       logging: false,
-      scale: Math.max(width / editorRect.width, height / editorRect.height),
+      scale: printDpi / cssDpi,
+      width: cssWidth,
+      height: cssHeight,
       useCORS: false,
       onclone: clonedDocument => {
+        const clonedViewport = clonedDocument.getElementById("labelViewport");
+        const clonedStage = clonedDocument.getElementById("labelStage");
         const clonedEditor = clonedDocument.getElementById("labelEditor");
+        clonedViewport.style.width = `${cssWidth}px`;
+        clonedViewport.style.height = `${cssHeight}px`;
+        clonedViewport.style.overflow = "visible";
+        clonedStage.style.transform = "none";
         clonedEditor.removeAttribute("contenteditable");
         clonedEditor.querySelectorAll(".is-selected").forEach(node => {
           node.classList.remove("is-selected");
         });
       },
     });
-
+    if (Math.abs(renderedEditor.width - outputWidth) > 1 || Math.abs(renderedEditor.height - outputHeight) > 1) {
+      throw new Error("The browser did not create an exact-size print image.");
+    }
     const output = document.createElement("canvas");
-    output.width = width;
-    output.height = height;
+    output.width = outputWidth;
+    output.height = outputHeight;
     const context = output.getContext("2d");
     context.fillStyle = "#fff";
-    context.fillRect(0, 0, width, height);
-    context.drawImage(renderedEditor, 0, 0, width, height);
+    context.fillRect(0, 0, outputWidth, outputHeight);
+    context.drawImage(renderedEditor, 0, 0);
     return output;
   };
 
@@ -467,13 +482,13 @@
 
   updateOverflowState();
   updateEditorStatus(false);
-  updateResponsiveFontSizes();
+  updateViewportScale();
   if ("ResizeObserver" in window) {
     new ResizeObserver(() => {
-      updateResponsiveFontSizes();
+      updateViewportScale();
       updateOverflowState();
-    }).observe(editor);
+    }).observe(labelViewport);
   } else {
-    window.addEventListener("resize", updateResponsiveFontSizes);
+    window.addEventListener("resize", updateViewportScale);
   }
 })();
