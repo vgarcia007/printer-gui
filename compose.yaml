@@ -1,0 +1,46 @@
+name: printer-gui
+
+services:
+  cups:
+    build:
+      context: .
+      dockerfile: cups/Dockerfile
+      args:
+        HP_DRIVER_URL: ${HP_DRIVER_URL:-https://ftp.hp.com/pub/softlib/software13/printers/MFP170/uld-hp_V1.00.39.12_00.15.tar.gz}
+        HP_DRIVER_SHA256: ${HP_DRIVER_SHA256:-cebb9b7b6125e7406634bb9c2a98b01477d1e11d66c7c90474669de9927bc91d}
+    restart: unless-stopped
+    volumes:
+      - ./config/printers.json:/config/printers.json:ro
+      - ./data/cups:/etc/cups
+      - ./data/spool:/var/spool/cups
+    healthcheck:
+      test: ["CMD", "lpstat", "-h", "localhost:631", "-r"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+
+  web:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      cups:
+        condition: service_healthy
+    environment:
+      CUPS_SERVER: cups:631
+      JOBS_DIR: /data/jobs
+      PRINTER_CONFIG: /config/printers.json
+      WEB_DIR: /app/static
+    volumes:
+      - ./config/printers.json:/config/printers.json:ro
+      - ./data/jobs:/data/jobs
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2).read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 5s

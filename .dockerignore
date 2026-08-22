@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+data
+docs
+tests
+*.md
+Screenshots
+Desktop-Scripts
+__pycache__
+*.pyc

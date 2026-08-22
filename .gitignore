@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.py[cod]
+
+data/cups/*
+!data/cups/.gitkeep
+data/jobs/*
+!data/jobs/.gitkeep
+data/spool/*
+!data/spool/.gitkeep

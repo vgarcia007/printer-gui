@@ -1,0 +1,1 @@
+"""Printer GUI application package."""

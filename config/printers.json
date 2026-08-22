@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "defaultPrinter": "hp-color",
+  "printers": [
+    {
+      "name": "mfc",
+      "label": "Brother MFC-L2710DW",
+      "uri": "http://192.168.188.133",
+      "driver": "drv:///brlaser.drv/brl2710w.ppd",
+      "options": {
+        "PageSize": "A4"
+      }
+    },
+    {
+      "name": "hp-color",
+      "label": "HP Color Laser MFP 178nw",
+      "uri": "socket://192.168.188.71",
+      "driver": "uld-hp/HP_Color_Laser_MFP_17x_Series.ppd",
+      "options": {
+        "PageSize": "A4",
+        "ColorModel": "RGB",
+        "Quality": "Best"
+      }
+    }
+  ]
+}
