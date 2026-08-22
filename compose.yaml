@@ -1,5 +1,11 @@
 name: printer-gui
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   cups:
     build:
@@ -9,38 +15,118 @@ services:
         HP_DRIVER_URL: ${HP_DRIVER_URL:-https://ftp.hp.com/pub/softlib/software13/printers/MFP170/uld-hp_V1.00.39.12_00.15.tar.gz}
         HP_DRIVER_SHA256: ${HP_DRIVER_SHA256:-cebb9b7b6125e7406634bb9c2a98b01477d1e11d66c7c90474669de9927bc91d}
     restart: unless-stopped
+    init: true
+    environment:
+      PRINTER_CONFIG: /config/printers.json
     volumes:
-      - ./config/printers.json:/config/printers.json:ro
+      - ${PRINTER_CONFIG_FILE:-./config/printers.json}:/config/printers.json:ro
       - ./data/cups:/etc/cups
       - ./data/spool:/var/spool/cups
+      - /dev/bus/usb:/dev/bus/usb
+    device_cgroup_rules:
+      - "c 189:* rmw"
     healthcheck:
       test: ["CMD", "lpstat", "-h", "localhost:631", "-r"]
       interval: 10s
       timeout: 3s
       retries: 12
+      start_period: 30s
+    logging: *default-logging
+
+  ocr:
+    build:
+      context: .
+      dockerfile: ocr/Dockerfile
+    restart: unless-stopped
+    init: true
+    read_only: true
+    environment:
+      OCR_LANGUAGE: deu+eng
+      OCR_TIMEOUT_SECONDS: "1200"
+      TMPDIR: /work
+    tmpfs:
+      - /work:size=2g,mode=1777
+      - /tmp:size=64m,mode=1777
+      - /run:size=16m,mode=0755
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
       start_period: 20s
+    logging: *default-logging
+
+  scanner:
+    build:
+      context: .
+      dockerfile: scanner/Dockerfile
+    restart: unless-stopped
+    init: true
+    depends_on:
+      ocr:
+        condition: service_healthy
+    environment:
+      APP_UID: ${APP_UID:-1000}
+      APP_GID: ${APP_GID:-1000}
+      SCANNER_NAME: Brother
+      SCANNER_MODEL: ${SCANNER_MODEL:-MFC-L2700DW}
+      SCANNER_IP: ${SCANNER_IP:-192.0.2.30}
+      OCR_URL: http://ocr:8080/api/ocr
+      OCR_TIMEOUT_SECONDS: "1200"
+      TMPDIR: /work
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - ${SCANS_HOST_DIR:-./data/scans}:/scans
+      - ./data/scan-work:/state
+    tmpfs:
+      - /work:size=2g,mode=1777
+      - /tmp:size=64m,mode=1777
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    logging: *default-logging
 
   web:
     build:
       context: .
       dockerfile: app/Dockerfile
     restart: unless-stopped
+    init: true
     depends_on:
       cups:
         condition: service_healthy
+      scanner:
+        condition: service_healthy
     environment:
+      APP_UID: ${APP_UID:-1000}
+      APP_GID: ${APP_GID:-1000}
+      SECRET_KEY: ${SECRET_KEY:-change-this-before-sharing}
+      DATABASE_URL: sqlite:////data/labels/labels.db
       CUPS_SERVER: cups:631
       JOBS_DIR: /data/jobs
+      SCANS_DIR: /data/scans
+      SCANNER_URL: http://scanner:8080
       PRINTER_CONFIG: /config/printers.json
-      WEB_DIR: /app/static
+      LABEL_TEMPLATE_DIR: /app/label_templates
+      DYMO_PRINTER_NAME: DYMO_LabelWriter_450
+      DYMO_LANDSCAPE_OFFSET_MM: "-4"
+      DYMO_LANDSCAPE_SHRINK_MM: "3"
+      DYMO_LANDSCAPE_START_TRIM_MM: "1"
+      TZ: ${TZ:-Europe/Berlin}
     volumes:
-      - ./config/printers.json:/config/printers.json:ro
+      - ${PRINTER_CONFIG_FILE:-./config/printers.json}:/config/printers.json:ro
       - ./data/jobs:/data/jobs
+      - ./data/labels:/data/labels
+      - ${SCANS_HOST_DIR:-./data/scans}:/data/scans
     ports:
-      - "${WEB_PORT:-8080}:8080"
+      - "${WEB_PORT:-8081}:8080"
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2).read()"]
       interval: 10s
       timeout: 3s
       retries: 6
-      start_period: 5s
+      start_period: 10s
+    logging: *default-logging

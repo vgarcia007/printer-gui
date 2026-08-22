@@ -1,88 +1,84 @@
-# Printer GUI
+# Print & Scan Hub
 
-A small, modern web interface for household printing. It runs on a Debian Linux server with Docker Compose, discovers its configured CUPS queues, prints every PDF in a shared jobs directory, and accepts one PDF by file picker or drag and drop.
-
-The application intentionally has no user accounts. Run it only on a trusted private network.
+Print & Scan Hub is a self-hosted, beginner-friendly web interface for household printing, DYMO label creation, and searchable document scanning. The browser is the only interface a user needs.
 
 ## Features
 
-- One uncluttered, responsive screen
-- Print all PDFs from `data/jobs`
-- Select or drag and drop a single PDF
-- Configurable printer dropdown
-- HP Color Laser MFP 178nw selected by default
-- Persistent jobs, CUPS settings, and spool data inside this repository directory
-- Correct HP SPL-C filter instead of sending incompatible raw PDF data
-- No database and no JavaScript framework
-- `amd64` and `arm64` container builds
+- Print one PDF or every PDF waiting in a shared folder
+- Choose between configured document printers
+- Create DYMO labels in a rich-text editor
+- Paste images into labels, preview, save, reopen, copy, and delete them
+- Scan front sides or use the guided front/back workflow
+- Scan in document gray or full color
+- Produce downloadable PDFs with German and English OCR
+- Rename and delete scanned PDFs in the browser
+- Recover the original PDF and retry when OCR fails
+- Restart all services automatically after failures and host reboots
+
+The interface and documentation are entirely in English. There is deliberately no AI integration.
+
+## Architecture
+
+The deployment has exactly four containers:
+
+| Service | Responsibility |
+| --- | --- |
+| web | Shared interface, label storage, PDF submission, and scan file management |
+| cups | HP, Brother, and DYMO queues and printer drivers |
+| scanner | Brother SANE driver, front/back scanning, blank-page filtering, and PDF assembly |
+| ocr | Isolated OCRmyPDF and Tesseract processing in German and English |
+
+Only the web service is published, on port **8081**. All services use restart: unless-stopped.
+
+OCR has no persistent volume. Scanner and OCR working directories are separate 2 GiB tmpfs mounts, so temporary files disappear on restart and cannot grow without a fixed limit. Every OCR request uses its own temporary directory with guaranteed cleanup.
 
 ## Quick start
 
-Requirements: Git, Docker Engine, and Docker Compose v2.
+Requirements are Docker Engine, Docker Compose v2, Git, an amd64 Linux host, and a trusted local network.
 
-```bash
-git clone git@github.com:vgarcia007/printer-gui.git
-cd printer-gui
-docker compose up -d --build
-```
+    git clone https://github.com/YOUR-ACCOUNT/print-scan-hub.git
+    cd print-scan-hub
+    cp .env.example .env
+    cp config/printers.json config/printers.local.json
 
-Open `http://SERVER-IP:8080` from a device on the same network. You can also run `make up` as a shorthand.
+Edit .env and config/printers.local.json, then start the stack:
 
-The included configuration contains:
+    docker compose up -d --build
+    docker compose ps
 
-| Queue | Model | Address | Driver |
-| --- | --- | --- | --- |
-| `hp-color` | HP Color Laser MFP 178nw | `socket://192.168.188.71` | HP 17x SPL-C (default) |
-| `mfc` | Brother MFC-L2710DW | `http://192.168.188.133` | brlaser |
+Open http://SERVER-IP:8081.
 
-Change these addresses in [`config/printers.json`](config/printers.json) when using the project on a different network, then restart the stack:
+The included public printer configuration uses documentation-only addresses. Put real addresses only in the ignored config/printers.local.json.
 
-```bash
-docker compose up -d
-```
+## Supported reference hardware
 
-## Everyday use
+- HP Color Laser MFP 178nw via its SPL-C driver
+- Brother MFC-L2710DW for printing and network scanning
+- DYMO LabelWriter 450 via USB
 
-- Put any number of PDFs into `data/jobs` and use **Alle drucken** in the web interface.
-- Select a PDF or drop it onto the upload area to send just that file.
-- A file is deleted from the jobs directory only after CUPS accepts the print job.
-- Uploaded files that cannot be printed remain in `data/jobs` for recovery.
+Other printers can be configured, but scanner support is currently Brother brscan4-specific.
 
-> [!IMPORTANT]
-> The HP Color Laser MFP 178nw uses Samsung Printer Language Color (SPL-C). Do not replace its configured driver with `raw` or a generic driverless queue. Incorrect print data is the reason this printer may output cryptic characters and many blank pages.
+## Everyday scanning
 
-## Stack
+Place pages in the Brother document feeder **face up, top edge first**. Choose Document for clear text and smaller files or Color to preserve colors.
 
-- Python 3 standard-library HTTP server and API
-- Plain HTML, CSS, and JavaScript
-- CUPS for queueing and PDF conversion
-- Official HP Unified Linux Driver components for the 17x series
-- Docker Compose with separate `web` and `cups` services
+For two-sided pages, scan the fronts first. When prompted, keep the pages in the same order, turn the complete stack over, place it face up and top edge first, then select Scan back sides.
 
-The browser can reach only the web service on port 8080. CUPS stays on the private Compose network and can reach printers on the household LAN.
+Document mode uses 150 dpi True Gray. Color mode uses 150 dpi 24-bit color. OCR runs only after all pages are assembled.
 
-## Commands
+## Security
 
-```bash
-make up          # build and start
-make status      # show container health
-make logs        # follow logs
-make test        # run unit tests
-make validate    # run all local checks
-make down        # stop the stack
-```
+This is a private-LAN appliance with no accounts. Anyone who can reach port 8081 can print, scan, rename scans, and delete scans. Do not publish it directly to the internet. See [SECURITY.md](SECURITY.md).
 
 ## Documentation
 
 - [Deployment](docs/deployment.md)
-- [Printer configuration](docs/configuration.md)
-- [Architecture and security](docs/architecture.md)
+- [Configuration](docs/configuration.md)
+- [Architecture](docs/architecture.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Development](docs/development.md)
-- [Debian validation handoff](docs/handoff.md)
+- [Third-party software](THIRD_PARTY.md)
 
-## License and third-party software
+## License
 
-This project is licensed under the [GNU General Public License v3](LICENSE).
-
-The CUPS image is based on [`olbat/cupsd`](https://github.com/olbat/docker-cupsd). The HP Unified Linux Driver is downloaded from HP during the image build, verified by SHA-256, and is subject to HP's own license terms. It is not redistributed in this repository.
+Print & Scan Hub is licensed under the [GNU General Public License v3](LICENSE).

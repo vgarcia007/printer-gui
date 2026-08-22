@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Scan a document · Print & Scan Hub{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Scan</p>
+  <h1>Scan a document</h1>
+  <p id="scanLead">Place the front sides face up, top edge first.</p>
+</section>
+<section id="idlePanel" class="panel">
+  <h2>Choose how the pages should look</h2>
+  <div class="mode-grid" role="radiogroup" aria-label="Scan mode">
+    <button class="mode-card selected" data-mode="document" role="radio" aria-checked="true">
+      <strong>Document</strong><span>Clear text and smaller files</span>
+    </button>
+    <button class="mode-card" data-mode="color" role="radio" aria-checked="false">
+      <strong>Color</strong><span>Keep colors and illustrations</span>
+    </button>
+  </div>
+  <button id="scanFront" class="primary wide">Scan front sides</button>
+</section>
+<section id="progressPanel" class="panel centered" hidden>
+  <div class="spinner" aria-hidden="true"></div>
+  <h2 id="progressTitle">Scanning…</h2>
+  <p id="progressText">Please wait and leave the paper in the machine.</p>
+</section>
+<section id="decisionPanel" class="panel" hidden>
+  <h2>Front sides are finished</h2>
+  <p>For back sides, keep the pages in the same order, turn the complete stack over and place it face up, top edge first.</p>
+  <button id="scanBack" class="primary wide">Scan back sides</button>
+  <button id="finishFront" class="secondary wide">Use front sides only</button>
+  <button id="cancelScan" class="text-button wide">Cancel this scan</button>
+</section>
+<section id="donePanel" class="panel centered" hidden>
+  <h2>Your scan is ready</h2>
+  <p>The PDF has searchable text.</p>
+  <a id="downloadScan" class="primary link-button wide" href="#">Download PDF</a>
+  <a class="secondary link-button wide" href="{{ url_for('scans.file_page') }}">View scanned files</a>
+  <button id="newScan" class="text-button wide">Scan another document</button>
+</section>
+<section id="errorPanel" class="panel" hidden>
+  <h2>We could not finish the scan</h2>
+  <p id="scanError"></p>
+  <button id="retryOcr" class="primary wide" hidden>Try text recognition again</button>
+  <button id="resetScan" class="secondary wide">Start over</button>
+</section>
+<div class="files-link"><a href="{{ url_for('scans.file_page') }}">View and manage scanned files</a></div>
+<div id="scanAnnouncer" class="visually-hidden" aria-live="polite"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/scans.js') }}"></script>{% endblock %}
+

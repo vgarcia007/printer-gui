@@ -1,6 +1,8 @@
 #!/bin/sh
-
 set -eu
 
-install -d -o printer-gui -g printer-gui -m 0755 /data/jobs
-exec gosu printer-gui:printer-gui python3 /app/server.py "$@"
+run_uid="${APP_UID:-1000}"
+run_gid="${APP_GID:-1000}"
+
+install -d -o "$run_uid" -g "$run_gid" -m 0755 /data/jobs /data/labels /data/scans
+exec gosu "$run_uid:$run_gid" "$@"

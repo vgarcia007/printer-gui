@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Print & Scan Hub{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Household printing and scanning</p>
+  <h1>What would you like to do?</h1>
+  <p>Choose one task to get started.</p>
+</section>
+<div class="choice-grid">
+  <a class="choice-card" href="{{ url_for('documents.index') }}">
+    <span class="choice-icon" aria-hidden="true">▤</span>
+    <h2>Print a document</h2>
+    <p>Select a PDF and send it to the HP or Brother printer.</p>
+  </a>
+  <a class="choice-card" href="{{ url_for('labels.index') }}">
+    <span class="choice-icon" aria-hidden="true">▰</span>
+    <h2>Create a label</h2>
+    <p>Design, save and print a DYMO label.</p>
+  </a>
+  <a class="choice-card" href="{{ url_for('scans.index') }}">
+    <span class="choice-icon" aria-hidden="true">▱</span>
+    <h2>Scan a document</h2>
+    <p>Scan one or both sides and create a searchable PDF.</p>
+  </a>
+</div>
+{% endblock %}
+

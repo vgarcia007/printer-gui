@@ -1,37 +1,28 @@
 # Architecture and security
 
-## Components
+    Browser :8081
+          |
+         web ---- CUPS protocol ---- cups ---- LAN/USB printers
+          |                           |
+          |                       persistent queue state
+          |
+          +---- scan control ---- scanner ---- Brother device
+          |                          |
+          |                     2 GiB temporary RAM
+          |                          |
+          +---- scan files <---- OCR request ---- ocr
+                 NAS/shared dir                 2 GiB temporary RAM
 
-```text
-Browser ──HTTP:8080──> web ──CUPS:631──> cups ──LAN──> printers
-                         │                   │
-                    data/jobs          data/cups
-                                        data/spool
-```
+Only web publishes a port. CUPS, scanner, and OCR communicate on the private Compose network.
 
-The `web` container serves one static page and a small Python standard-library API. It submits files with the CUPS command-line client. The `cups` container owns printer drivers, queues, conversion filters, and spool state. Only the web port is published.
+## Data lifecycle
 
-## Print flows
+Print uploads are atomically stored in data/jobs and removed only after CUPS accepts them. Saved labels live in SQLite under data/labels.
 
-For **print all jobs**, the service lists regular `.pdf` files directly inside `data/jobs`, submits them one by one, and deletes each file after CUPS accepts it.
+Scanner pages and intermediate PDFs remain in the scanner's bounded /work tmpfs. OCR receives one final assembled PDF and creates a per-request temporary directory in its own bounded /work tmpfs. The OCR container is read-only, has no persistent work volume, and always removes the request directory.
 
-For an uploaded PDF, the service checks the extension, size, and PDF signature, writes it atomically into `data/jobs`, and submits it. If submission fails, the file is retained.
+The final searchable PDF is written through a hidden partial file followed by an atomic rename. Partials older than 24 hours are removed at scanner startup. If OCR fails, only the raw rescue PDF is retained and the interface offers a retry.
 
-The API serializes print operations to avoid overlapping deletion or duplicate submissions. It rejects symlinks and paths outside the jobs directory.
+## Trust model
 
-## API
-
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET` | `/health` | Container liveness check |
-| `GET` | `/api/status` | Printers, readiness, default, and queued PDF names |
-| `POST` | `/api/print-jobs` | Print all PDFs in `data/jobs` |
-| `POST` | `/api/print-pdf?printer=...&filename=...` | Upload and print one PDF |
-
-The upload limit is 100 MB. POST requests with a foreign `Origin` header are rejected. Browser security headers prevent framing and restrict resource loading.
-
-## Security model
-
-There are no accounts, sessions, or authorization rules. This is a deliberate appliance-style design for a trusted household network. Network access to port 8080 is equivalent to permission to print.
-
-The web container runs as an unprivileged user. It has no Docker socket and cannot administer queues. Printer configuration is mounted read-only into both services. The CUPS service is not published to the host network.
+There is no authentication. The deployment is safe only on a trusted LAN. User-controlled file names are constrained to configured directories, symlinks are rejected, printer configuration is read-only, and only CUPS can access the DYMO USB device.

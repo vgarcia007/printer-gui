@@ -1,0 +1,19 @@
+{
+  "id": "dymo-30321-large-address",
+  "name": "DYMO 30321 · Large Address",
+  "width_mm": 36,
+  "height_mm": 88,
+  "safe_margin_mm": 2,
+  "orientations": ["landscape", "portrait"],
+  "orientation_dimensions": {
+    "portrait": {
+      "width_mm": 36,
+      "height_mm": 88
+    },
+    "landscape": {
+      "width_mm": 88,
+      "height_mm": 34
+    }
+  },
+  "prompt_hint": "Clear typography for a DYMO 30321 thermal label. Use the available space and keep content away from the edge."
+}

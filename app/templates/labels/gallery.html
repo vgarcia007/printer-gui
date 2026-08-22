@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Saved labels · Print & Scan Hub{% endblock %}
+{% block content %}
+<section class="saved-view">
+  <div class="gallery-heading">
+    <div><p class="eyebrow">Labels</p><h1>Saved labels</h1><p>Open a label to print, edit, copy or delete it.</p></div>
+    <a class="primary link-button" href="{{ url_for('labels.index') }}">Create a label</a>
+  </div>
+  {% if labels %}
+    <div class="saved-grid">
+      {% for label in labels %}
+        <button class="gallery-card" type="button" data-bs-toggle="modal" data-bs-target="#labelActionModal"
+                data-image-url="{{ url_for('labels.preview_png', label_id=label.id, width=1400) }}"
+                data-prompt="{{ label.user_prompt }}" data-format="{{ label.width_mm|int }} × {{ label.height_mm|int }} mm"
+                data-print-url="{{ url_for('printing.print_label', label_id=label.id) }}"
+                data-delete-url="{{ url_for('labels.delete', label_id=label.id) }}"
+                data-edit-url="{{ url_for('labels.edit', label_id=label.id) }}"
+                data-copy-url="{{ url_for('labels.copy', label_id=label.id) }}">
+          <img src="{{ url_for('labels.preview_png', label_id=label.id, width=600) }}" alt="{{ label.user_prompt }}">
+        </button>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="panel centered"><h2>No saved labels yet</h2><p>Create a label and choose Save to keep it here.</p></div>
+  {% endif %}
+</section>
+<div class="modal fade" id="labelActionModal" tabindex="-1" aria-labelledby="labelModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content label-modal">
+    <div class="modal-body"><div class="modal-label-preview"><img id="modalLabelImage" alt=""></div><p id="labelModalTitle" class="modal-prompt"></p><small id="modalLabelFormat" class="modal-format"></small></div>
+    <div class="modal-edit-actions"><a id="modalEditLink" class="modal-action" href="">Edit</a><a id="modalCopyLink" class="modal-action" href="">Make a copy</a></div>
+    <div class="modal-actions">
+      <form id="modalDeleteForm" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="modal-action danger-action" type="submit">Delete</button></form>
+      <button class="modal-action" type="button" data-bs-dismiss="modal">Cancel</button>
+      <form id="modalPrintForm" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="copies" value="1"><input type="hidden" name="return_to" value="gallery"><button class="modal-action primary-modal-action" type="submit">Print</button></form>
+    </div>
+  </div></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/gallery.js', v='20260822-1') }}"></script>{% endblock %}

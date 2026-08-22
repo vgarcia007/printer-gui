@@ -17,13 +17,16 @@ mkdir -p /var/spool/cups /var/log/cups /run/cups
 chown -R root:lp /etc/cups /var/spool/cups /var/log/cups /run/cups
 
 jq -e '
-  .version == 1 and
+  .version == 2 and
   (.printers | type == "array" and length > 0) and
-  (.defaultPrinter | type == "string") and
-  (.defaultPrinter as $default | any(.printers[]; .name == $default)) and
+  (.defaultDocumentPrinter | type == "string") and
+  (.labelPrinter | type == "string") and
+  (.defaultDocumentPrinter as $default | any(.printers[]; .name == $default and .kind == "document")) and
+  (.labelPrinter as $label | any(.printers[]; .name == $label and .kind == "label")) and
   all(.printers[];
     (.name | type == "string" and length > 0) and
     (.label | type == "string" and length > 0) and
+    (.kind == "document" or .kind == "label") and
     (.uri | type == "string" and length > 0) and
     (.driver | type == "string" and length > 0) and
     ((.options // {}) | type == "object")
@@ -86,7 +89,7 @@ jq -c '.printers[]' "$config_file" | while IFS= read -r printer; do
     done
 done
 
-default_printer=$(jq -r '.defaultPrinter' "$config_file")
+default_printer=$(jq -r '.defaultDocumentPrinter' "$config_file")
 lpadmin -h localhost:631 -d "$default_printer"
 
 echo "Configured printer queues:"

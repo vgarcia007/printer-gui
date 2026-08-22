@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "New label" }} · Print & Scan Hub{% endblock %}
+{% block content %}
+<section class="editor-view">
+  <div class="editor-heading">
+    <div>
+      <p class="eyebrow">{{ width_mm|int }} × {{ height_mm|int }} mm</p>
+      <h1>{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "Create a label" }}</h1>
+      <p>Type text or paste an image. What you see is what will be printed.</p>
+    </div>
+    <a class="secondary link-button" href="{{ url_for('labels.gallery') }}">Saved labels</a>
+  </div>
+
+  <div id="editorError" class="notice danger" role="alert" hidden></div>
+  <form id="labelEditorForm" class="label-editor-form" method="post"
+        action="{{ url_for('labels.compose', label_id=editor_label.id) if editor_label else url_for('labels.compose') }}"
+        data-editor-id="{{ editor_label.id if editor_label else 'new' }}"
+        data-editor-mode="{{ editor_mode }}"
+        data-output-width="{{ output_width_px }}" data-output-height="{{ output_height_px }}">
+    {{ form.csrf_token }}
+    <div class="label-stage">
+      <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
+           aria-multiline="true" aria-label="Label content" data-placeholder="Type here…" spellcheck="true"></div>
+    </div>
+    <div class="editor-toolbar" aria-label="Format label content">
+      <div class="toolbar-group" aria-label="History">
+        <button class="tool-button" type="button" data-command="undo" aria-label="Undo" title="Undo">↶</button>
+        <button class="tool-button" type="button" data-command="redo" aria-label="Redo" title="Redo">↷</button>
+      </div>
+      <div class="toolbar-group">
+        <label class="visually-hidden" for="fontFamily">Font</label>
+        <select id="fontFamily" class="tool-select font-select" aria-label="Font">
+          <option value="Arial, sans-serif">Simple</option><option value="Georgia, serif">Classic</option><option value="'Courier New', monospace">Mono</option>
+        </select>
+      </div>
+      <div class="toolbar-group">
+        <label class="visually-hidden" for="fontSize">Text size</label>
+        <select id="fontSize" class="tool-select size-select" aria-label="Text size">
+          <option value="3">S</option><option value="4" selected>M</option><option value="5">L</option><option value="6">XL</option><option value="7">XXL</option>
+        </select>
+      </div>
+      <div class="toolbar-group" aria-label="Text style">
+        <button class="tool-button tool-bold" type="button" data-command="bold" aria-label="Bold" title="Bold">B</button>
+        <button class="tool-button tool-italic" type="button" data-command="italic" aria-label="Italic" title="Italic">I</button>
+        <button class="tool-button tool-underline" type="button" data-command="underline" aria-label="Underline" title="Underline">U</button>
+      </div>
+      <div class="toolbar-group" aria-label="Alignment">
+        <button class="tool-button" type="button" data-command="justifyLeft" aria-label="Align left" title="Align left">≡</button>
+        <button class="tool-button" type="button" data-command="justifyCenter" aria-label="Center" title="Center">≣</button>
+        <button class="tool-button tool-align-right" type="button" data-command="justifyRight" aria-label="Align right" title="Align right">≡</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="tool-button" type="button" data-command="removeFormat" aria-label="Remove formatting" title="Remove formatting">T×</button>
+        <button id="clearEditor" class="tool-button tool-clear" type="button">Clear</button>
+      </div>
+      <div id="imageTools" class="toolbar-group image-tools" aria-label="Image size" hidden>
+        <button id="imageSmaller" class="tool-button" type="button" aria-label="Make image smaller">−</button>
+        <button id="imageLarger" class="tool-button" type="button" aria-label="Make image larger">+</button>
+        <button id="imageDelete" class="tool-button" type="button" aria-label="Delete image">⌫</button>
+      </div>
+    </div>
+    <div class="editor-footer">
+      <p>Select text to format it, or paste an image from the clipboard. Keep content inside the white label.</p>
+      <div class="editor-submit-actions">
+        <button id="editorSave" class="secondary" type="submit" data-editor-action="save">Save</button>
+        <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview">Continue to print →</button>
+      </div>
+    </div>
+  </form>
+</section>
+{% if editor_content %}<div id="initialEditorDocument" hidden>{{ editor_content|tojson }}</div>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/editor.js', v='20260822-1') }}"></script>{% endblock %}

@@ -1,26 +1,31 @@
 {
-  "version": 1,
-  "defaultPrinter": "hp-color",
+  "version": 2,
+  "defaultDocumentPrinter": "hp-color",
+  "labelPrinter": "DYMO_LabelWriter_450",
   "printers": [
     {
       "name": "mfc",
       "label": "Brother MFC-L2710DW",
-      "uri": "http://192.168.188.133",
+      "kind": "document",
+      "uri": "ipp://192.0.2.30/ipp/print",
       "driver": "drv:///brlaser.drv/brl2710w.ppd",
-      "options": {
-        "PageSize": "A4"
-      }
+      "options": { "PageSize": "A4" }
     },
     {
       "name": "hp-color",
       "label": "HP Color Laser MFP 178nw",
-      "uri": "socket://192.168.188.71",
+      "kind": "document",
+      "uri": "socket://192.0.2.31",
       "driver": "uld-hp/HP_Color_Laser_MFP_17x_Series.ppd",
-      "options": {
-        "PageSize": "A4",
-        "ColorModel": "RGB",
-        "Quality": "Best"
-      }
+      "options": { "PageSize": "A4", "ColorModel": "RGB", "Quality": "Best" }
+    },
+    {
+      "name": "DYMO_LabelWriter_450",
+      "label": "DYMO LabelWriter 450",
+      "kind": "label",
+      "uri": "usb://DYMO/LabelWriter%20450",
+      "driver": "dymo:0/cups/model/lw450.ppd",
+      "options": {}
     }
   ]
 }

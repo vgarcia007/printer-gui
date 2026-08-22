@@ -3,7 +3,6 @@
 .env
 data
 docs
-tests
 *.md
 Screenshots
 Desktop-Scripts

@@ -2,64 +2,40 @@
 
 ## Requirements
 
-- A Debian Linux host on the same network as the printers
-- Docker Engine with the Compose v2 plugin
-- Git
-- About 1 GB of free disk space for images and persistent data
-- TCP access from the server to the printer endpoints
+- Docker Engine and Docker Compose v2 on an amd64 Linux host
+- Network access to the HP and Brother devices
+- USB access to the DYMO LabelWriter
+- At least 3 GiB RAM available for peak temporary processing
+- A writable scan destination
 
-No Python, CUPS, or printer driver needs to be installed on the host.
+Follow the README Quick start, then verify:
 
-## Install
+    docker compose ps
+    curl --fail http://localhost:8081/health
+    curl --fail http://localhost:8081/scans/api/status
 
-```bash
-git clone git@github.com:vgarcia007/printer-gui.git
-cd printer-gui
-docker compose up -d --build
-```
+All four services should be healthy. These checks perform no physical print or scan.
 
-Wait until both services are healthy:
+## Importing saved labels
 
-```bash
-docker compose ps
-```
+After the first start, import only saved rich-text editor labels from the former
+ai-label-printer installation:
 
-Open `http://SERVER-IP:8080`. The page is available to every device that can reach that address; there is deliberately no login screen.
+    python3 scripts/import-labels.py
 
-## Port and environment settings
+The script ignores AI labels, skips duplicates, and creates a timestamped backup
+of the target database before writing.
 
-Port 8080 is the default. To choose another host port, create `.env`:
+## Persistence and restarts
 
-```dotenv
-WEB_PORT=8090
-```
+Persistent paths are data/cups, data/spool, data/jobs, data/labels, the selected scan directory, and a tiny scanner state directory. OCR has no persistent volume.
 
-Then run `docker compose up -d`. CUPS port 631 is not published to the host.
-
-## Persistent data
-
-All application state stays below the cloned directory:
-
-| Path | Purpose |
-| --- | --- |
-| `config/printers.json` | Portable printer definitions |
-| `data/jobs` | PDFs waiting to be printed |
-| `data/cups` | Generated CUPS configuration and queue state |
-| `data/spool` | CUPS spool data |
-
-Back up the entire directory, or at least `config` and `data`. Stop the stack before restoring CUPS state.
+Every service uses restart: unless-stopped. Docker restarts them after a process failure and after a host reboot unless an administrator explicitly stopped them.
 
 ## Updates
 
-Review local changes first, then update and rebuild:
+    git pull --ff-only
+    docker compose up -d --build
+    make validate
 
-```bash
-git pull --ff-only
-docker compose up -d --build
-```
-
-The containers use `restart: unless-stopped`, so Docker starts them again after a host reboot.
-
-## Trusted-network boundary
-
-Anyone who can reach the web port can submit a PDF to either configured printer. Do not expose this service directly to the internet. If access beyond a trusted LAN is required, place an authenticated HTTPS reverse proxy or VPN in front of it.
+Back up labels and scans before major upgrades.

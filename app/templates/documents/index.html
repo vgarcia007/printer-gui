@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Print a document · Print & Scan Hub{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Print</p>
+  <h1>Print a document</h1>
+  <p>Select a printer, then choose one PDF.</p>
+</section>
+<div class="field-row">
+  <label for="printer">Printer</label>
+  <select id="printer" disabled><option>Loading printers…</option></select>
+</div>
+<section class="panel job-panel">
+  <div><h2>Print waiting PDFs</h2><p id="jobsHint">Checking the jobs folder…</p></div>
+  <button id="printJobs" class="primary" disabled>Print all</button>
+</section>
+<div class="separator">or</div>
+<label id="dropZone" class="drop-zone" for="fileInput">
+  <input id="fileInput" type="file" accept="application/pdf,.pdf">
+  <strong>Drop a PDF here</strong>
+  <span>or tap to choose a file</span>
+</label>
+<div id="fileCard" class="file-card" hidden>
+  <div><strong id="fileName"></strong><small id="fileSize"></small></div>
+  <button id="removeFile" class="text-button">Remove</button>
+</div>
+<button id="printFile" class="primary wide" disabled>Print PDF</button>
+<div id="documentStatus" class="status-line" role="status" aria-live="polite">Connecting…</div>
+<div id="toast" class="toast-message" role="status" aria-live="polite" hidden></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/documents.js') }}"></script>{% endblock %}
+

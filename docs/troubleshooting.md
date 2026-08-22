@@ -1,55 +1,35 @@
 # Troubleshooting
 
-## Basic checks
+Start with:
 
-```bash
-docker compose ps
-docker compose logs --tail=100 cups
-docker compose logs --tail=100 web
-docker compose exec cups lpstat -p -d
-```
-
-Both containers should be healthy, both configured queues should appear, and `hp-color` should be the default destination.
+    docker compose ps
+    docker compose logs --tail=100 web cups scanner ocr
 
 ## The page is unavailable
 
-- Confirm that the containers are running with `docker compose ps`.
-- Confirm that the selected host port is allowed by the Debian firewall.
-- Open the Debian server address, not `localhost`, from another device.
-- Check whether another service already uses port 8080; set `WEB_PORT` in `.env` if necessary.
+Port 8081 must be free and reachable from the LAN. Check .env, then run docker compose up -d.
 
-## A printer is missing or unavailable
+## A printer is unavailable
 
-- Check its address in `config/printers.json`.
-- Verify network reachability from the Debian host.
-- Restart the stack after every configuration change.
-- Inspect CUPS logs for an unknown driver model or rejected device URI.
+Check config/printers.local.json, then inspect queues with docker compose exec cups lpstat -p -d. The HP queue must retain the HP 17x SPL-C driver; a raw or generic PostScript queue can produce garbage pages.
 
-For DHCP-managed printers, reserve their addresses in the router or use stable local DNS names.
+For DYMO problems, confirm the USB device is visible with docker compose exec cups lsusb and that its URI is correct.
 
-## HP prints cryptic characters or blank pages
+## The scanner is unavailable
 
-Stop the printer immediately and cancel its physical queue. Then verify:
+Check SCANNER_IP, then run:
 
-```bash
-docker compose exec cups lpstat -v hp-color
-docker compose exec cups lpoptions -p hp-color
-docker compose exec cups test -x /usr/lib/cups/filter/rastertospl
-```
+    docker compose exec scanner brsaneconfig4 -q
+    docker compose exec scanner scanimage -L
 
-The queue must use the HP 17x PPD and the `rastertospl` filter must exist. Rebuild the CUPS image if the filter is missing:
+Do not run an actual scanimage command unless paper is loaded and a physical scan is intended.
 
-```bash
-docker compose build --no-cache cups
-docker compose up -d
-```
+## OCR fails
 
-Do not change this queue to `raw`, `everywhere`, or a generic PostScript driver. The HP 178nw expects SPL-C output.
+Inspect scanner and OCR logs. The rescue PDF remains in the scan directory with -ocr-failed in its name and can be downloaded or retried.
 
-## A PDF remains in `data/jobs`
+OCR scratch data cannot grow persistently: it exists only in a 2 GiB tmpfs and per-job directories are deleted. Restarting OCR clears the complete work area.
 
-This is intentional after a failed CUPS submission. Fix the printer or queue, refresh the page, and use **Alle drucken**. A successfully submitted file is removed automatically.
+## A PDF remains in the print jobs folder
 
-## Resetting generated CUPS state
-
-Normally the entrypoint reconciles queues without a reset. If generated state is corrupt, stop the stack, move `data/cups` and `data/spool` to a backup location, recreate the empty directories, and start again. This loses current CUPS jobs but not files in `data/jobs`.
+This is intentional after a failed CUPS submission. Correct the printer problem and submit it again.

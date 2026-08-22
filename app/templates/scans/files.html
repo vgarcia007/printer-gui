@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Scanned files · Print & Scan Hub{% endblock %}
+{% block content %}
+<section class="page-heading split-heading">
+  <div><p class="eyebrow">Scan</p><h1>Scanned files</h1><p>Download, rename or delete saved PDFs.</p></div>
+  <a class="secondary link-button" href="{{ url_for('scans.index') }}">New scan</a>
+</section>
+<div id="filesMessage" class="status-line" role="status">Loading files…</div>
+<div id="scanFiles" class="file-list"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/scan-files.js') }}"></script>{% endblock %}
+

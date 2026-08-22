@@ -5,7 +5,7 @@ ARG HP_DRIVER_URL=https://ftp.hp.com/pub/softlib/software13/printers/MFP170/uld-
 ARG HP_DRIVER_SHA256=cebb9b7b6125e7406634bb9c2a98b01477d1e11d66c7c90474669de9927bc91d
 
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends ca-certificates curl jq \
+    && apt-get install --yes --no-install-recommends ca-certificates curl jq printer-driver-dymo usbutils \
     && case "$TARGETARCH" in \
          amd64) hp_arch=x86_64 ;; \
          arm64) hp_arch=aarch64 ;; \
