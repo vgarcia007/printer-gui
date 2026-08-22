@@ -38,6 +38,17 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
             ["document", "document", "label"],
         )
 
+    def test_dymo_defaults_preserve_the_editor_artwork_at_one_to_one_scale(self) -> None:
+        compose = (ROOT / "compose.yaml").read_text()
+        css = (ROOT / "app" / "static" / "css" / "app.css").read_text()
+
+        self.assertIn("DYMO_LANDSCAPE_OFFSET_MM:-0", compose)
+        self.assertIn("DYMO_LANDSCAPE_SHRINK_MM:-0", compose)
+        self.assertIn("DYMO_LANDSCAPE_START_TRIM_MM:-0", compose)
+        self.assertIn("aspect-ratio:88/34", css)
+        self.assertIn("inset:5.88% 2.27%", css)
+        self.assertIn("padding:2.27%", css)
+
 
 if __name__ == "__main__":
     unittest.main()

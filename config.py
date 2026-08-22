@@ -21,13 +21,13 @@ class Config:
         "DYMO_PRINTER_NAME", "DYMO_LabelWriter_450"
     )
     DYMO_LANDSCAPE_OFFSET_MM = float(
-        os.environ.get("DYMO_LANDSCAPE_OFFSET_MM", "-4")
+        os.environ.get("DYMO_LANDSCAPE_OFFSET_MM", "0")
     )
     DYMO_LANDSCAPE_SHRINK_MM = float(
-        os.environ.get("DYMO_LANDSCAPE_SHRINK_MM", "3")
+        os.environ.get("DYMO_LANDSCAPE_SHRINK_MM", "0")
     )
     DYMO_LANDSCAPE_START_TRIM_MM = float(
-        os.environ.get("DYMO_LANDSCAPE_START_TRIM_MM", "1")
+        os.environ.get("DYMO_LANDSCAPE_START_TRIM_MM", "0")
     )
     PRINT_TIMEOUT_SECONDS = int(os.environ.get("PRINT_TIMEOUT_SECONDS", "60"))
     MAX_COPIES = int(os.environ.get("MAX_COPIES", "100"))

@@ -112,9 +112,9 @@ services:
       PRINTER_CONFIG: /config/printers.json
       LABEL_TEMPLATE_DIR: /app/label_templates
       DYMO_PRINTER_NAME: DYMO_LabelWriter_450
-      DYMO_LANDSCAPE_OFFSET_MM: "-4"
-      DYMO_LANDSCAPE_SHRINK_MM: "3"
-      DYMO_LANDSCAPE_START_TRIM_MM: "1"
+      DYMO_LANDSCAPE_OFFSET_MM: ${DYMO_LANDSCAPE_OFFSET_MM:-0}
+      DYMO_LANDSCAPE_SHRINK_MM: ${DYMO_LANDSCAPE_SHRINK_MM:-0}
+      DYMO_LANDSCAPE_START_TRIM_MM: ${DYMO_LANDSCAPE_START_TRIM_MM:-0}
       TZ: ${TZ:-Europe/Berlin}
     volumes:
       - ${PRINTER_CONFIG_FILE:-./config/printers.json}:/config/printers.json:ro

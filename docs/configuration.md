@@ -29,5 +29,14 @@ Important .env values:
 - SCANS_HOST_DIR: final PDF directory or NAS mount
 - APP_UID and APP_GID: owner used for label and scan files
 - SECRET_KEY: long random value used for browser CSRF protection
+- DYMO_LANDSCAPE_OFFSET_MM: feed-direction correction in millimeters; default 0
+- DYMO_LANDSCAPE_SHRINK_MM: optional horizontal artwork reduction; default 0
+- DYMO_LANDSCAPE_START_TRIM_MM: optional leading-edge inset; default 0
+
+The DYMO 30321 roll is nominally 89 × 36 mm. The editor uses the driver's
+88 × 34 mm printable area and shows a dashed 2 mm safe margin. The default
+calibration values preserve that artwork at 1:1 scale. Adjust them only after a
+measured test print; a negative offset can clip content at the feed edge and a
+shrink value makes printed text differ from the editor preview.
 
 After changes, run docker compose up -d.
