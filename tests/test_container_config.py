@@ -49,8 +49,8 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("DYMO_LANDSCAPE_SHRINK_MM:-0", compose)
         self.assertIn("DYMO_LANDSCAPE_START_TRIM_MM:-0", compose)
         self.assertIn("aspect-ratio:88/34", css)
-        self.assertIn("inset:5.88% 2.27%", css)
-        self.assertIn("padding:2.27%", css)
+        self.assertIn("inset:2mm", css)
+        self.assertIn("padding:2mm", css)
 
     def test_label_editor_uses_exact_dom_capture_and_familiar_controls(self) -> None:
         template = (ROOT / "app" / "templates" / "labels" / "editor.html").read_text()
@@ -87,6 +87,8 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("--checksum=sha256:b164a2d2905748e1d48512f1e985606b4282c9438bbc0ee2958e56f658695d2b", dockerfile)
         self.assertIn("vendor/fontawesome/css/fontawesome.min.css", base)
         self.assertIn("vendor/fontawesome/css/solid.min.css", base)
+        self.assertIn('class="side-nav"', base)
+        self.assertIn('class="mobile-nav"', base)
         self.assertIn('class="fa-solid fa-file-pdf"', templates)
         self.assertIn('class="fa-solid fa-file-import"', templates)
         self.assertIn('class="fa-solid fa-bold"', templates)

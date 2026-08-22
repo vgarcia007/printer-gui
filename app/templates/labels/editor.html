@@ -83,10 +83,12 @@
         </div>
         <button id="imageDelete" class="context-button context-delete" type="button"><i class="fa-solid fa-trash-can button-icon" aria-hidden="true"></i>Delete image</button>
       </div>
-      <div id="labelViewport" class="label-viewport">
-        <div id="labelStage" class="label-stage label-sheet">
-          <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
-               aria-multiline="true" aria-label="Label content" data-placeholder="Start typing your label…" spellcheck="true"></div>
+      <div class="label-workspace">
+        <div id="labelViewport" class="label-viewport">
+          <div id="labelStage" class="label-stage label-sheet">
+            <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
+                 aria-multiline="true" aria-label="Label content" data-placeholder="Start typing your label…" spellcheck="true"></div>
+          </div>
         </div>
       </div>
       <div class="editor-statusbar">
@@ -95,11 +97,15 @@
       </div>
     </div>
     <div class="editor-footer">
-      <p>The dashed line marks the safe print area. You can also paste an image directly from the clipboard.</p>
+      <div class="editor-footer-copy">
+        <span class="editor-footer-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
+        <div><h2>Ready when you are</h2><p>Save this design for later, or continue to check it before printing.</p></div>
+      </div>
       <div class="editor-submit-actions">
         <button id="editorSave" class="secondary" type="submit" data-editor-action="save"><i class="fa-solid fa-floppy-disk button-icon" aria-hidden="true"></i><span class="button-label">Save</span></button>
         <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview"><span class="button-label">Continue to print</span><i class="fa-solid fa-arrow-right button-icon-after" aria-hidden="true"></i></button>
       </div>
+      <p class="editor-safe-note"><i class="fa-solid fa-circle-info button-icon" aria-hidden="true"></i>The dashed line is the safe print area. Images can also be pasted from the clipboard.</p>
     </div>
   </form>
 </section>
