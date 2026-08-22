@@ -53,6 +53,11 @@ until lpstat -h localhost:631 -r >/dev/null 2>&1; do
     sleep 1
 done
 
+# cupsd applies its restrictive RequestRoot mode during startup. Relax only the
+# repository-backed directory afterwards so host-side Git and backup tools can
+# traverse data/spool; CUPS still owns every spool file it creates.
+chmod 0755 /var/spool/cups
+
 configured_names=$(jq -r '.printers[].name' "$config_file")
 lpstat -h localhost:631 -p 2>/dev/null | awk '{print $2}' | while IFS= read -r queue; do
     if ! printf '%s\n' "$configured_names" | grep -Fxq "$queue"; then
@@ -70,7 +75,9 @@ jq -c '.printers[]' "$config_file" | while IFS= read -r printer; do
         ''|*[!A-Za-z0-9_.-]*) echo "Invalid printer name: $name" >&2; exit 1 ;;
     esac
 
-    lpadmin -h localhost:631 -p "$name" -E -v "$uri" -m "$driver" -D "$label" -o printer-is-shared=false
+    # The web service is a remote CUPS client on the private Compose network.
+    # Queues must therefore be shared by CUPS, while port 631 remains unpublished.
+    lpadmin -h localhost:631 -p "$name" -E -v "$uri" -m "$driver" -D "$label" -o printer-is-shared=true
 
     printf '%s' "$printer" | jq -r '.options // {} | to_entries[] | [.key, (.value | tostring)] | @tsv' |
     while IFS='	' read -r option value; do

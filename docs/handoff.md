@@ -27,106 +27,53 @@ Validation already completed on the development host:
 - `config/printers.json` parses successfully
 - `git diff --check` passes
 
-Not completed on the development host:
+Validation completed on the target Debian Docker host:
 
-- Docker Compose schema rendering
-- Container image builds
-- Live startup and health checks
-- Inspection of driver options from the installed HP PPD
+- Docker 29.6.2 and Docker Compose schema rendering
+- Reachability of both configured printer addresses
+- `amd64` builds of both images, including the verified HP driver download
+- HP PPD validation and runtime library inspection of `rastertospl`
+- Live startup and health checks for both containers
+- Queue visibility from the web container and API status output
+- Inspection of the installed HP PPD options (`A4`, `RGB`, and `Best` are valid)
 
-The reason is environmental: the development host has no `docker` executable. A fallback Podman build was intentionally stopped when the work was handed over. No real print job has been submitted.
+Two Debian-specific issues were found and resolved:
+
+- Host port 8080 is occupied by UniFi, so this host uses `WEB_PORT=8081` in its ignored `.env` file.
+- CUPS queues must use `printer-is-shared=true` so the web container can discover them on the private Compose network. Port 631 remains unpublished.
+
+Not completed:
+
+- Browser smoke test from another household device
+- Controlled physical print test on either printer
+
+No real print job has been submitted.
 
 ## Continue on the Debian host
 
 Start in the cloned repository and let the next Codex session read this document, `README.md`, and `docs/configuration.md` before changing files.
 
-### 1. Inspect the host and repository
+### 1. Confirm the running deployment
 
 ```bash
 git status --short
-docker version
-docker compose version
-ip route
-```
-
-Confirm that the working tree is clean and that Docker Compose v2 is available.
-
-### 2. Confirm printer addresses
-
-The current known addresses are:
-
-```text
-Brother MFC-L2710DW:       192.168.188.133
-HP Color Laser MFP 178nw: 192.168.188.71
-```
-
-Check reachability without printing:
-
-```bash
-ping -c 2 192.168.188.133
-ping -c 2 192.168.188.71
-```
-
-If the target Debian server is on another subnet or DHCP changed an address, update only the corresponding `uri` in `config/printers.json`. Prefer DHCP reservations in the router.
-
-### 3. Run static validation
-
-```bash
 make validate
-```
-
-This includes `docker compose config --quiet` and does not submit print jobs.
-
-### 4. Build both images
-
-```bash
-docker compose build --pull
-```
-
-Pay particular attention to the `cups` build. It must:
-
-- download the HP ULD archive successfully;
-- match SHA-256 `cebb9b7b6125e7406634bb9c2a98b01477d1e11d66c7c90474669de9927bc91d`;
-- select `x86_64` for Docker `amd64` or `aarch64` for Docker `arm64`;
-- pass `cupstestppd`;
-- show no unresolved required library in `ldd /usr/lib/cups/filter/rastertospl`.
-
-If HP removes or replaces the download, do not silently disable checksum validation. Find the official replacement, verify it independently, and update both the URL and checksum with documentation.
-
-### 5. Start and inspect without printing
-
-```bash
-docker compose up -d
 docker compose ps
-docker compose logs --tail=200 cups
-docker compose logs --tail=100 web
-curl --fail http://localhost:8080/health
-curl --fail http://localhost:8080/api/status
+curl --fail http://localhost:8081/health
+curl --fail http://localhost:8081/api/status
 ```
 
-Expected API facts:
+Expected facts:
 
+- both containers are healthy;
 - two printers are returned;
 - their names are `mfc` and `hp-color`;
 - `defaultPrinter` is `hp-color`;
-- both containers become healthy.
+- both are reported as ready.
 
-Inspect CUPS and filters:
+### 2. Browser smoke test
 
-```bash
-docker compose exec cups lpstat -p -d
-docker compose exec cups lpstat -v
-docker compose exec cups lpinfo -m | grep -E 'brl2710w|HP_Color_Laser_MFP_17x'
-docker compose exec cups test -x /usr/lib/cups/filter/rastertospl
-docker compose exec cups ldd /usr/lib/cups/filter/rastertospl
-docker compose exec cups lpoptions -p hp-color -l
-```
-
-The default must be `hp-color`. Confirm that the configured option keys in `config/printers.json` exist in `lpoptions -p hp-color -l`. If the HP PPD uses different color or quality keys, replace only the invalid defaults and document the discovered values.
-
-### 6. Browser smoke test
-
-Open `http://DEBIAN-SERVER-IP:8080` from another household device.
+Open `http://192.168.188.117:8081` from another household device.
 
 Confirm without pressing a print button:
 
@@ -137,7 +84,7 @@ Confirm without pressing a print button:
 - drag and drop highlights the drop area;
 - files already placed in `data/jobs` are counted after refresh.
 
-### 7. Controlled physical print test
+### 3. Controlled physical print test
 
 Only after all non-printing checks pass, create or select a one-page PDF containing a distinctive short line and test one printer at a time. Keep physical access to the HP printer so its queue can be cancelled immediately if output is wrong.
 
@@ -156,7 +103,7 @@ Success criteria:
 
 Then repeat with the Brother queue.
 
-### 8. Final repository update
+### 4. Final repository update
 
 If Debian-specific fixes are required:
 
