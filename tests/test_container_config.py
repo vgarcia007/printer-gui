@@ -87,7 +87,8 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("--checksum=sha256:b164a2d2905748e1d48512f1e985606b4282c9438bbc0ee2958e56f658695d2b", dockerfile)
         self.assertIn("vendor/fontawesome/css/fontawesome.min.css", base)
         self.assertIn("vendor/fontawesome/css/solid.min.css", base)
-        self.assertIn('class="side-nav"', base)
+        self.assertIn('class="app-header"', base)
+        self.assertIn('class="desktop-nav"', base)
         self.assertIn('class="mobile-nav"', base)
         self.assertIn('class="fa-solid fa-file-pdf"', templates)
         self.assertIn('class="fa-solid fa-file-import"', templates)
@@ -95,6 +96,20 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertNotIn("<svg", templates)
         for replaced_symbol in ("▤", "▰", "▱", "→"):
             self.assertNotIn(replaced_symbol, templates)
+
+    def test_scan_interface_has_clear_states_and_inline_pdf_management(self) -> None:
+        template = (ROOT / "app" / "templates" / "scans" / "index.html").read_text()
+        scan_javascript = (ROOT / "app" / "static" / "js" / "scans.js").read_text()
+        files_javascript = (ROOT / "app" / "static" / "js" / "scan-files.js").read_text()
+
+        self.assertIn('id="scanStatusIcon"', template)
+        self.assertIn('id="scanFilesDrawer"', template)
+        self.assertIn('fa-face-smile', scan_javascript)
+        self.assertIn('fa-hourglass-half', scan_javascript)
+        self.assertIn('fa-brain', scan_javascript)
+        self.assertIn('fa-circle-check', scan_javascript)
+        self.assertIn('className = "inline-rename"', files_javascript)
+        self.assertIn('event.key === "Escape"', files_javascript)
 
 
 if __name__ == "__main__":

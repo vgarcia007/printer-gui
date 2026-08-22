@@ -2,7 +2,7 @@
 {% block title %}Print label · Print & Scan Hub{% endblock %}
 {% block content %}
 <section class="preview-view">
-  <div class="page-heading"><p class="eyebrow">Labels</p><h1>Ready to print</h1><p>Check the preview before sending it to the DYMO.</p></div>
+  <div class="page-heading"><h1>Ready to print</h1><p>Check the preview before sending it to the DYMO.</p></div>
   <div class="panel centered"><img class="preview-image" src="{{ url_for('labels.preview_png', label_id=label.id, width=1400) }}" alt="Label preview"><p class="format-line">{{ label.width_mm|int }} × {{ label.height_mm|int }} mm · Landscape</p></div>
   <form method="post" action="{{ url_for('printing.print_label', label_id=label.id) }}" class="panel print-row">
     {{ print_form.hidden_tag() }}

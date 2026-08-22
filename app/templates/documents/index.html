@@ -1,30 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Print a document · Print & Scan Hub{% endblock %}
 {% block content %}
-<section class="page-heading">
-  <p class="eyebrow">Print</p>
-  <h1>Print a document</h1>
-  <p>Choose where it should print, then add one PDF.</p>
-</section>
-<section class="task-card document-task">
-  <div class="task-step">
-    <span class="step-number" aria-hidden="true">1</span>
-    <div><h2>Choose a printer</h2><p>The recommended printer is already selected.</p></div>
+<section class="simple-page document-page">
+  <div class="simple-heading centered-heading">
+    <span class="page-symbol" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+    <div><h1>Print a PDF</h1><p>Drop it here. We will send it to the selected printer.</p></div>
   </div>
+  <div class="document-controls">
   <div class="field-row">
     <label for="printer">Printer</label>
     <select id="printer" disabled><option>Loading printers…</option></select>
-  </div>
-  <div class="task-divider"></div>
-  <div class="task-step">
-    <span class="step-number" aria-hidden="true">2</span>
-    <div><h2>Choose your PDF</h2><p>Drag it into the area or select it from your device.</p></div>
   </div>
   <label id="dropZone" class="drop-zone" for="fileInput">
     <input id="fileInput" type="file" accept="application/pdf,.pdf">
     <i class="fa-solid fa-file-arrow-up drop-zone-icon" aria-hidden="true"></i>
     <strong>Drop a PDF here</strong>
-    <span>or tap to choose a file</span>
+    <span>or click to choose one</span>
   </label>
   <div id="fileCard" class="file-card" hidden>
     <div><strong id="fileName"></strong><small id="fileSize"></small></div>
@@ -32,6 +23,7 @@
   </div>
   <button id="printFile" class="primary wide" disabled><i class="fa-solid fa-print button-icon" aria-hidden="true"></i>Print PDF</button>
   <div id="documentStatus" class="status-line" role="status" aria-live="polite">Connecting…</div>
+  </div>
 </section>
 <div id="toast" class="toast-message" role="status" aria-live="polite" hidden></div>
 {% endblock %}

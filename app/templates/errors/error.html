@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ title }} · Print & Scan Hub{% endblock %}
 {% block content %}
-<div class="card border-0 shadow-sm mx-auto error-card">
-  <div class="card-body p-5 text-center">
-    <h1 class="h3">{{ title }}</h1>
-    <p class="text-secondary">{{ message }}</p>
-    <a class="btn btn-primary" href="{{ url_for('home.index') }}"><i class="fa-solid fa-house button-icon" aria-hidden="true"></i>Back to the start page</a>
-  </div>
+<div class="panel centered error-card">
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <a class="primary link-button" href="{{ url_for('home.index') }}"><i class="fa-solid fa-house" aria-hidden="true"></i>Back home</a>
 </div>
 {% endblock %}

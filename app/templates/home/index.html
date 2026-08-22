@@ -1,29 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Print & Scan Hub{% endblock %}
 {% block content %}
-<section class="hero">
-  <p class="eyebrow">Everything in one place</p>
-  <h1>What would you like to do?</h1>
-  <p>Print, create a label or scan a document in a few simple steps.</p>
+<section class="home-stage">
+  <div class="home-face" aria-hidden="true"><i class="fa-solid fa-face-smile"></i></div>
+  <h1>Hello. What are we making?</h1>
+  <p>Pick a task and we will take care of the details.</p>
+  <div class="home-actions">
+    <a href="{{ url_for('documents.index') }}"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i><span><strong>Print a PDF</strong><small>HP or Brother</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    <a href="{{ url_for('labels.index') }}"><i class="fa-solid fa-tag" aria-hidden="true"></i><span><strong>Make a label</strong><small>Design and print on DYMO</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    <a href="{{ url_for('scans.index') }}"><i class="fa-solid fa-file-import" aria-hidden="true"></i><span><strong>Scan pages</strong><small>Color, OCR and two-sided</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+  </div>
 </section>
-<div class="choice-grid">
-  <a class="choice-card" href="{{ url_for('documents.index') }}">
-    <span class="choice-icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
-    <h2>Print a document</h2>
-    <p>Select a PDF and send it to the HP or Brother printer.</p>
-    <span class="choice-action">Start printing <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-  </a>
-  <a class="choice-card" href="{{ url_for('labels.index') }}">
-    <span class="choice-icon" aria-hidden="true"><i class="fa-solid fa-tag"></i></span>
-    <h2>Create a label</h2>
-    <p>Design, save and print a DYMO label.</p>
-    <span class="choice-action">Open designer <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-  </a>
-  <a class="choice-card" href="{{ url_for('scans.index') }}">
-    <span class="choice-icon" aria-hidden="true"><i class="fa-solid fa-file-import"></i></span>
-    <h2>Scan a document</h2>
-    <p>Scan one or both sides and create a searchable PDF.</p>
-    <span class="choice-action">Start scanning <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-  </a>
-</div>
 {% endblock %}

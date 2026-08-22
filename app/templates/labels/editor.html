@@ -4,9 +4,8 @@
 <section class="editor-view">
   <div class="editor-heading">
     <div>
-      <p class="eyebrow">{{ width_mm|int }} × {{ height_mm|int }} mm</p>
       <h1>{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "Create a label" }}</h1>
-      <p>Write and format the label just like a small document.</p>
+      <p>{{ width_mm|int }} × {{ height_mm|int }} mm · What you see is what the DYMO prints.</p>
     </div>
     <a class="secondary link-button" href="{{ url_for('labels.gallery') }}"><i class="fa-solid fa-folder-open button-icon" aria-hidden="true"></i>Saved labels</a>
   </div>
@@ -97,15 +96,11 @@
       </div>
     </div>
     <div class="editor-footer">
-      <div class="editor-footer-copy">
-        <span class="editor-footer-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
-        <div><h2>Ready when you are</h2><p>Save this design for later, or continue to check it before printing.</p></div>
-      </div>
       <div class="editor-submit-actions">
         <button id="editorSave" class="secondary" type="submit" data-editor-action="save"><i class="fa-solid fa-floppy-disk button-icon" aria-hidden="true"></i><span class="button-label">Save</span></button>
         <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview"><span class="button-label">Continue to print</span><i class="fa-solid fa-arrow-right button-icon-after" aria-hidden="true"></i></button>
       </div>
-      <p class="editor-safe-note"><i class="fa-solid fa-circle-info button-icon" aria-hidden="true"></i>The dashed line is the safe print area. Images can also be pasted from the clipboard.</p>
+      <p class="editor-safe-note"><i class="fa-solid fa-circle-info button-icon" aria-hidden="true"></i>Dashed line: safe print area. You can paste images too.</p>
     </div>
   </form>
 </section>

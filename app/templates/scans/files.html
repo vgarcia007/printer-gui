@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Scanned files · Print & Scan Hub{% endblock %}
+{% block title %}Scanned PDFs · Print & Scan{% endblock %}
 {% block content %}
-<section class="page-heading split-heading">
-  <div><p class="eyebrow">Scan</p><h1>Scanned files</h1><p>Download, rename or delete saved PDFs.</p></div>
-  <a class="secondary link-button" href="{{ url_for('scans.index') }}"><i class="fa-solid fa-plus button-icon" aria-hidden="true"></i>New scan</a>
+<section class="library-page">
+  <div class="simple-heading">
+    <div><h1>Scanned PDFs</h1><p>Click a name to rename it. Changes are saved with Enter.</p></div>
+    <a class="primary link-button" href="{{ url_for('scans.index') }}"><i class="fa-solid fa-plus" aria-hidden="true"></i>New scan</a>
+  </div>
+  <div id="filesMessage" class="file-list-message" role="status">Loading files…</div>
+  <div id="scanFiles" class="scan-file-list" data-scan-file-list data-message-id="filesMessage"></div>
 </section>
-<div id="filesMessage" class="status-line" role="status">Loading files…</div>
-<div id="scanFiles" class="file-list"></div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/scan-files.js') }}"></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/scan-files.js', v='20260822-2') }}"></script>{% endblock %}
