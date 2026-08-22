@@ -4,7 +4,7 @@
 <section class="saved-view">
   <div class="gallery-heading">
     <div><h1>Saved labels</h1><p>Choose a label to print or edit it.</p></div>
-    <a class="primary link-button" href="{{ url_for('labels.index') }}"><i class="fa-solid fa-plus button-icon" aria-hidden="true"></i>Create a label</a>
+    <a class="primary link-button" href="{{ url_for('labels.index') }}"><i class="fas fa-plus button-icon" aria-hidden="true"></i>Create a label</a>
   </div>
   {% if labels %}
     <div class="saved-grid">
@@ -27,11 +27,11 @@
 <div class="modal fade" id="labelActionModal" tabindex="-1" aria-labelledby="labelModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered"><div class="modal-content label-modal">
     <div class="modal-body"><div class="modal-label-preview"><img id="modalLabelImage" alt=""></div><p id="labelModalTitle" class="modal-prompt"></p><small id="modalLabelFormat" class="modal-format"></small></div>
-    <div class="modal-edit-actions"><a id="modalEditLink" class="modal-action" href=""><i class="fa-solid fa-pen button-icon" aria-hidden="true"></i>Edit</a><a id="modalCopyLink" class="modal-action" href=""><i class="fa-solid fa-copy button-icon" aria-hidden="true"></i>Make a copy</a></div>
+    <div class="modal-edit-actions"><a id="modalEditLink" class="modal-action" href=""><i class="fas fa-pen button-icon" aria-hidden="true"></i>Edit</a><a id="modalCopyLink" class="modal-action" href=""><i class="fas fa-copy button-icon" aria-hidden="true"></i>Make a copy</a></div>
     <div class="modal-actions">
-      <form id="modalDeleteForm" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="modal-action danger-action" type="submit"><i class="fa-solid fa-trash-can button-icon" aria-hidden="true"></i>Delete</button></form>
-      <button class="modal-action" type="button" data-bs-dismiss="modal"><i class="fa-solid fa-xmark button-icon" aria-hidden="true"></i>Cancel</button>
-      <form id="modalPrintForm" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="copies" value="1"><input type="hidden" name="return_to" value="gallery"><button class="modal-action primary-modal-action" type="submit"><i class="fa-solid fa-print button-icon" aria-hidden="true"></i>Print</button></form>
+      <form id="modalDeleteForm" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="modal-action danger-action" type="submit"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>Delete</button></form>
+      <button class="modal-action" type="button" data-bs-dismiss="modal"><i class="fas fa-times button-icon" aria-hidden="true"></i>Cancel</button>
+      <form id="modalPrintForm" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="copies" value="1"><input type="hidden" name="return_to" value="gallery"><button class="modal-action primary-modal-action" type="submit"><i class="fas fa-print button-icon" aria-hidden="true"></i>Print</button></form>
     </div>
   </div></div>
 </div>

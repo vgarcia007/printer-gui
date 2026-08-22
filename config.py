@@ -53,6 +53,7 @@ class Config:
     )
     SCANS_DIR = Path(os.environ.get("SCANS_DIR", "/data/scans"))
     SCANNER_URL = os.environ.get("SCANNER_URL", "http://scanner:8080")
+    SCANNER_MODEL = os.environ.get("SCANNER_MODEL", "MFC-L2700DW")
     SCANNER_TIMEOUT_SECONDS = int(
         os.environ.get("SCANNER_TIMEOUT_SECONDS", "10")
     )

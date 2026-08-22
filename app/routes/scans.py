@@ -17,7 +17,7 @@ def files():
 
 @bp.get("")
 def index():
-    return render_template("scans/index.html")
+    return render_template("scans/index.html", scanner_model=current_app.config["SCANNER_MODEL"])
 
 
 @bp.get("/files")
@@ -84,4 +84,3 @@ def delete(filename):
         return jsonify(ok=True)
     except ScanFileError as exc:
         return jsonify(ok=False, error=str(exc)), exc.status
-

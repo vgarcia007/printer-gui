@@ -113,6 +113,7 @@ services:
       HOTFOLDER_RETRY_SECONDS: ${HOTFOLDER_RETRY_SECONDS:-30}
       SCANS_DIR: /data/scans
       SCANNER_URL: http://scanner:8080
+      SCANNER_MODEL: ${SCANNER_MODEL:-MFC-L2700DW}
       PRINTER_CONFIG: /config/printers.json
       LABEL_TEMPLATE_DIR: /app/label_templates
       DYMO_PRINTER_NAME: DYMO_LabelWriter_450

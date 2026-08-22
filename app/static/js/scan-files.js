@@ -13,20 +13,20 @@
   const formatSize = bytes => bytes < 1024 * 1024
     ? Math.max(1, Math.ceil(bytes / 1024)) + " KB"
     : (bytes / 1024 / 1024).toFixed(1) + " MB";
-  const formatDate = value => new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
-  const icon = name => {
+  const weekday = value => new Intl.DateTimeFormat("en", { weekday: "short" }).format(new Date(value));
+  const icon = (name, style = "far") => {
     const node = document.createElement("i");
-    node.className = `fa-solid ${name}`;
+    node.className = `${style} ${name} fa-fw`;
     node.setAttribute("aria-hidden", "true");
     return node;
   };
-  const iconButton = (name, label) => {
+  const iconButton = (name, label, style = "far") => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "icon-action";
+    button.className = "file-icon-button";
     button.setAttribute("aria-label", label);
     button.title = label;
-    button.append(icon(name));
+    button.append(icon(name, style));
     return button;
   };
   const messageFor = root => document.getElementById(root.dataset.messageId);
@@ -34,61 +34,95 @@
   const renderRow = (root, file) => {
     const row = document.createElement("article");
     row.className = "scan-file-row";
-    const symbol = document.createElement("span");
-    symbol.className = "pdf-symbol";
-    symbol.append(icon("fa-file-pdf"));
     const details = document.createElement("div");
     details.className = "scan-file-details";
-    const name = document.createElement("button");
-    name.type = "button";
+    const headline = document.createElement("div");
+    headline.className = "scan-file-headline";
+    const name = document.createElement("strong");
     name.className = "scan-file-name";
-    name.textContent = file.name;
-    name.title = "Rename";
-    const meta = document.createElement("small");
-    meta.textContent = `${formatDate(file.modified)} · ${formatSize(file.size)}${file.ocrFailed ? " · OCR needs attention" : ""}`;
-    details.append(name, meta);
+    name.textContent = file.filename;
+    const day = document.createElement("small");
+    day.textContent = weekday(file.modified);
+    headline.append(name, day);
+    const meta = document.createElement("div");
+    meta.className = "scan-file-meta";
+    meta.textContent = `${formatSize(file.size)}${file.ocrFailed ? " · OCR needs attention" : ""}`;
+    details.append(headline, meta);
+
     const actions = document.createElement("div");
     actions.className = "scan-file-actions";
     const download = document.createElement("a");
-    download.className = "icon-action";
+    download.className = "file-icon-button";
     download.href = "/scans/api/files/" + encodeURIComponent(file.filename) + "/download";
     download.setAttribute("aria-label", "Download " + file.filename);
     download.title = "Download";
-    download.append(icon("fa-download"));
-    const rename = iconButton("fa-pen", "Rename");
-    const remove = iconButton("fa-trash-can", "Delete");
-    remove.classList.add("danger-action");
+    download.append(icon("fa-save"));
+    const rename = iconButton("fa-keyboard", "Rename");
+    const remove = iconButton("fa-trash-alt", "Delete");
     actions.append(download, rename, remove);
-    row.append(symbol, details, actions);
+    const bottom = document.createElement("div");
+    bottom.className = "scan-file-bottom";
+    bottom.append(meta, actions);
+    details.append(bottom);
+    row.append(details);
 
     const beginRename = () => {
-      if (details.querySelector("form")) return;
-      name.hidden = true;
-      meta.hidden = true;
+      if (row.querySelector("form")) return;
+      headline.hidden = true;
+      bottom.hidden = true;
       const form = document.createElement("form");
-      form.className = "inline-rename";
+      form.className = "rename-panel";
       const input = document.createElement("input");
+      input.className = "rename-input";
       input.required = true;
       input.maxLength = 200;
-      input.value = file.name;
+      input.value = file.name.replace(/^\d{4}-\d{2}-\d{2}(?:-\d{2}-\d{2}-\d{2})?\s*/, "");
       input.setAttribute("aria-label", "New PDF name");
-      const save = iconButton("fa-check", "Save name");
+      const renameBottom = document.createElement("div");
+      renameBottom.className = "rename-bottom";
+      const prefixes = document.createElement("div");
+      prefixes.className = "rename-prefixes";
+      [["none", "No prefix"], ["date", "Date prefix"], ["datetime", "Date & time prefix"]].forEach(([value, label], index) => {
+        const holder = document.createElement("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "prefix-" + file.filename;
+        radio.value = value;
+        radio.checked = index === 1;
+        holder.append(radio, document.createTextNode(label));
+        prefixes.append(holder);
+      });
+      const renameActions = document.createElement("div");
+      renameActions.className = "rename-actions";
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "rename-cancel";
+      cancel.textContent = "CANCEL";
+      const save = document.createElement("button");
       save.type = "submit";
-      const cancel = iconButton("fa-xmark", "Cancel rename");
-      form.append(input, save, cancel);
-      details.prepend(form);
+      save.className = "rename-save";
+      save.textContent = "SAVE";
+      renameActions.append(cancel, save);
+      renameBottom.append(prefixes, renameActions);
+      form.append(input, renameBottom);
+      row.prepend(form);
       input.focus();
       input.select();
-      const close = () => { form.remove(); name.hidden = false; meta.hidden = false; };
+      const close = () => {
+        form.remove();
+        headline.hidden = false;
+        bottom.hidden = false;
+      };
       cancel.addEventListener("click", close);
       input.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
       form.addEventListener("submit", async event => {
         event.preventDefault();
         save.disabled = true;
+        const selected = form.querySelector('input[type="radio"]:checked');
         try {
           await request("/scans/api/files/" + encodeURIComponent(file.filename), {
             method: "PUT",
-            body: JSON.stringify({ name: input.value, prefix: "none" }),
+            body: JSON.stringify({ name: input.value, prefix: selected.value }),
           });
           await loadAll();
         } catch (error) {
@@ -98,7 +132,6 @@
         }
       });
     };
-    name.addEventListener("click", beginRename);
     rename.addEventListener("click", beginRename);
     remove.addEventListener("click", async () => {
       if (!window.confirm("Permanently delete “" + file.filename + "”?")) return;
@@ -112,12 +145,11 @@
 
   const render = (root, files) => {
     root.replaceChildren();
-    const message = messageFor(root);
-    message.textContent = files.length ? `${files.length} saved ${files.length === 1 ? "PDF" : "PDFs"}` : "No scanned PDFs yet";
+    messageFor(root).textContent = files.length ? `${files.length} saved ${files.length === 1 ? "PDF" : "PDFs"}` : "No scanned PDFs yet";
     if (!files.length) {
       const empty = document.createElement("div");
       empty.className = "empty-files";
-      empty.append(icon("fa-file-circle-plus"), "Your next scan will appear here.");
+      empty.append(icon("fa-file-pdf"), document.createTextNode("Your next scan will appear here."));
       root.append(empty);
       return;
     }

@@ -4,6 +4,7 @@ import json
 import subprocess
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -219,9 +220,10 @@ class ScanFileServiceTest(unittest.TestCase):
     def test_list_rename_and_delete(self):
         source = self.root / "2026-08-22-12-30-00.pdf"
         source.write_bytes(b"%PDF-1.7\n")
+        expected_date = datetime.fromtimestamp(source.stat().st_mtime).strftime("%Y-%m-%d")
         self.assertEqual(len(self.service.list()), 1)
         renamed = self.service.rename(source.name, "Electricity bill", "date")
-        self.assertEqual(renamed, "2026-08-22 Electricity bill.pdf")
+        self.assertEqual(renamed, f"{expected_date} Electricity bill.pdf")
         self.service.delete(renamed)
         self.assertEqual(self.service.list(), [])
 

@@ -15,9 +15,9 @@
   let timer = null;
 
   const show = id => panels.forEach(panel => { panel.hidden = panel.id !== id; });
-  const showState = (state, iconName, heading, text, spinning = false) => {
+  const showState = (state, iconName, heading, text, spinning = false, iconStyle = "fas") => {
     visual.className = `scan-status-visual state-${state}`;
-    icon.className = `fa-solid ${iconName}${spinning ? " fa-spin" : ""}`;
+    icon.className = `${iconStyle} ${iconName} fa-fw${spinning ? " fa-spin" : ""}`;
     title.textContent = heading;
     description.textContent = text;
   };
@@ -33,35 +33,35 @@
     const state = data.state || "idle";
     if (state === "idle" || state === "cancelled") {
       show("idlePanel");
-      showState("idle", "fa-face-smile", "Ready to scan", "Place the pages face up, top edge first.");
+      showState("idle", "fa-smile", "Ready to scan", "Place the pages face up, top edge first.", false, "far");
     } else if (state === "awaiting_decision") {
       show("decisionPanel");
-      showState("waiting", "fa-hourglass-half", "Front pages are done", "Add the rear pages or finish the PDF now.");
+      showState("waiting", "fa-hourglass-half", "Waiting for rear pages", "Add the rear pages or finish the PDF now.");
     } else if (state === "done") {
       show("donePanel");
-      showState("done", "fa-circle-check", "Your PDF is ready", "The document is searchable and saved in your PDF list.");
+      showState("done", "fa-check-circle", "Your PDF is ready", "The document is searchable and saved in your PDF list.", false, "far");
       download.href = "/scans/api/files/" + encodeURIComponent(data.filename) + "/download";
       announcer.textContent = "Your searchable PDF is ready.";
       window.ScanFiles?.refresh();
     } else if (state === "error") {
       show("errorPanel");
-      showState("error", "fa-face-frown-open", "That did not work", "Nothing was lost. Check the message below and try again.");
+      showState("error", "fa-frown-open", "That did not work", "Nothing was lost. Check the message below and try again.", false, "far");
       errorText.textContent = data.error || "The scan could not be completed.";
       retry.hidden = !data.retryAvailable;
     } else if (state === "scanning_front") {
       show("progressPanel");
-      showState("scanning", "fa-circle-notch", "Scanning front pages", "The feeder is taking each page automatically.", true);
+      showState("scanning", "fa-spinner", "Scan in progress", "The feeder is taking each page automatically.", true);
     } else if (state === "scanning_back") {
       show("progressPanel");
-      showState("scanning", "fa-circle-notch", "Scanning rear pages", "The feeder is taking each page automatically.", true);
+      showState("scanning", "fa-spinner", "Scan in progress", "The feeder is taking each page automatically.", true);
     } else {
       show("progressPanel");
-      showState("ocr", "fa-brain", "Making the PDF searchable", "OCR can take a moment. Temporary files are removed automatically.");
+      showState("ocr", "fa-brain", "OCR in progress", "OCR can take a moment. Temporary files are removed automatically.");
     }
   };
   const showRequestError = error => {
     show("errorPanel");
-    showState("error", "fa-face-frown-open", "Scanner unavailable", "The scanner did not answer.");
+    showState("error", "fa-frown-open", "Scanner unavailable", "The scanner did not answer.", false, "far");
     errorText.textContent = error.message;
     retry.hidden = true;
   };

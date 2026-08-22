@@ -7,7 +7,7 @@
       <h1>{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "Create a label" }}</h1>
       <p>{{ width_mm|int }} × {{ height_mm|int }} mm · What you see is what the DYMO prints.</p>
     </div>
-    <a class="secondary link-button" href="{{ url_for('labels.gallery') }}"><i class="fa-solid fa-folder-open button-icon" aria-hidden="true"></i>Saved labels</a>
+    <a class="secondary link-button" href="{{ url_for('labels.gallery') }}"><i class="fas fa-folder-open button-icon" aria-hidden="true"></i>Saved labels</a>
   </div>
 
   <div id="editorError" class="notice danger" role="alert" hidden></div>
@@ -21,10 +21,10 @@
       <div class="editor-toolbar" role="toolbar" aria-label="Label formatting tools">
         <div class="toolbar-group" aria-label="History">
           <button class="tool-button icon-button" type="button" data-command="undo" aria-label="Undo" title="Undo (Ctrl+Z)">
-            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            <i class="fas fa-undo" aria-hidden="true"></i>
           </button>
           <button class="tool-button icon-button" type="button" data-command="redo" aria-label="Redo" title="Redo (Ctrl+Y)">
-            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+            <i class="fas fa-redo" aria-hidden="true"></i>
           </button>
         </div>
         <div class="toolbar-group toolbar-fields" aria-label="Font settings">
@@ -44,31 +44,31 @@
           </select>
         </div>
         <div class="toolbar-group" aria-label="Text style">
-          <button class="tool-button icon-button" type="button" data-command="bold" aria-label="Bold" aria-pressed="false" title="Bold (Ctrl+B)"><i class="fa-solid fa-bold" aria-hidden="true"></i></button>
-          <button class="tool-button icon-button" type="button" data-command="italic" aria-label="Italic" aria-pressed="false" title="Italic (Ctrl+I)"><i class="fa-solid fa-italic" aria-hidden="true"></i></button>
-          <button class="tool-button icon-button" type="button" data-command="underline" aria-label="Underline" aria-pressed="false" title="Underline (Ctrl+U)"><i class="fa-solid fa-underline" aria-hidden="true"></i></button>
+          <button class="tool-button icon-button" type="button" data-command="bold" aria-label="Bold" aria-pressed="false" title="Bold (Ctrl+B)"><i class="fas fa-bold" aria-hidden="true"></i></button>
+          <button class="tool-button icon-button" type="button" data-command="italic" aria-label="Italic" aria-pressed="false" title="Italic (Ctrl+I)"><i class="fas fa-italic" aria-hidden="true"></i></button>
+          <button class="tool-button icon-button" type="button" data-command="underline" aria-label="Underline" aria-pressed="false" title="Underline (Ctrl+U)"><i class="fas fa-underline" aria-hidden="true"></i></button>
         </div>
         <div class="toolbar-group" aria-label="Text alignment">
           <button class="tool-button icon-button" type="button" data-command="justifyLeft" aria-label="Align left" aria-pressed="false" title="Align left">
-            <i class="fa-solid fa-align-left" aria-hidden="true"></i>
+            <i class="fas fa-align-left" aria-hidden="true"></i>
           </button>
           <button class="tool-button icon-button" type="button" data-command="justifyCenter" aria-label="Align center" aria-pressed="false" title="Align center">
-            <i class="fa-solid fa-align-center" aria-hidden="true"></i>
+            <i class="fas fa-align-center" aria-hidden="true"></i>
           </button>
           <button class="tool-button icon-button" type="button" data-command="justifyRight" aria-label="Align right" aria-pressed="false" title="Align right">
-            <i class="fa-solid fa-align-right" aria-hidden="true"></i>
+            <i class="fas fa-align-right" aria-hidden="true"></i>
           </button>
         </div>
         <div class="toolbar-group" aria-label="Insert and clear">
           <button id="insertImage" class="tool-button labeled-tool" type="button" aria-label="Insert image" title="Insert an image">
-            <i class="fa-solid fa-image" aria-hidden="true"></i>
+            <i class="fas fa-image" aria-hidden="true"></i>
             <span>Image</span>
           </button>
           <input id="imageFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif" tabindex="-1">
           <button class="tool-button icon-button" type="button" data-command="removeFormat" aria-label="Clear formatting" title="Clear formatting">
-            <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+            <i class="fas fa-eraser" aria-hidden="true"></i>
           </button>
-          <button id="clearEditor" class="tool-button labeled-tool tool-clear" type="button" title="Clear the entire label"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Clear all</span></button>
+          <button id="clearEditor" class="tool-button labeled-tool tool-clear" type="button" title="Clear the entire label"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>Clear all</span></button>
         </div>
       </div>
       <div id="imageTools" class="editor-context-bar" aria-label="Selected image tools" hidden>
@@ -80,7 +80,7 @@
           <button class="context-button" type="button" data-image-size-choice="large">Large</button>
           <button class="context-button" type="button" data-image-size-choice="full">Full width</button>
         </div>
-        <button id="imageDelete" class="context-button context-delete" type="button"><i class="fa-solid fa-trash-can button-icon" aria-hidden="true"></i>Delete image</button>
+        <button id="imageDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>Delete image</button>
       </div>
       <div class="label-workspace">
         <div id="labelViewport" class="label-viewport">
@@ -97,10 +97,10 @@
     </div>
     <div class="editor-footer">
       <div class="editor-submit-actions">
-        <button id="editorSave" class="secondary" type="submit" data-editor-action="save"><i class="fa-solid fa-floppy-disk button-icon" aria-hidden="true"></i><span class="button-label">Save</span></button>
-        <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview"><span class="button-label">Continue to print</span><i class="fa-solid fa-arrow-right button-icon-after" aria-hidden="true"></i></button>
+        <button id="editorSave" class="secondary" type="submit" data-editor-action="save"><i class="fas fa-save button-icon" aria-hidden="true"></i><span class="button-label">Save</span></button>
+        <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview"><span class="button-label">Continue to print</span><i class="fas fa-arrow-right button-icon-after" aria-hidden="true"></i></button>
       </div>
-      <p class="editor-safe-note"><i class="fa-solid fa-circle-info button-icon" aria-hidden="true"></i>Dashed line: safe print area. You can paste images too.</p>
+      <p class="editor-safe-note"><i class="fas fa-info-circle button-icon" aria-hidden="true"></i>Dashed line: safe print area. You can paste images too.</p>
     </div>
   </form>
 </section>
