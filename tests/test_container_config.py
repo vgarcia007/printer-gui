@@ -1,5 +1,8 @@
+import json
 import unittest
 from pathlib import Path
+
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -149,6 +152,38 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn('window.localStorage.setItem(storageKey', theme_javascript)
         self.assertIn('html[data-theme="light"]', css)
         self.assertIn("--app-bg:#212529", css)
+
+    def test_pwa_manifest_icons_and_safe_service_worker_strategy(self) -> None:
+        manifest = json.loads((ROOT / "app" / "static" / "manifest.webmanifest").read_text())
+        service_worker = (ROOT / "app" / "static" / "service-worker.js").read_text()
+        base = (ROOT / "app" / "templates" / "base.html").read_text()
+
+        self.assertEqual(manifest["name"], "Print & Scan Hub")
+        self.assertEqual(manifest["start_url"], "/")
+        self.assertEqual(manifest["scope"], "/")
+        self.assertEqual(manifest["display"], "standalone")
+        self.assertEqual(manifest["theme_color"], "#212529")
+        self.assertIn('rel="manifest"', base)
+        self.assertIn("js/pwa.js", base)
+        self.assertIn('request.method !== "GET"', service_worker)
+        self.assertIn('url.pathname.includes("/api/")', service_worker)
+
+        for size in (192, 512):
+            with Image.open(ROOT / "app" / "static" / "icons" / f"icon-{size}.png") as icon:
+                self.assertEqual(icon.size, (size, size))
+            with Image.open(ROOT / "app" / "static" / "icons" / f"icon-maskable-{size}.png") as icon:
+                self.assertEqual(icon.size, (size, size))
+
+    def test_apache_example_contains_only_placeholders(self) -> None:
+        apache = (ROOT / "deploy" / "apache-vhost.example.conf").read_text()
+
+        self.assertIn("ServerName <APP_HOSTNAME>", apache)
+        self.assertIn("<TLS_FULLCHAIN_PATH>", apache)
+        self.assertIn("<TLS_PRIVATE_KEY_PATH>", apache)
+        self.assertIn("Require ip <TRUSTED_NETWORK>", apache)
+        self.assertIn("127.0.0.1:<LOCAL_APP_PORT>", apache)
+        self.assertNotIn("freilinger", apache.lower())
+        self.assertNotIn("192.168.", apache)
 
 
 if __name__ == "__main__":

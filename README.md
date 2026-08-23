@@ -14,6 +14,7 @@ Print & Scan Hub is a self-hosted, beginner-friendly web interface for household
 - Produce downloadable PDFs with German and English OCR
 - Rename and delete scanned PDFs in the browser
 - Print a saved scan on any configured document printer
+- Install the HTTPS interface as a PWA on desktop and mobile devices
 - Switch between the default dark interface and a browser-persisted light mode
 - Recover the original PDF and retry when OCR fails
 - Restart all services automatically after failures and host reboots
@@ -56,6 +57,10 @@ Edit .env and config/printers.local.json, then start the stack:
     docker compose ps
 
 Open http://SERVER-IP:8081.
+
+For an installable PWA, serve the application through HTTPS. The deployment
+guide includes an anonymized Apache reverse-proxy template. Open the HTTPS URL
+in a supported browser and choose **Install app** or **Add to Home Screen**.
 
 The included public printer configuration uses documentation-only addresses. Put real addresses only in the ignored config/printers.local.json.
 

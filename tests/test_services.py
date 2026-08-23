@@ -306,6 +306,20 @@ class PageSmokeTest(unittest.TestCase):
             self.assertIn(b'id="themeToggle"', response.data, path)
             self.assertIn(b'aria-label="Switch to light mode"', response.data, path)
 
+    def test_pwa_assets_are_linked_and_service_worker_has_root_scope(self):
+        response = self.client.get("/")
+
+        self.assertIn(b'rel="manifest"', response.data)
+        self.assertIn(b'/static/manifest.webmanifest', response.data)
+        self.assertIn(b'/static/js/pwa.js', response.data)
+
+        service_worker = self.client.get("/service-worker.js")
+        self.assertEqual(service_worker.status_code, 200)
+        self.assertEqual(service_worker.mimetype, "application/javascript")
+        self.assertEqual(service_worker.headers["Cache-Control"], "no-cache")
+        self.assertEqual(service_worker.headers["Service-Worker-Allowed"], "/")
+        service_worker.close()
+
     def test_scanned_pdf_can_be_sent_to_a_document_printer(self):
         path = self.root / "scans" / "searchable.pdf"
         path.write_bytes(b"%PDF-1.7\n%%EOF\n")

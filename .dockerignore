@@ -3,6 +3,7 @@
 .env
 data
 docs
+deploy
 *.md
 Screenshots
 Desktop-Scripts

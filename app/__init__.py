@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 
 from config import Config
 
@@ -80,6 +80,17 @@ def create_app(config_object=None):
     @app.get("/health")
     def health():
         return {"ok": True}
+
+    @app.get("/service-worker.js")
+    def service_worker():
+        response = send_from_directory(
+            app.static_folder,
+            "service-worker.js",
+            mimetype="application/javascript",
+        )
+        response.headers["Cache-Control"] = "no-cache"
+        response.headers["Service-Worker-Allowed"] = "/"
+        return response
 
     @app.after_request
     def security_headers(response):
