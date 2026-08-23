@@ -9,7 +9,7 @@
   <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css', v='5.15.4') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260823-2') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260823-3') }}">
 </head>
 {% set active_section = request.blueprint or 'home' %}
 <body class="section-{{ active_section }} page-{{ request.endpoint|replace('.', '-') }}">
@@ -24,12 +24,6 @@
         <a class="{{ 'active' if active_section == 'documents' else '' }}" href="{{ url_for('documents.index') }}" {% if active_section == 'documents' %}aria-current="page"{% endif %}>Print</a>
         <a class="{{ 'active' if active_section == 'labels' else '' }}" href="{{ url_for('labels.index') }}" {% if active_section == 'labels' %}aria-current="page"{% endif %}>Labels</a>
         <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}>Scan</a>
-      </nav>
-      <nav class="library-nav" aria-label="Library">
-        <a href="{{ url_for('labels.gallery') }}" aria-label="Saved labels" title="Saved labels"><i class="fas fa-tags" aria-hidden="true"></i></a>
-        {% if request.endpoint == 'scans.index' %}
-          <button id="openScanFiles" type="button" aria-label="Scanned PDFs" title="Scanned PDFs" aria-controls="scanFilesDrawer" aria-expanded="false"><i class="far fa-file-pdf" aria-hidden="true"></i></button>
-        {% endif %}
       </nav>
     </div>
   </header>
@@ -48,6 +42,7 @@
     <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}><i class="fas fa-file-import" aria-hidden="true"></i><span>Scan</span></a>
   </nav>
   <script src="{{ url_for('static', filename='vendor/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/drawers.js', v='20260823-1') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

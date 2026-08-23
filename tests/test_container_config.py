@@ -101,6 +101,7 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         template = (ROOT / "app" / "templates" / "scans" / "index.html").read_text()
         scan_javascript = (ROOT / "app" / "static" / "js" / "scans.js").read_text()
         files_javascript = (ROOT / "app" / "static" / "js" / "scan-files.js").read_text()
+        drawer_javascript = (ROOT / "app" / "static" / "js" / "drawers.js").read_text()
 
         self.assertIn('id="scanStatusIcon"', template)
         self.assertIn('id="scanFilesDrawer"', template)
@@ -112,7 +113,20 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn('["none", "No prefix"]', files_javascript)
         self.assertIn('["date", "Date prefix"]', files_javascript)
         self.assertIn('["datetime", "Date & time prefix"]', files_javascript)
-        self.assertIn('event.key === "Escape"', files_javascript)
+        self.assertIn('event.key === "Escape"', drawer_javascript)
+
+    def test_libraries_use_page_local_drawers_instead_of_header_navigation(self) -> None:
+        base = (ROOT / "app" / "templates" / "base.html").read_text()
+        labels = (ROOT / "app" / "templates" / "labels" / "editor.html").read_text()
+        scans = (ROOT / "app" / "templates" / "scans" / "index.html").read_text()
+        label_drawer = (ROOT / "app" / "templates" / "labels" / "_library_drawer.html").read_text()
+
+        self.assertNotIn('class="library-nav"', base)
+        self.assertNotIn("labels.gallery", base)
+        self.assertIn('aria-controls="labelLibraryDrawer"', labels)
+        self.assertIn('id="labelLibraryDrawer"', label_drawer)
+        self.assertIn('aria-controls="scanFilesDrawer"', scans)
+        self.assertIn('data-drawer-scrim="scanFilesDrawer"', scans)
 
 
 if __name__ == "__main__":

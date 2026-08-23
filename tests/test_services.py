@@ -273,6 +273,17 @@ class PageSmokeTest(unittest.TestCase):
         self.assertNotIn(b"Print waiting PDFs", documents.data)
         self.assertEqual(self.client.post("/documents/api/print-jobs").status_code, 404)
 
+    def test_saved_labels_and_scanned_pdfs_are_local_drawers(self):
+        labels = self.client.get("/labels").data
+        scans = self.client.get("/scans").data
+
+        self.assertIn(b'aria-controls="labelLibraryDrawer"', labels)
+        self.assertIn(b'id="labelLibraryDrawer"', labels)
+        self.assertNotIn(b"Scanned PDFs", labels)
+        self.assertIn(b'aria-controls="scanFilesDrawer"', scans)
+        self.assertIn(b'id="scanFilesDrawer"', scans)
+        self.assertNotIn(b"Saved labels", scans)
+
 
 if __name__ == "__main__":
     unittest.main()

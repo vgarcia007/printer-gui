@@ -2,6 +2,9 @@
 {% block title %}Scan · Print & Scan{% endblock %}
 {% block content %}
 <section class="scan-stage" aria-labelledby="scanPageTitle">
+  <div class="work-library-row">
+    <button id="openScanFiles" class="secondary work-library-trigger" type="button" data-drawer-trigger aria-label="Scanned PDFs" aria-controls="scanFilesDrawer" aria-expanded="false"><i class="far fa-file-pdf" aria-hidden="true"></i>Scanned PDFs</button>
+  </div>
   <div id="scanStatusVisual" class="scan-status-visual state-idle" aria-hidden="true">
     <i id="scanStatusIcon" class="far fa-smile fa-fw"></i>
   </div>
@@ -46,11 +49,11 @@
   </div>
 </section>
 
-<button id="scanFilesScrim" class="drawer-scrim" type="button" aria-label="Close scanned PDFs" hidden></button>
+<button id="scanFilesScrim" class="drawer-scrim" type="button" data-drawer-scrim="scanFilesDrawer" aria-label="Close scanned PDFs" hidden></button>
 <aside id="scanFilesDrawer" class="file-drawer" aria-labelledby="scanFilesTitle" aria-hidden="true">
   <div class="file-drawer-head">
     <div><h2 id="scanFilesTitle">Last scanned</h2></div>
-    <button id="closeScanFiles" class="icon-action" type="button" aria-label="Close scanned PDFs"><i class="fas fa-times" aria-hidden="true"></i></button>
+    <button id="closeScanFiles" class="icon-action" type="button" data-drawer-close aria-label="Close scanned PDFs"><i class="fas fa-times" aria-hidden="true"></i></button>
   </div>
   <div id="drawerFilesMessage" class="visually-hidden" role="status">Loading files…</div>
   <div id="drawerScanFiles" class="scan-file-list compact" data-scan-file-list data-message-id="drawerFilesMessage"></div>

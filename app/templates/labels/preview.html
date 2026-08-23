@@ -10,6 +10,7 @@
     {{ print_form.copies(class="copy-input", min=1, max=config.MAX_COPIES, inputmode="numeric") }}
     <button class="primary" type="submit"><i class="fas fa-print button-icon" aria-hidden="true"></i>Print label</button>
   </form>
-  <div class="preview-secondary-actions"><a class="secondary link-button" href="{{ url_for('labels.edit', label_id=label.id) }}"><i class="fas fa-pen button-icon" aria-hidden="true"></i>Edit label</a><a class="secondary link-button" href="{{ url_for('labels.gallery') }}"><i class="fas fa-folder-open button-icon" aria-hidden="true"></i>Saved labels</a></div>
+  <div class="preview-secondary-actions"><a class="secondary link-button" href="{{ url_for('labels.edit', label_id=label.id) }}"><i class="fas fa-pen button-icon" aria-hidden="true"></i>Edit label</a><button class="secondary" type="button" data-drawer-trigger aria-controls="labelLibraryDrawer" aria-expanded="false"><i class="far fa-folder-open" aria-hidden="true"></i>Saved labels</button></div>
 </section>
+{% include "labels/_library_drawer.html" %}
 {% endblock %}

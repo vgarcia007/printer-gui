@@ -165,34 +165,7 @@
     }
   };
   window.ScanFiles = { refresh: loadAll };
-
   const drawer = document.getElementById("scanFilesDrawer");
-  const open = document.getElementById("openScanFiles");
-  const close = document.getElementById("closeScanFiles");
-  const scrim = document.getElementById("scanFilesScrim");
-  if (drawer && open && close && scrim) {
-    let hideScrimTimer = null;
-    const setOpen = value => {
-      drawer.classList.toggle("open", value);
-      drawer.setAttribute("aria-hidden", String(!value));
-      open.setAttribute("aria-expanded", String(value));
-      document.body.classList.toggle("drawer-open", value);
-      if (value) {
-        window.clearTimeout(hideScrimTimer);
-        scrim.hidden = false;
-        requestAnimationFrame(() => scrim.classList.add("open"));
-        close.focus({ preventScroll: true });
-        loadAll();
-      } else {
-        scrim.classList.remove("open");
-        hideScrimTimer = window.setTimeout(() => { scrim.hidden = true; }, 180);
-        open.focus({ preventScroll: true });
-      }
-    };
-    open.addEventListener("click", () => setOpen(true));
-    close.addEventListener("click", () => setOpen(false));
-    scrim.addEventListener("click", () => setOpen(false));
-    document.addEventListener("keydown", event => { if (event.key === "Escape" && drawer.classList.contains("open")) setOpen(false); });
-  }
+  if (drawer) drawer.addEventListener("drawer:opened", loadAll);
   loadAll();
 })();

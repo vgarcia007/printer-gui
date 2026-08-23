@@ -10,6 +10,14 @@ from ..services.image_service import ImageValidationError
 bp = Blueprint("labels", __name__, url_prefix="/labels")
 
 
+def saved_label_list() -> list[Label]:
+    return db.session.execute(
+        db.select(Label)
+        .where(Label.is_saved.is_(True), Label.source_type == "editor")
+        .order_by(Label.updated_at.desc())
+    ).scalars().all()
+
+
 def render_editor(label=None, copy=False):
     template = current_app.extensions["template_service"].all()[0]
     width_mm, height_mm = template.dimensions_for("landscape")
@@ -26,6 +34,7 @@ def render_editor(label=None, copy=False):
         height_mm=height_mm,
         output_width_px=output_width,
         output_height_px=output_height,
+        saved_labels=saved_label_list(),
     )
 
 
@@ -97,18 +106,18 @@ def compose(label_id=None):
 
 @bp.get("/gallery")
 def gallery():
-    labels = db.session.execute(
-        db.select(Label)
-        .where(Label.is_saved.is_(True), Label.source_type == "editor")
-        .order_by(Label.updated_at.desc())
-    ).scalars().all()
-    return render_template("labels/gallery.html", labels=labels, gallery_kind="editor")
+    return render_template("labels/gallery.html", labels=saved_label_list(), gallery_kind="editor")
 
 
 @bp.get("/<int:label_id>/preview")
 def preview(label_id):
     label = db.get_or_404(Label, label_id)
-    return render_template("labels/preview.html", label=label, print_form=PrintLabelForm())
+    return render_template(
+        "labels/preview.html",
+        label=label,
+        print_form=PrintLabelForm(),
+        saved_labels=saved_label_list(),
+    )
 
 
 @bp.get("/<int:label_id>/preview.png")
@@ -130,5 +139,6 @@ def delete(label_id):
         db.session.delete(label)
         db.session.commit()
         flash("The label was deleted.", "success")
+    if request.form.get("return_to") == "editor":
+        return redirect(url_for("labels.index"))
     return redirect(url_for("labels.gallery"))
-

@@ -7,7 +7,7 @@
       <h1>{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "Create a label" }}</h1>
       <p>{{ width_mm|int }} × {{ height_mm|int }} mm · What you see is what the DYMO prints.</p>
     </div>
-    <a class="secondary link-button" href="{{ url_for('labels.gallery') }}"><i class="fas fa-folder-open button-icon" aria-hidden="true"></i>Saved labels</a>
+    <button class="secondary work-library-trigger" type="button" data-drawer-trigger aria-controls="labelLibraryDrawer" aria-expanded="false"><i class="far fa-folder-open" aria-hidden="true"></i>Saved labels</button>
   </div>
 
   <div id="editorError" class="notice danger" role="alert" hidden></div>
@@ -104,6 +104,7 @@
     </div>
   </form>
 </section>
+{% include "labels/_library_drawer.html" %}
 {% if editor_content %}<div id="initialEditorDocument" hidden>{{ editor_content|tojson }}</div>{% endif %}
 {% endblock %}
 {% block scripts %}
