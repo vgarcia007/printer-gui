@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app, jsonify, render_template, request, send_file
 
+from ..services.document_service import DocumentPrintError
 from ..services.scan_file_service import ScanFileError
 from ..services.scanner_client import ScannerClientError
 
@@ -13,6 +14,10 @@ def scanner():
 
 def files():
     return current_app.extensions["scan_file_service"]
+
+
+def document_printer():
+    return current_app.extensions["document_print_service"]
 
 
 @bp.get("")
@@ -84,3 +89,18 @@ def delete(filename):
         return jsonify(ok=True)
     except ScanFileError as exc:
         return jsonify(ok=False, error=str(exc)), exc.status
+
+
+@bp.post("/api/files/<path:filename>/print")
+def print_file(filename):
+    try:
+        path = files().resolve(filename)
+        payload = request.get_json(silent=True) or {}
+        printer = str(payload.get("printer", ""))
+        service = document_printer()
+        label = service.print_preserved_pdf(printer, path)
+        return jsonify(ok=True, message=f"The PDF was sent to {label}.")
+    except ScanFileError as exc:
+        return jsonify(ok=False, error=str(exc)), exc.status
+    except DocumentPrintError as exc:
+        return jsonify(ok=False, error=str(exc)), 422

@@ -1,0 +1,21 @@
+<div class="modal fade" id="scanPrintModal" tabindex="-1" aria-labelledby="scanPrintModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content scan-print-modal">
+      <div class="scan-print-modal-head">
+        <div>
+          <h2 id="scanPrintModalTitle">Where should this PDF print?</h2>
+          <p id="scanPrintFilename"></p>
+        </div>
+        <button class="icon-action" type="button" data-bs-dismiss="modal" aria-label="Close print dialog"><i class="fas fa-times" aria-hidden="true"></i></button>
+      </div>
+      <div class="scan-print-modal-body">
+        <div id="scanPrinterChoices" class="printer-choice-list" role="radiogroup" aria-label="Document printer"></div>
+        <p id="scanPrintStatus" class="scan-print-status" role="status" aria-live="polite">Loading printers…</p>
+      </div>
+      <div class="scan-print-modal-actions">
+        <button class="modal-action" type="button" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirmScanPrint" class="modal-action primary-modal-action" type="button" disabled><i class="fas fa-print button-icon" aria-hidden="true"></i>Print PDF</button>
+      </div>
+    </div>
+  </div>
+</div>

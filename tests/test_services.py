@@ -126,6 +126,21 @@ class DocumentServiceTest(unittest.TestCase):
         self.assertTrue(failed.exists())
 
     @patch("app.services.document_service.subprocess.run")
+    def test_preserved_pdf_is_printed_without_being_deleted(self, run):
+        run.side_effect = self.lpstat
+        scans = self.root / "scans"
+        scans.mkdir()
+        path = scans / "searchable scan.pdf"
+        path.write_bytes(b"%PDF-1.7\nsearchable document\n%%EOF\n")
+
+        label = self.service.print_preserved_pdf("mfc", path)
+
+        self.assertTrue(path.exists())
+        self.assertEqual(label, "Brother MFC-L2710DW")
+        lpr_calls = [call.args[0] for call in run.call_args_list if call.args[0][0] == "lpr"]
+        self.assertEqual(lpr_calls, [["lpr", "-H", "cups:631", "-P", "mfc", str(path)]])
+
+    @patch("app.services.document_service.subprocess.run")
     def test_hotfolder_waits_for_a_complete_stable_pdf(self, run):
         run.side_effect = self.lpstat
         worker = DocumentHotfolderService(
@@ -239,6 +254,7 @@ class PageSmokeTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         root = Path(self.temporary.name)
+        self.root = root
         printer_config = root / "printers.json"
         printer_config.write_text(json.dumps(CONFIG), encoding="utf-8")
 
@@ -289,6 +305,25 @@ class PageSmokeTest(unittest.TestCase):
             response = self.client.get(path)
             self.assertIn(b'id="themeToggle"', response.data, path)
             self.assertIn(b'aria-label="Switch to light mode"', response.data, path)
+
+    def test_scanned_pdf_can_be_sent_to_a_document_printer(self):
+        path = self.root / "scans" / "searchable.pdf"
+        path.write_bytes(b"%PDF-1.7\n%%EOF\n")
+        service = self.app.extensions["document_print_service"]
+
+        with patch.object(
+            service,
+            "print_preserved_pdf",
+            return_value="Brother MFC-L2710DW",
+        ) as print_pdf:
+            response = self.client.post(
+                "/scans/api/files/searchable.pdf/print",
+                json={"printer": "mfc"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Brother MFC-L2710DW", response.data)
+        print_pdf.assert_called_once_with("mfc", path)
 
 
 if __name__ == "__main__":

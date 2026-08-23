@@ -68,9 +68,10 @@
   <div id="drawerFilesMessage" class="visually-hidden" role="status">Loading files…</div>
   <div id="drawerScanFiles" class="scan-file-list compact" data-scan-file-list data-message-id="drawerFilesMessage"></div>
 </aside>
+{% include "scans/_print_modal.html" %}
 <div id="scanAnnouncer" class="visually-hidden" aria-live="polite"></div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/scan-files.js', v='20260822-2') }}"></script>
+<script src="{{ url_for('static', filename='js/scan-files.js', v='20260823-1') }}"></script>
 <script src="{{ url_for('static', filename='js/scans.js', v='20260822-2') }}"></script>
 {% endblock %}

@@ -9,5 +9,6 @@
   <div id="filesMessage" class="file-list-message" role="status">Loading files…</div>
   <div id="scanFiles" class="scan-file-list" data-scan-file-list data-message-id="filesMessage"></div>
 </section>
+{% include "scans/_print_modal.html" %}
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/scan-files.js', v='20260822-2') }}"></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/scan-files.js', v='20260823-1') }}"></script>{% endblock %}

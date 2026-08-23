@@ -148,10 +148,12 @@ class DocumentPrintService:
             "defaultPrinter": default,
         }
 
-    def _validate_printer(self, name: str) -> None:
+    def _validate_printer(self, name: str) -> dict[str, object]:
         printers, _ = self.printers()
-        if name not in {str(item["name"]) for item in printers}:
-            raise DocumentPrintError("The selected printer is unavailable.")
+        for printer in printers:
+            if printer["name"] == name:
+                return printer
+        raise DocumentPrintError("The selected printer is unavailable.")
 
     def print_files(self, printer: str, files: list[Path]) -> int:
         if not files:
@@ -174,6 +176,29 @@ class DocumentPrintService:
             if not printed:
                 raise DocumentPrintError("There are no PDF files to print.")
             return printed
+
+    def print_preserved_pdf(self, printer: str, path: Path) -> str:
+        with self.lock:
+            selected = self._validate_printer(printer)
+            try:
+                resolved = Path(path).resolve(strict=True)
+            except FileNotFoundError as exc:
+                raise DocumentPrintError("The PDF no longer exists.") from exc
+            if (
+                Path(path).is_symlink()
+                or not resolved.is_file()
+                or resolved.suffix.lower() != ".pdf"
+            ):
+                raise DocumentPrintError("The selected file is not a printable PDF.")
+            try:
+                with resolved.open("rb") as stream:
+                    header = stream.read(1024)
+            except OSError as exc:
+                raise DocumentPrintError("The PDF could not be read.") from exc
+            if b"%PDF-" not in header:
+                raise DocumentPrintError("The selected file is not a valid PDF.")
+            self._run(["lpr", "-H", self.cups_server, "-P", printer, str(resolved)])
+            return str(selected["label"] or printer)
 
     def save_upload(self, filename: str, content: bytes) -> Path:
         if len(content) > MAX_PDF_SIZE:

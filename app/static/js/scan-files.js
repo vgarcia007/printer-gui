@@ -30,6 +30,97 @@
     return button;
   };
   const messageFor = root => document.getElementById(root.dataset.messageId);
+  const printModalElement = document.getElementById("scanPrintModal");
+  const printModal = printModalElement && window.bootstrap
+    ? window.bootstrap.Modal.getOrCreateInstance(printModalElement)
+    : null;
+  const printFilename = document.getElementById("scanPrintFilename");
+  const printerChoices = document.getElementById("scanPrinterChoices");
+  const printStatus = document.getElementById("scanPrintStatus");
+  const confirmPrint = document.getElementById("confirmScanPrint");
+  let pendingPrintFile = null;
+
+  const setConfirmLabel = (label, iconName = "fa-print") => {
+    if (!confirmPrint) return;
+    confirmPrint.replaceChildren(icon(iconName, "fas"), document.createTextNode(label));
+  };
+  const selectedPrinter = () => printerChoices?.querySelector('input[type="radio"]:checked')?.value || "";
+  const openPrintDialog = async (root, file) => {
+    if (!printModal || !printFilename || !printerChoices || !printStatus || !confirmPrint) {
+      messageFor(root).textContent = "The print dialog is unavailable.";
+      return;
+    }
+    pendingPrintFile = file;
+    printFilename.textContent = file.filename;
+    printerChoices.replaceChildren();
+    printStatus.textContent = "Loading printers…";
+    confirmPrint.disabled = true;
+    setConfirmLabel("Print PDF");
+    printModal.show();
+    try {
+      const data = await request("/documents/api/status");
+      const hasDefault = data.printers.some(item => item.name === data.defaultPrinter);
+      data.printers.forEach((item, index) => {
+        const choice = document.createElement("label");
+        choice.className = "printer-choice";
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "scan-print-printer";
+        radio.value = item.name;
+        radio.checked = item.name === data.defaultPrinter || (!hasDefault && index === 0);
+        const printerIcon = icon("fa-print", "fas");
+        const copy = document.createElement("span");
+        const printerName = document.createElement("strong");
+        printerName.textContent = item.label || item.name;
+        const printerState = document.createElement("small");
+        printerState.textContent = item.ready ? "Ready" : "Check printer";
+        copy.append(printerName, printerState);
+        choice.append(radio, printerIcon, copy);
+        const updateSelection = () => {
+          printerChoices.querySelectorAll(".printer-choice").forEach(itemChoice => {
+            const input = itemChoice.querySelector("input");
+            itemChoice.classList.toggle("selected", Boolean(input?.checked));
+          });
+          confirmPrint.disabled = !selectedPrinter();
+        };
+        radio.addEventListener("change", updateSelection);
+        printerChoices.append(choice);
+        updateSelection();
+      });
+      if (!data.printers.length) {
+        printStatus.textContent = "No document printer is available.";
+      } else {
+        printStatus.textContent = "Choose a printer, then confirm below.";
+      }
+    } catch (error) {
+      printStatus.textContent = error.message;
+    }
+  };
+
+  if (confirmPrint) {
+    confirmPrint.addEventListener("click", async () => {
+      const printer = selectedPrinter();
+      if (!pendingPrintFile || !printer) return;
+      confirmPrint.disabled = true;
+      setConfirmLabel("Sending…", "fa-spinner fa-spin");
+      printStatus.textContent = "Sending the PDF to the printer…";
+      try {
+        const data = await request(
+          "/scans/api/files/" + encodeURIComponent(pendingPrintFile.filename) + "/print",
+          { method: "POST", body: JSON.stringify({ printer }) },
+        );
+        printStatus.textContent = data.message;
+        setConfirmLabel("Sent", "fa-check");
+      } catch (error) {
+        printStatus.textContent = error.message;
+        confirmPrint.disabled = false;
+        setConfirmLabel("Try again", "fa-print");
+      }
+    });
+  }
+  if (printModalElement) {
+    printModalElement.addEventListener("hidden.bs.modal", () => { pendingPrintFile = null; });
+  }
 
   const renderRow = (root, file) => {
     const row = document.createElement("article");
@@ -51,6 +142,7 @@
 
     const actions = document.createElement("div");
     actions.className = "scan-file-actions";
+    const print = iconButton("fa-print", "Print", "fas");
     const download = document.createElement("a");
     download.className = "file-icon-button";
     download.href = "/scans/api/files/" + encodeURIComponent(file.filename) + "/download";
@@ -59,7 +151,7 @@
     download.append(icon("fa-save"));
     const rename = iconButton("fa-keyboard", "Rename");
     const remove = iconButton("fa-trash-alt", "Delete");
-    actions.append(download, rename, remove);
+    actions.append(print, download, rename, remove);
     const bottom = document.createElement("div");
     bottom.className = "scan-file-bottom";
     bottom.append(meta, actions);
@@ -132,6 +224,7 @@
         }
       });
     };
+    print.addEventListener("click", () => openPrintDialog(root, file));
     rename.addEventListener("click", beginRename);
     remove.addEventListener("click", async () => {
       if (!window.confirm("Permanently delete “" + file.filename + "”?")) return;

@@ -99,6 +99,7 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
 
     def test_scan_interface_has_clear_states_and_inline_pdf_management(self) -> None:
         template = (ROOT / "app" / "templates" / "scans" / "index.html").read_text()
+        print_modal = (ROOT / "app" / "templates" / "scans" / "_print_modal.html").read_text()
         scan_javascript = (ROOT / "app" / "static" / "js" / "scans.js").read_text()
         files_javascript = (ROOT / "app" / "static" / "js" / "scan-files.js").read_text()
         drawer_javascript = (ROOT / "app" / "static" / "js" / "drawers.js").read_text()
@@ -109,12 +110,15 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn('class="scan-workbench"', template)
         self.assertIn('class="scan-status-card"', template)
         self.assertIn('class="scan-action-panel"', template)
+        self.assertIn('id="scanPrintModal"', print_modal)
         self.assertLess(template.index("scan-status-card"), template.index("scan-action-panel"))
         self.assertIn('fa-smile', scan_javascript)
         self.assertIn('fa-hourglass-half', scan_javascript)
         self.assertIn('fa-brain', scan_javascript)
         self.assertIn('fa-check-circle', scan_javascript)
         self.assertIn('className = "rename-panel"', files_javascript)
+        self.assertIn('iconButton("fa-print", "Print", "fas")', files_javascript)
+        self.assertIn('pendingPrintFile.filename) + "/print"', files_javascript)
         self.assertIn('["none", "No prefix"]', files_javascript)
         self.assertIn('["date", "Date prefix"]', files_javascript)
         self.assertIn('["datetime", "Date & time prefix"]', files_javascript)
