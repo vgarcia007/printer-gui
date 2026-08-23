@@ -262,6 +262,7 @@ class PageSmokeTest(unittest.TestCase):
         class Overrides:
             TESTING = True
             WTF_CSRF_ENABLED = False
+            UI_LANGUAGE = "en"
             SECRET_KEY = "test"
             SQLALCHEMY_DATABASE_URI = "sqlite:///" + str(root / "labels.db")
             JOBS_DIR = root / "jobs"
@@ -341,7 +342,8 @@ class PageSmokeTest(unittest.TestCase):
         service_worker = self.client.get("/service-worker.js")
 
         self.assertIn(b'<html lang="de">', home.data)
-        self.assertIn("Hallo. Was möchten wir machen?".encode(), home.data)
+        self.assertIn("Was möchten Sie tun?".encode(), home.data)
+        self.assertIn("Wählen Sie eine Funktion aus.".encode(), home.data)
         self.assertIn(b"PDF hier ablegen", documents.data)
         self.assertIn(b"Gespeicherte Etiketten", labels.data)
         self.assertIn(b"Bereit zum Scannen", scans.data)
