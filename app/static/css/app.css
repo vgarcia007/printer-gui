@@ -169,26 +169,30 @@ button:active,.link-button:active{transform:translateY(1px)}
 .toast-message{padding:13px 16px;margin-top:16px;border-radius:9px;color:var(--ink);background:var(--accent)}
 
 /* Scanner */
-.scan-stage{position:relative;max-width:640px;min-height:calc(100vh - 198px);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto;padding:1rem 14px 3rem;text-align:center}
-.work-library-row{position:absolute;top:0;right:14px;display:flex;justify-content:flex-end}
 .work-library-trigger{gap:.5rem;white-space:nowrap}
+.scan-workbench{display:grid;gap:20px}
+.scan-status-card{min-height:540px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(32px,6vw,72px);border:1px solid var(--app-border);border-radius:10px;background:var(--app-bg-raised);box-shadow:var(--shadow);text-align:center}
 .scan-status-visual{display:block;color:var(--app-fg);font-size:10rem;line-height:1}
 .scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{color:var(--app-fg);font-size:10rem}
-.scan-status-copy h1{margin:3rem 0 .5rem;font-size:2.5rem;font-weight:700;line-height:1.2}
-.scan-status-copy #scanStateTitle{margin:0 0 3rem;color:var(--app-fg);font-size:1.25rem;font-weight:300}
-.scan-controls{width:100%}
-.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.scan-status-copy h2{margin:2.25rem 0 .5rem;font-size:2rem;font-weight:700;line-height:1.2}
+.scan-status-copy p{max-width:460px;margin:0;color:var(--app-muted);font-size:1rem}
+.scan-action-panel{display:flex;flex-direction:column;gap:12px}
+.scan-controls{width:100%;display:grid;gap:10px}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mode-card{min-height:58px;display:flex;align-items:center;gap:12px;padding:.5rem 1rem;border:1px solid var(--app-fg);border-radius:.3rem;color:var(--app-fg);background:transparent;text-align:left}
 .mode-card>i{width:24px;color:var(--app-fg);font-size:1.1rem;text-align:center}
 .mode-card strong,.mode-card small{display:block}.mode-card small{color:var(--app-fg);font-weight:300}
 .mode-card:hover,.mode-card.selected{color:var(--primary-fg);background:var(--primary-bg)}
 .mode-card:hover>i,.mode-card:hover small,.mode-card.selected>i,.mode-card.selected small{color:var(--primary-fg)}
 .scan-main-action,.scan-secondary-action{
-  width:100%;min-height:58px;display:flex;align-items:center;justify-content:center;margin:0 0 1rem;padding:.5rem 1rem;border:1px solid var(--app-fg);border-radius:.3rem;color:var(--app-fg);background:transparent;font-size:1.25rem;font-weight:400;text-decoration:none
+  width:100%;min-height:58px;display:flex;align-items:center;justify-content:center;gap:9px;margin:0;padding:.5rem 1rem;border-radius:.3rem;font-size:1.05rem;font-weight:700;text-decoration:none
 }
-.scan-main-action:hover,.scan-secondary-action:hover{color:var(--primary-fg);background:var(--primary-bg)}
+.scan-main-action{border:1px solid var(--primary-bg);color:var(--primary-fg);background:var(--primary-bg)}
+.scan-main-action:hover{border-color:var(--primary-hover);color:var(--primary-fg);background:var(--primary-hover)}
+.scan-secondary-action{border:1px solid #c9c6bf;color:var(--ink);background:#fff}
+.scan-secondary-action:hover{color:var(--ink);background:var(--paper-soft)}
 .scan-text-action{min-height:38px;padding:.4rem 1rem;border:0;color:var(--app-fg);background:transparent;font-size:1rem;font-weight:400}
-.turn-hint,.quiet-action{padding:1rem;margin:0 0 1rem;border:1px solid var(--app-muted);border-radius:.3rem;color:var(--app-fg);background:transparent;text-align:left}
+.turn-hint,.quiet-action{padding:1rem;margin:0;border:1px solid var(--app-muted);border-radius:.3rem;color:var(--app-fg);background:transparent;text-align:left}
 .quiet-action{display:flex;gap:10px}.quiet-action i{margin-top:4px;color:var(--app-fg)}
 .scan-error{padding:1rem;border-radius:.25rem;color:#fff;background:#dc3545}
 
@@ -298,9 +302,11 @@ button:active,.link-button:active{transform:translateY(1px)}
 .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
 @media(min-width:1100px){
-  .label-editor-form{grid-template-columns:minmax(0,1fr) 250px;align-items:start}
+  .label-editor-form,.scan-workbench{grid-template-columns:minmax(0,1fr) 250px;align-items:start}
   .editor-frame{grid-column:1;grid-row:1}
-  .editor-footer{grid-column:2;grid-row:1;position:sticky;top:96px}
+  .editor-footer,.scan-action-panel{grid-column:2;grid-row:1;position:sticky;top:96px}
+  .scan-status-card{grid-column:1;grid-row:1}
+  .scan-action-panel .mode-switch{grid-template-columns:1fr}
   .editor-toolbar .toolbar-group:last-child{flex-basis:100%;padding-top:7px;margin-top:3px;border-top:1px solid var(--line);border-right:0}
 }
 
@@ -317,8 +323,8 @@ button:active,.link-button:active{transform:translateY(1px)}
   .simple-heading,.split-heading,.editor-heading,.gallery-heading{align-items:stretch;flex-direction:column}
   .centered-heading{align-items:center;text-align:center}.page-symbol{width:62px;height:62px;flex-basis:62px}
   .simple-heading .link-button,.editor-heading .link-button,.editor-heading .work-library-trigger,.gallery-heading .link-button{width:100%}
-  .scan-stage{min-height:calc(100vh - 184px);padding-top:0}.work-library-row{right:0}.scan-status-visual,.scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{font-size:9rem}
-  .scan-status-copy h1{font-size:2.1rem}.scan-status-copy #scanStateTitle{font-size:1.25rem}
+  .scan-status-card{min-height:360px;padding:36px 20px}.scan-status-visual,.scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{font-size:8rem}
+  .scan-status-copy h2{margin-top:1.75rem;font-size:1.75rem}.scan-status-copy p{font-size:.95rem}
   .scan-file-row{padding:1rem 1.25rem}.rename-bottom{align-items:stretch;flex-direction:column}.rename-actions{align-self:flex-end}
   .field-row{grid-template-columns:1fr;gap:1px}.drop-zone{min-height:210px}
   .label-workspace{min-height:240px;padding:20px 12px}.editor-toolbar{align-items:stretch}.toolbar-fields{order:5;width:100%;padding:7px 0 0;margin:3px 0 0;border-top:1px solid var(--line);border-right:0}.toolbar-fields .tool-select{flex:1;width:auto}

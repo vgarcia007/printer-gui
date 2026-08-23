@@ -1,51 +1,61 @@
 {% extends "base.html" %}
-{% block title %}Scan · Print & Scan{% endblock %}
+{% block title %}Scan a document · Print & Scan Hub{% endblock %}
 {% block content %}
-<section class="scan-stage" aria-labelledby="scanPageTitle">
-  <div class="work-library-row">
+<section class="editor-view scan-view" aria-labelledby="scanPageTitle">
+  <div class="editor-heading">
+    <div>
+      <h1 id="scanPageTitle">Scan a document</h1>
+      <p>{{ scanner_model }} · Color, OCR and two-sided scanning.</p>
+    </div>
     <button id="openScanFiles" class="secondary work-library-trigger" type="button" data-drawer-trigger aria-label="Scanned PDFs" aria-controls="scanFilesDrawer" aria-expanded="false"><i class="far fa-file-pdf" aria-hidden="true"></i>Scanned PDFs</button>
   </div>
-  <div id="scanStatusVisual" class="scan-status-visual state-idle" aria-hidden="true">
-    <i id="scanStatusIcon" class="far fa-smile fa-fw"></i>
-  </div>
-  <div class="scan-status-copy">
-    <h1 id="scanPageTitle">{{ scanner_model }}</h1>
-    <p id="scanStateTitle">Ready to scan</p>
-    <p id="scanStateText" class="visually-hidden">Place the pages face up, top edge first.</p>
-  </div>
 
-  <div id="idlePanel" class="scan-controls">
-    <div class="mode-switch" role="radiogroup" aria-label="Scan appearance">
-      <button class="mode-card selected" data-mode="document" role="radio" aria-checked="true">
-        <i class="fas fa-file-alt" aria-hidden="true"></i><span><strong>Document</strong><small>Clear text</small></span>
-      </button>
-      <button class="mode-card" data-mode="color" role="radio" aria-checked="false">
-        <i class="fas fa-palette" aria-hidden="true"></i><span><strong>Color</strong><small>Keep every color</small></span>
-      </button>
+  <div class="scan-workbench">
+    <div class="scan-status-card" role="status" aria-live="polite">
+      <div id="scanStatusVisual" class="scan-status-visual state-idle" aria-hidden="true">
+        <i id="scanStatusIcon" class="far fa-smile fa-fw"></i>
+      </div>
+      <div class="scan-status-copy">
+        <h2 id="scanStateTitle">Ready to scan</h2>
+        <p id="scanStateText">Place the pages face up, top edge first.</p>
+      </div>
     </div>
-    <button id="scanFront" class="scan-main-action">Scan front pages</button>
-  </div>
 
-  <div id="progressPanel" class="scan-controls" hidden>
-    <p class="quiet-action"><i class="fas fa-info-circle" aria-hidden="true"></i>Leave the pages in the feeder. This screen updates itself.</p>
-  </div>
+    <div class="scan-action-panel">
+      <div id="idlePanel" class="scan-controls">
+        <div class="mode-switch" role="radiogroup" aria-label="Scan appearance">
+          <button class="mode-card selected" data-mode="document" role="radio" aria-checked="true">
+            <i class="fas fa-file-alt" aria-hidden="true"></i><span><strong>Document</strong><small>Clear text</small></span>
+          </button>
+          <button class="mode-card" data-mode="color" role="radio" aria-checked="false">
+            <i class="fas fa-palette" aria-hidden="true"></i><span><strong>Color</strong><small>Keep every color</small></span>
+          </button>
+        </div>
+        <button id="scanFront" class="scan-main-action">Scan front pages</button>
+      </div>
 
-  <div id="decisionPanel" class="scan-controls" hidden>
-    <p class="turn-hint">Turn the complete stack over. Keep the same page order and place it face up again.</p>
-    <button id="scanBack" class="scan-main-action">Scan rear pages</button>
-    <button id="finishFront" class="scan-secondary-action">Front pages only</button>
-    <button id="cancelScan" class="scan-text-action"><i class="fas fa-times" aria-hidden="true"></i>Cancel</button>
-  </div>
+      <div id="progressPanel" class="scan-controls" hidden>
+        <p class="quiet-action"><i class="fas fa-info-circle" aria-hidden="true"></i>Leave the pages in the feeder. This screen updates itself.</p>
+      </div>
 
-  <div id="donePanel" class="scan-controls" hidden>
-    <a id="downloadScan" class="scan-main-action link-button" href="#">Download PDF</a>
-    <button id="newScan" class="scan-secondary-action">Scan another document</button>
-  </div>
+      <div id="decisionPanel" class="scan-controls" hidden>
+        <p class="turn-hint">Turn the complete stack over. Keep the same page order and place it face up again.</p>
+        <button id="scanBack" class="scan-main-action">Scan rear pages</button>
+        <button id="finishFront" class="scan-secondary-action">Front pages only</button>
+        <button id="cancelScan" class="scan-text-action"><i class="fas fa-times" aria-hidden="true"></i>Cancel</button>
+      </div>
 
-  <div id="errorPanel" class="scan-controls" hidden>
-    <p id="scanError" class="scan-error"></p>
-    <button id="retryOcr" class="scan-main-action" hidden>Try OCR again</button>
-    <button id="resetScan" class="scan-secondary-action">Start over</button>
+      <div id="donePanel" class="scan-controls" hidden>
+        <a id="downloadScan" class="scan-main-action link-button" href="#"><i class="fas fa-download" aria-hidden="true"></i>Download PDF</a>
+        <button id="newScan" class="scan-secondary-action">Scan another document</button>
+      </div>
+
+      <div id="errorPanel" class="scan-controls" hidden>
+        <p id="scanError" class="scan-error"></p>
+        <button id="retryOcr" class="scan-main-action" hidden>Try OCR again</button>
+        <button id="resetScan" class="scan-secondary-action">Start over</button>
+      </div>
+    </div>
   </div>
 </section>
 

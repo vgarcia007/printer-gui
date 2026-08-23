@@ -105,6 +105,11 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
 
         self.assertIn('id="scanStatusIcon"', template)
         self.assertIn('id="scanFilesDrawer"', template)
+        self.assertIn('class="editor-heading"', template)
+        self.assertIn('class="scan-workbench"', template)
+        self.assertIn('class="scan-status-card"', template)
+        self.assertIn('class="scan-action-panel"', template)
+        self.assertLess(template.index("scan-status-card"), template.index("scan-action-panel"))
         self.assertIn('fa-smile', scan_javascript)
         self.assertIn('fa-hourglass-half', scan_javascript)
         self.assertIn('fa-brain', scan_javascript)
