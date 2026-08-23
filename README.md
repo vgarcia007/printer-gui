@@ -13,6 +13,20 @@ Print & Scan Hub was strongly inspired by two open-source projects:
 
 Many thanks to their authors and contributors for sharing their work. Print & Scan Hub brings these ideas together with its own unified interface, isolated OCR service, label editor, device configuration, and safety checks.
 
+## See it in action
+
+[![Animated walkthrough of Print & Scan Hub](docs/media/walkthrough.gif)](docs/media/walkthrough.mp4)
+
+The preview shows the real application in an isolated English demo environment. Select it to open the [10-second MP4 walkthrough](docs/media/walkthrough.mp4).
+
+| PDF printing | Exact label editor |
+| --- | --- |
+| [![PDF printing screen](docs/media/document-printing.png)](docs/media/document-printing.png) | [![DYMO WYSIWYG label editor](docs/media/label-editor.png)](docs/media/label-editor.png) |
+
+| Guided scanning | Scanned-PDF sidebar |
+| --- | --- |
+| [![Guided document scanning screen](docs/media/scanner.png)](docs/media/scanner.png) | [![Scanned PDF sidebar](docs/media/scanner-library.png)](docs/media/scanner-library.png) |
+
 ## Features
 
 ### Document printing
