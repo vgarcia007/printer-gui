@@ -9,7 +9,7 @@
   <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css', v='5.15.4') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260823-1') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260823-2') }}">
 </head>
 {% set active_section = request.blueprint or 'home' %}
 <body class="section-{{ active_section }} page-{{ request.endpoint|replace('.', '-') }}">
@@ -27,7 +27,9 @@
       </nav>
       <nav class="library-nav" aria-label="Library">
         <a href="{{ url_for('labels.gallery') }}" aria-label="Saved labels" title="Saved labels"><i class="fas fa-tags" aria-hidden="true"></i></a>
-        <a href="{{ url_for('scans.file_page') }}" aria-label="Scanned PDFs" title="Scanned PDFs"><i class="far fa-file-pdf" aria-hidden="true"></i></a>
+        {% if request.endpoint == 'scans.index' %}
+          <button id="openScanFiles" type="button" aria-label="Scanned PDFs" title="Scanned PDFs" aria-controls="scanFilesDrawer" aria-expanded="false"><i class="far fa-file-pdf" aria-hidden="true"></i></button>
+        {% endif %}
       </nav>
     </div>
   </header>

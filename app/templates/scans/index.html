@@ -1,14 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Scan · Print & Scan{% endblock %}
 {% block content %}
-<nav class="scanner-navbar" aria-label="Scanner">
-  <div class="scanner-navbar-inner">
-    <a class="scanner-brand" href="{{ url_for('home.index') }}">{{ scanner_model }}</a>
-    <button id="openScanFiles" class="scanner-files-trigger" type="button" aria-label="Last scanned PDFs" aria-controls="scanFilesDrawer" aria-expanded="false">
-      <i class="far fa-file-pdf fa-fw fa-2x" aria-hidden="true"></i>
-    </button>
-  </div>
-</nav>
 <section class="scan-stage" aria-labelledby="scanPageTitle">
   <div id="scanStatusVisual" class="scan-status-visual state-idle" aria-hidden="true">
     <i id="scanStatusIcon" class="far fa-smile fa-fw"></i>

@@ -56,10 +56,10 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,[c
 .desktop-nav a:hover{color:#fff;background:var(--ink-3)}
 .desktop-nav a.active{color:var(--accent);background:var(--ink-3)}
 .library-nav{display:flex;gap:7px}
-.library-nav a,.icon-action,.header-action{
+.library-nav a,.library-nav button,.icon-action,.header-action{
   width:40px;height:40px;display:inline-grid;place-items:center;padding:0;border:1px solid var(--dark-line);border-radius:8px;color:#fff;background:transparent;text-decoration:none;cursor:pointer
 }
-.library-nav a:hover,.header-action:hover{border-color:#777d86;background:var(--ink-3)}
+.library-nav a:hover,.library-nav button:hover,.header-action:hover{border-color:#777d86;background:var(--ink-3)}
 .mobile-nav{display:none}
 .content-shell{width:min(1080px,calc(100% - 40px));margin:0 auto}
 .main-content{padding:48px 0 80px}
@@ -130,15 +130,7 @@ button:active,.link-button:active{transform:translateY(1px)}
 .toast-message{padding:13px 16px;margin-top:16px;border-radius:9px;color:var(--ink);background:var(--accent)}
 
 /* Scanner */
-.page-scans-index .app-header,.page-scans-index .mobile-nav{display:none}
-.page-scans-index .content-shell{width:100%;max-width:none}
-.page-scans-index .main-content{padding:0}
-.scanner-navbar{position:fixed;inset:0 0 auto;z-index:30;min-height:56px;padding:.5rem 0;background:#212529}
-.scanner-navbar-inner{width:min(960px,calc(100% - 28px));min-height:40px;display:flex;align-items:center;justify-content:space-between;margin:0 auto}
-.scanner-brand{color:#fff;font-size:1.25rem;text-decoration:none;white-space:nowrap}
-.scanner-brand:hover{color:#fff}
-.scanner-files-trigger{padding:.5rem;border:0;color:#fff;background:transparent}
-.scan-stage{max-width:640px;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto;padding:5.5rem 14px 3rem;text-align:center}
+.scan-stage{max-width:640px;min-height:calc(100vh - 198px);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto;padding:1rem 14px 3rem;text-align:center}
 .scan-status-visual{display:block;color:#fff;font-size:10rem;line-height:1}
 .scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{color:#fff;font-size:10rem}
 .scan-status-copy h1{margin:3rem 0 .5rem;font-size:2.5rem;font-weight:700;line-height:1.2}
@@ -269,7 +261,7 @@ button:active,.link-button:active{transform:translateY(1px)}
   .simple-heading,.split-heading,.editor-heading,.gallery-heading{align-items:stretch;flex-direction:column}
   .centered-heading{align-items:center;text-align:center}.page-symbol{width:62px;height:62px;flex-basis:62px}
   .simple-heading .link-button,.editor-heading .link-button,.gallery-heading .link-button{width:100%}
-  .scan-stage{min-height:100vh}.scan-status-visual,.scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{font-size:9rem}
+  .scan-stage{min-height:calc(100vh - 184px);padding-top:0}.scan-status-visual,.scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{font-size:9rem}
   .scan-status-copy h1{font-size:2.1rem}.scan-status-copy #scanStateTitle{font-size:1.25rem}
   .scan-file-row{padding:1rem 1.25rem}.rename-bottom{align-items:stretch;flex-direction:column}.rename-actions{align-self:flex-end}
   .field-row{grid-template-columns:1fr;gap:1px}.drop-zone{min-height:210px}
