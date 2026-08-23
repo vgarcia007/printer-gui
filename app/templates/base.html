@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#202226">
+  <meta name="theme-color" content="#212529">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}Print & Scan Hub{% endblock %}</title>
   <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+  <script src="{{ url_for('static', filename='js/theme.js', v='20260823-1') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css', v='5.15.4') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260823-3') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260823-4') }}">
 </head>
 {% set active_section = request.blueprint or 'home' %}
 <body class="section-{{ active_section }} page-{{ request.endpoint|replace('.', '-') }}">
@@ -25,6 +26,11 @@
         <a class="{{ 'active' if active_section == 'labels' else '' }}" href="{{ url_for('labels.index') }}" {% if active_section == 'labels' %}aria-current="page"{% endif %}>Labels</a>
         <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}>Scan</a>
       </nav>
+      <button id="themeToggle" class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Switch to light mode" title="Switch to light mode">
+        <i id="themeToggleIcon" class="fas fa-moon" aria-hidden="true"></i>
+        <span class="theme-toggle-label">Light</span>
+        <span class="theme-toggle-track" aria-hidden="true"><span></span></span>
+      </button>
     </div>
   </header>
   <main class="content-shell main-content">

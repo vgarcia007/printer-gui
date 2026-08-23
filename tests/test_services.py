@@ -284,6 +284,12 @@ class PageSmokeTest(unittest.TestCase):
         self.assertIn(b'id="scanFilesDrawer"', scans)
         self.assertNotIn(b"Saved labels", scans)
 
+    def test_every_page_has_the_theme_switch(self):
+        for path in ("/", "/documents", "/labels", "/scans"):
+            response = self.client.get(path)
+            self.assertIn(b'id="themeToggle"', response.data, path)
+            self.assertIn(b'aria-label="Switch to light mode"', response.data, path)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,7 @@ Print & Scan Hub is a self-hosted, beginner-friendly web interface for household
 - Scan in document gray or full color
 - Produce downloadable PDFs with German and English OCR
 - Rename and delete scanned PDFs in the browser
+- Switch between the default dark interface and a browser-persisted light mode
 - Recover the original PDF and retry when OCR fails
 - Restart all services automatically after failures and host reboots
 

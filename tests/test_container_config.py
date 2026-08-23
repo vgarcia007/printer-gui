@@ -128,6 +128,19 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn('aria-controls="scanFilesDrawer"', scans)
         self.assertIn('data-drawer-scrim="scanFilesDrawer"', scans)
 
+    def test_theme_switch_defaults_to_dark_and_persists_light_mode(self) -> None:
+        base = (ROOT / "app" / "templates" / "base.html").read_text()
+        theme_javascript = (ROOT / "app" / "static" / "js" / "theme.js").read_text()
+        css = (ROOT / "app" / "static" / "css" / "app.css").read_text()
+
+        self.assertIn('id="themeToggle"', base)
+        self.assertIn('role="switch"', base)
+        self.assertLess(base.index("js/theme.js"), base.index("css/app.css"))
+        self.assertIn('initialTheme = storedTheme === "light" ? "light" : "dark"', theme_javascript)
+        self.assertIn('window.localStorage.setItem(storageKey', theme_javascript)
+        self.assertIn('html[data-theme="light"]', css)
+        self.assertIn("--app-bg:#212529", css)
+
 
 if __name__ == "__main__":
     unittest.main()
