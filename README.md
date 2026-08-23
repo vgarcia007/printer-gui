@@ -4,6 +4,15 @@ Print & Scan Hub is a self-hosted, beginner-friendly web application for everyda
 
 There are no user accounts, cloud uploads, or AI features. The application is intended for a trusted home, workshop, or small-office network.
 
+## Credits and inspiration
+
+Print & Scan Hub was strongly inspired by two open-source projects:
+
+- [BrotherScannerDocker by Philipp Mundhenk](https://github.com/PhilippMundhenk/BrotherScannerDocker) provided the central ideas for browser-based Brother scanning, the guided front/back workflow, PDF management, and an approachable scanner interface.
+- [Steam Deck Printing ROOTLESS by Tymose](https://github.com/Tymose/Steam-Deck-Printing-ROOTLESS) inspired the containerized CUPS setup and the PDF hotfolder workflow for straightforward document printing.
+
+Many thanks to their authors and contributors for sharing their work. Print & Scan Hub brings these ideas together with its own unified interface, isolated OCR service, label editor, device configuration, and safety checks.
+
 ## Features
 
 ### Document printing
