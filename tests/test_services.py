@@ -342,8 +342,8 @@ class PageSmokeTest(unittest.TestCase):
         service_worker = self.client.get("/service-worker.js")
 
         self.assertIn(b'<html lang="de">', home.data)
-        self.assertIn("Was möchten Sie tun?".encode(), home.data)
-        self.assertIn("Wählen Sie eine Funktion aus.".encode(), home.data)
+        self.assertIn("Was möchtest du tun?".encode(), home.data)
+        self.assertIn("Wähle eine Funktion aus.".encode(), home.data)
         self.assertIn(b"PDF hier ablegen", documents.data)
         self.assertIn(b"Gespeicherte Etiketten", labels.data)
         self.assertIn(b"Bereit zum Scannen", scans.data)
