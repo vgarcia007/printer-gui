@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "New label" }} · Print & Scan Hub{% endblock %}
+{% block title %}{{ t("Edit a copy") if editor_mode == "copy" else t("Edit label") if editor_mode == "edit" else t("New label") }} · Print & Scan Hub{% endblock %}
 {% block content %}
 <section class="editor-view">
   <div class="editor-heading">
     <div>
-      <h1>{{ "Edit a copy" if editor_mode == "copy" else "Edit label" if editor_mode == "edit" else "Create a label" }}</h1>
-      <p>{{ width_mm|int }} × {{ height_mm|int }} mm · What you see is what the DYMO prints.</p>
+      <h1>{{ t("Edit a copy") if editor_mode == "copy" else t("Edit label") if editor_mode == "edit" else t("Create a label") }}</h1>
+      <p>{{ width_mm|int }} × {{ height_mm|int }} mm · {{ t("What you see is what the DYMO prints.") }}</p>
     </div>
-    <button class="secondary work-library-trigger" type="button" data-drawer-trigger aria-controls="labelLibraryDrawer" aria-expanded="false"><i class="far fa-folder-open" aria-hidden="true"></i>Saved labels</button>
+    <button class="secondary work-library-trigger" type="button" data-drawer-trigger aria-controls="labelLibraryDrawer" aria-expanded="false"><i class="far fa-folder-open" aria-hidden="true"></i>{{ t("Saved labels") }}</button>
   </div>
 
   <div id="editorError" class="notice danger" role="alert" hidden></div>
@@ -18,89 +18,89 @@
         data-output-width="{{ output_width_px }}" data-output-height="{{ output_height_px }}">
     {{ form.csrf_token }}
     <div class="editor-frame">
-      <div class="editor-toolbar" role="toolbar" aria-label="Label formatting tools">
-        <div class="toolbar-group" aria-label="History">
-          <button class="tool-button icon-button" type="button" data-command="undo" aria-label="Undo" title="Undo (Ctrl+Z)">
+      <div class="editor-toolbar" role="toolbar" aria-label="{{ t('Label formatting tools') }}">
+        <div class="toolbar-group" aria-label="{{ t('History') }}">
+          <button class="tool-button icon-button" type="button" data-command="undo" aria-label="{{ t('Undo') }}" title="{{ t('Undo (Ctrl+Z)') }}">
             <i class="fas fa-undo" aria-hidden="true"></i>
           </button>
-          <button class="tool-button icon-button" type="button" data-command="redo" aria-label="Redo" title="Redo (Ctrl+Y)">
+          <button class="tool-button icon-button" type="button" data-command="redo" aria-label="{{ t('Redo') }}" title="{{ t('Redo (Ctrl+Y)') }}">
             <i class="fas fa-redo" aria-hidden="true"></i>
           </button>
         </div>
-        <div class="toolbar-group toolbar-fields" aria-label="Font settings">
-          <label class="visually-hidden" for="fontFamily">Font family</label>
-          <select id="fontFamily" class="tool-select font-select" aria-label="Font family" title="Font family">
+        <div class="toolbar-group toolbar-fields" aria-label="{{ t('Font settings') }}">
+          <label class="visually-hidden" for="fontFamily">{{ t("Font family") }}</label>
+          <select id="fontFamily" class="tool-select font-select" aria-label="{{ t('Font family') }}" title="{{ t('Font family') }}">
             <option value="Arial, sans-serif">Arial</option>
             <option value="Georgia, serif">Georgia</option>
             <option value="'Courier New', monospace">Courier New</option>
           </select>
-          <label class="visually-hidden" for="fontSize">Font size</label>
-          <select id="fontSize" class="tool-select size-select" aria-label="Font size" title="Font size">
-            <option value="3">Small</option>
-            <option value="4" selected>Medium</option>
-            <option value="5">Large</option>
-            <option value="6">Extra large</option>
-            <option value="7">Largest</option>
+          <label class="visually-hidden" for="fontSize">{{ t("Font size") }}</label>
+          <select id="fontSize" class="tool-select size-select" aria-label="{{ t('Font size') }}" title="{{ t('Font size') }}">
+            <option value="3">{{ t("Small") }}</option>
+            <option value="4" selected>{{ t("Medium") }}</option>
+            <option value="5">{{ t("Large") }}</option>
+            <option value="6">{{ t("Extra large") }}</option>
+            <option value="7">{{ t("Largest") }}</option>
           </select>
         </div>
-        <div class="toolbar-group" aria-label="Text style">
-          <button class="tool-button icon-button" type="button" data-command="bold" aria-label="Bold" aria-pressed="false" title="Bold (Ctrl+B)"><i class="fas fa-bold" aria-hidden="true"></i></button>
-          <button class="tool-button icon-button" type="button" data-command="italic" aria-label="Italic" aria-pressed="false" title="Italic (Ctrl+I)"><i class="fas fa-italic" aria-hidden="true"></i></button>
-          <button class="tool-button icon-button" type="button" data-command="underline" aria-label="Underline" aria-pressed="false" title="Underline (Ctrl+U)"><i class="fas fa-underline" aria-hidden="true"></i></button>
+        <div class="toolbar-group" aria-label="{{ t('Text style') }}">
+          <button class="tool-button icon-button" type="button" data-command="bold" aria-label="{{ t('Bold') }}" aria-pressed="false" title="{{ t('Bold (Ctrl+B)') }}"><i class="fas fa-bold" aria-hidden="true"></i></button>
+          <button class="tool-button icon-button" type="button" data-command="italic" aria-label="{{ t('Italic') }}" aria-pressed="false" title="{{ t('Italic (Ctrl+I)') }}"><i class="fas fa-italic" aria-hidden="true"></i></button>
+          <button class="tool-button icon-button" type="button" data-command="underline" aria-label="{{ t('Underline') }}" aria-pressed="false" title="{{ t('Underline (Ctrl+U)') }}"><i class="fas fa-underline" aria-hidden="true"></i></button>
         </div>
-        <div class="toolbar-group" aria-label="Text alignment">
-          <button class="tool-button icon-button" type="button" data-command="justifyLeft" aria-label="Align left" aria-pressed="false" title="Align left">
+        <div class="toolbar-group" aria-label="{{ t('Text alignment') }}">
+          <button class="tool-button icon-button" type="button" data-command="justifyLeft" aria-label="{{ t('Align left') }}" aria-pressed="false" title="{{ t('Align left') }}">
             <i class="fas fa-align-left" aria-hidden="true"></i>
           </button>
-          <button class="tool-button icon-button" type="button" data-command="justifyCenter" aria-label="Align center" aria-pressed="false" title="Align center">
+          <button class="tool-button icon-button" type="button" data-command="justifyCenter" aria-label="{{ t('Align center') }}" aria-pressed="false" title="{{ t('Align center') }}">
             <i class="fas fa-align-center" aria-hidden="true"></i>
           </button>
-          <button class="tool-button icon-button" type="button" data-command="justifyRight" aria-label="Align right" aria-pressed="false" title="Align right">
+          <button class="tool-button icon-button" type="button" data-command="justifyRight" aria-label="{{ t('Align right') }}" aria-pressed="false" title="{{ t('Align right') }}">
             <i class="fas fa-align-right" aria-hidden="true"></i>
           </button>
         </div>
-        <div class="toolbar-group" aria-label="Insert and clear">
-          <button id="insertImage" class="tool-button labeled-tool" type="button" aria-label="Insert image" title="Insert an image">
+        <div class="toolbar-group" aria-label="{{ t('Insert and clear') }}">
+          <button id="insertImage" class="tool-button labeled-tool" type="button" aria-label="{{ t('Insert image') }}" title="{{ t('Insert an image') }}">
             <i class="fas fa-image" aria-hidden="true"></i>
-            <span>Image</span>
+            <span>{{ t("Image") }}</span>
           </button>
           <input id="imageFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif" tabindex="-1">
-          <button class="tool-button icon-button" type="button" data-command="removeFormat" aria-label="Clear formatting" title="Clear formatting">
+          <button class="tool-button icon-button" type="button" data-command="removeFormat" aria-label="{{ t('Clear formatting') }}" title="{{ t('Clear formatting') }}">
             <i class="fas fa-eraser" aria-hidden="true"></i>
           </button>
-          <button id="clearEditor" class="tool-button labeled-tool tool-clear" type="button" title="Clear the entire label"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>Clear all</span></button>
+          <button id="clearEditor" class="tool-button labeled-tool tool-clear" type="button" title="{{ t('Clear the entire label') }}"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>{{ t("Clear all") }}</span></button>
         </div>
       </div>
-      <div id="imageTools" class="editor-context-bar" aria-label="Selected image tools" hidden>
-        <strong>Selected image</strong>
-        <span>Drag it to position</span>
-        <div class="image-size-options" role="group" aria-label="Image size">
-          <button class="context-button" type="button" data-image-size-choice="small">Small</button>
-          <button class="context-button" type="button" data-image-size-choice="medium">Medium</button>
-          <button class="context-button" type="button" data-image-size-choice="large">Large</button>
-          <button class="context-button" type="button" data-image-size-choice="full">Full width</button>
+      <div id="imageTools" class="editor-context-bar" aria-label="{{ t('Selected image tools') }}" hidden>
+        <strong>{{ t("Selected image") }}</strong>
+        <span>{{ t("Drag it to position") }}</span>
+        <div class="image-size-options" role="group" aria-label="{{ t('Image size') }}">
+          <button class="context-button" type="button" data-image-size-choice="small">{{ t("Small") }}</button>
+          <button class="context-button" type="button" data-image-size-choice="medium">{{ t("Medium") }}</button>
+          <button class="context-button" type="button" data-image-size-choice="large">{{ t("Large") }}</button>
+          <button class="context-button" type="button" data-image-size-choice="full">{{ t("Full width") }}</button>
         </div>
-        <button id="imageDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>Delete image</button>
+        <button id="imageDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>{{ t("Delete image") }}</button>
       </div>
       <div class="label-workspace">
         <div id="labelViewport" class="label-viewport">
           <div id="labelStage" class="label-stage label-sheet">
             <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
-                 aria-multiline="true" aria-label="Label content" data-placeholder="Start typing your label…" spellcheck="true"></div>
+                 aria-multiline="true" aria-label="{{ t('Label content') }}" data-placeholder="{{ t('Start typing your label…') }}" spellcheck="true"></div>
           </div>
         </div>
       </div>
       <div class="editor-statusbar">
-        <span>DYMO 30321 · 88 × 34 mm printable area</span>
-        <span id="editorStatus" role="status" aria-live="polite">Ready · 0 / 2,000 characters</span>
+        <span>DYMO 30321 · 88 × 34 mm {{ t("printable area") }}</span>
+        <span id="editorStatus" role="status" aria-live="polite">{{ t("Ready") }} · 0 / {{ "2.000" if config.UI_LANGUAGE == "de" else "2,000" }} {{ t("characters") }}</span>
       </div>
     </div>
     <div class="editor-footer">
       <div class="editor-submit-actions">
-        <button id="editorSave" class="secondary" type="submit" data-editor-action="save"><i class="fas fa-save button-icon" aria-hidden="true"></i><span class="button-label">Save</span></button>
-        <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview"><span class="button-label">Continue to print</span><i class="fas fa-arrow-right button-icon-after" aria-hidden="true"></i></button>
+        <button id="editorSave" class="secondary" type="submit" data-editor-action="save"><i class="fas fa-save button-icon" aria-hidden="true"></i><span class="button-label">{{ t("Save") }}</span></button>
+        <button id="editorSubmit" class="primary" type="submit" data-editor-action="preview"><span class="button-label">{{ t("Continue to print") }}</span><i class="fas fa-arrow-right button-icon-after" aria-hidden="true"></i></button>
       </div>
-      <p class="editor-safe-note"><i class="fas fa-info-circle button-icon" aria-hidden="true"></i>Dashed line: safe print area. You can paste images too.</p>
+      <p class="editor-safe-note"><i class="fas fa-info-circle button-icon" aria-hidden="true"></i>{{ t("Dashed line: safe print area. You can paste images too.") }}</p>
     </div>
   </form>
 </section>

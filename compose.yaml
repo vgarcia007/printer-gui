@@ -103,6 +103,7 @@ services:
     environment:
       APP_UID: ${APP_UID:-1000}
       APP_GID: ${APP_GID:-1000}
+      UI_LANGUAGE: ${UI_LANGUAGE:-en}
       SECRET_KEY: ${SECRET_KEY:-change-this-before-sharing}
       DATABASE_URL: sqlite:////data/labels/labels.db
       CUPS_SERVER: cups:631

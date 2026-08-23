@@ -1,4 +1,5 @@
 (() => {
+  const t = window.appT || (message => message);
   const storageKey = "print-scan-hub-theme";
   const root = document.documentElement;
 
@@ -23,8 +24,10 @@
       root.dataset.theme = isLight ? "light" : "dark";
       root.style.colorScheme = isLight ? "light" : "dark";
       toggle.setAttribute("aria-checked", String(isLight));
-      toggle.setAttribute("aria-label", isLight ? "Switch to dark mode" : "Switch to light mode");
-      toggle.title = isLight ? "Switch to dark mode" : "Switch to light mode";
+      toggle.setAttribute("aria-label", isLight ? t("Switch to dark mode") : t("Switch to light mode"));
+      toggle.title = isLight ? t("Switch to dark mode") : t("Switch to light mode");
+      const label = toggle.querySelector(".theme-toggle-label");
+      if (label) label.textContent = isLight ? t("Dark") : t("Light");
       icon.className = isLight ? "fas fa-sun" : "fas fa-moon";
 
       const themeColor = document.querySelector('meta[name="theme-color"]');

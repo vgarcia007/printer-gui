@@ -1,11 +1,13 @@
+import json
 import logging
 from pathlib import Path
 
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, Response, jsonify, render_template
 
 from config import Config
 
 from .extensions import csrf, db
+from .i18n import catalog, gettext, normalize_language
 from .services.document_hotfolder import DocumentHotfolderService
 from .services.document_service import DocumentPrintService
 from .services.image_service import ImageService
@@ -20,6 +22,8 @@ def create_app(config_object=None):
     app.config.from_object(Config)
     if config_object:
         app.config.from_object(config_object)
+    app.config["UI_LANGUAGE"] = normalize_language(app.config.get("UI_LANGUAGE"))
+    app.jinja_env.globals["t"] = gettext
 
     db.init_app(app)
     csrf.init_app(app)
@@ -83,13 +87,55 @@ def create_app(config_object=None):
 
     @app.get("/service-worker.js")
     def service_worker():
-        response = send_from_directory(
-            app.static_folder,
-            "service-worker.js",
+        source = (Path(app.static_folder) / "service-worker.js").read_text(
+            encoding="utf-8"
+        )
+        source = source.replace("__UI_LANGUAGE__", app.config["UI_LANGUAGE"])
+        response = Response(source, mimetype="application/javascript")
+        response.headers["Cache-Control"] = "no-cache"
+        response.headers["Service-Worker-Allowed"] = "/"
+        return response
+
+    @app.get("/manifest.webmanifest")
+    def web_manifest():
+        language = app.config["UI_LANGUAGE"]
+        manifest = {
+            "id": "/",
+            "name": "Print & Scan Hub",
+            "short_name": gettext("Print & Scan"),
+            "description": gettext("Print documents and labels, and create searchable scans."),
+            "lang": language,
+            "start_url": "/",
+            "scope": "/",
+            "display": "standalone",
+            "background_color": "#212529",
+            "theme_color": "#212529",
+            "icons": [
+                {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+                {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+                {"src": "/static/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+                {"src": "/static/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+            ],
+            "shortcuts": [
+                {"name": gettext("Print a PDF"), "short_name": gettext("Print"), "url": "/documents", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]},
+                {"name": gettext("Create a label"), "short_name": gettext("Labels"), "url": "/labels", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]},
+                {"name": gettext("Scan a document"), "short_name": gettext("Scan"), "url": "/scans", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]},
+            ],
+        }
+        response = jsonify(manifest)
+        response.mimetype = "application/manifest+json"
+        return response
+
+    @app.get("/ui-translations.js")
+    def ui_translations():
+        translations = json.dumps(
+            catalog(app.config["UI_LANGUAGE"]), ensure_ascii=False, separators=(",", ":")
+        ).replace("</", "<\\/")
+        response = Response(
+            f"window.APP_TRANSLATIONS=Object.freeze({translations});\n",
             mimetype="application/javascript",
         )
         response.headers["Cache-Control"] = "no-cache"
-        response.headers["Service-Worker-Allowed"] = "/"
         return response
 
     @app.after_request
@@ -110,8 +156,8 @@ def create_app(config_object=None):
     def not_found(_error):
         return render_template(
             "errors/error.html",
-            title="Not found",
-            message="The requested page could not be found.",
+            title=gettext("Not found"),
+            message=gettext("The requested page could not be found."),
         ), 404
 
     @app.errorhandler(500)
@@ -119,8 +165,8 @@ def create_app(config_object=None):
         app.logger.exception("Unhandled application error", exc_info=error)
         return render_template(
             "errors/error.html",
-            title="Something went wrong",
-            message="Please try again later.",
+            title=gettext("Something went wrong"),
+            message=gettext("Please try again later."),
         ), 500
 
     with app.app_context():

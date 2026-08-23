@@ -1,4 +1,6 @@
 (() => {
+  const t = window.appT || (message => message);
+  const locale = document.documentElement.lang === "de" ? "de-DE" : "en-US";
   const form = document.getElementById("labelEditorForm");
   const editor = document.getElementById("labelEditor");
   const labelViewport = document.getElementById("labelViewport");
@@ -94,8 +96,8 @@
 
   const updateEditorStatus = saved => {
     const count = labelText().length;
-    const state = saved && hasContent() ? "Draft saved" : "Ready";
-    editorStatus.textContent = `${state} · ${count.toLocaleString("en-US")} / 2,000 characters`;
+    const state = saved && hasContent() ? t("Draft saved") : t("Ready");
+    editorStatus.textContent = `${state} · ${count.toLocaleString(locale)} / ${Number(2000).toLocaleString(locale)} ${t("characters")}`;
   };
 
   const serializedDocument = () => {
@@ -155,7 +157,7 @@
     if (!wrapper.dataset.imageY) wrapper.dataset.imageY = "5.882";
     wrapper.contentEditable = "false";
     wrapper.tabIndex = 0;
-    wrapper.setAttribute("aria-label", "Positioned image. Drag it or use the arrow keys to move it.");
+    wrapper.setAttribute("aria-label", t("Positioned image. Drag it or use the arrow keys to move it."));
     applyImagePosition(wrapper);
     if (wrapper._positioningReady) return;
     wrapper._positioningReady = true;
@@ -288,19 +290,19 @@
 
   const imageFromFile = async file => {
     if (file.size > 20 * 1024 * 1024) {
-      throw new Error("The selected image is too large.");
+      throw new Error(t("The selected image is too large."));
     }
     const objectUrl = URL.createObjectURL(file);
     const source = new Image();
     try {
       await new Promise((resolve, reject) => {
         source.onload = resolve;
-        source.onerror = () => reject(new Error("The selected image could not be read."));
+        source.onerror = () => reject(new Error(t("The selected image could not be read.")));
         source.src = objectUrl;
       });
 
       if (source.naturalWidth * source.naturalHeight > 40_000_000) {
-        throw new Error("The clipboard image contains too many pixels.");
+        throw new Error(t("The clipboard image contains too many pixels."));
       }
 
       const maxEdge = 1400;
@@ -332,7 +334,7 @@
     const image = document.createElement("img");
     image.className = "editor-image";
     image.src = source;
-    image.alt = "Pasted image";
+    image.alt = t("Pasted image");
     image.draggable = false;
     image.addEventListener("load", () => {
       applyImagePosition(wrapper);
@@ -356,10 +358,10 @@
       rememberSelection();
       try {
         const file = imageItem.getAsFile();
-        if (!file) throw new Error("No readable image was found on the clipboard.");
+        if (!file) throw new Error(t("No readable image was found on the clipboard."));
         insertImage(await imageFromFile(file));
       } catch (error) {
-        showError(error.message || "The image could not be pasted.");
+        showError(error.message || t("The image could not be pasted."));
       }
       return;
     }
@@ -381,7 +383,7 @@
     try {
       insertImage(await imageFromFile(file));
     } catch (error) {
-      showError(error.message || "The image could not be inserted.");
+      showError(error.message || t("The image could not be inserted."));
     } finally {
       imageFile.value = "";
     }
@@ -417,7 +419,7 @@
   });
 
   clearButton.addEventListener("click", () => {
-    if (hasContent() && !window.confirm("Clear the current label?")) return;
+    if (hasContent() && !window.confirm(t("Clear the current label?"))) return;
     editor.replaceChildren();
     savedRange = null;
     selectImage(null);
@@ -456,7 +458,7 @@
 
   const renderToCanvas = async () => {
     if (typeof window.html2canvas !== "function") {
-      throw new Error("The print renderer did not load. Reload the page and try again.");
+      throw new Error(t("The print renderer did not load. Reload the page and try again."));
     }
     const editorStyle = getComputedStyle(editor);
     const cssWidth = parseFloat(editorStyle.width);
@@ -483,7 +485,7 @@
       },
     });
     if (Math.abs(renderedEditor.width - outputWidth) > 1 || Math.abs(renderedEditor.height - outputHeight) > 1) {
-      throw new Error("The browser did not create an exact-size print image.");
+      throw new Error(t("The browser did not create an exact-size print image."));
     }
     const output = document.createElement("canvas");
     output.width = outputWidth;
@@ -500,7 +502,7 @@
       if (image.complete && image.naturalWidth) return Promise.resolve();
       return new Promise((resolve, reject) => {
         image.addEventListener("load", resolve, { once: true });
-        image.addEventListener("error", () => reject(new Error("A pasted image could not be loaded.")), { once: true });
+        image.addEventListener("error", () => reject(new Error(t("A pasted image could not be loaded."))), { once: true });
       });
     })
   );
@@ -508,7 +510,7 @@
   const canvasBlob = canvas => new Promise((resolve, reject) => {
     canvas.toBlob(blob => {
       if (blob) resolve(blob);
-      else reject(new Error("The print preview could not be created."));
+      else reject(new Error(t("The print preview could not be created.")));
     }, "image/png");
   });
 
@@ -523,16 +525,16 @@
     ) || "preview";
     const activeButton = editorAction === "save" ? saveButton : submitButton;
     if (!text && !hasImage()) {
-      showError("Enter text or paste an image from the clipboard.");
+      showError(t("Enter text or paste an image from the clipboard."));
       editor.focus();
       return;
     }
     if (text.length > 2000) {
-      showError("The text is too long.");
+      showError(t("The text is too long."));
       return;
     }
     if (updateOverflowState()) {
-      showError("The content extends beyond the printable area. Make it smaller.");
+      showError(t("The content extends beyond the printable area. Make it smaller."));
       return;
     }
 
@@ -541,9 +543,9 @@
     saveButton.disabled = true;
     submitButton.classList.add("is-loading");
     if (activeButton === saveButton) {
-      saveButtonLabel.textContent = "Saving…";
+      saveButtonLabel.textContent = t("Saving…");
     } else {
-      submitButtonLabel.textContent = "Creating preview…";
+      submitButtonLabel.textContent = t("Creating preview…");
     }
 
     try {
@@ -563,7 +565,7 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.error || "The label could not be created.");
+        throw new Error(payload.error || t("The label could not be created."));
       }
       localStorage.removeItem(storageKey);
       window.location.assign(payload.redirect_url);
@@ -572,9 +574,9 @@
       submitButton.disabled = false;
       saveButton.disabled = false;
       submitButton.classList.remove("is-loading");
-      submitButtonLabel.textContent = "Continue to print";
-      saveButtonLabel.textContent = "Save";
-      showError(error.message || "The label could not be created.");
+      submitButtonLabel.textContent = t("Continue to print");
+      saveButtonLabel.textContent = t("Save");
+      showError(error.message || t("The label could not be created."));
     }
   });
 

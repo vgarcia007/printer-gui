@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ config.UI_LANGUAGE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -11,7 +11,9 @@
   <title>{% block title %}Print & Scan Hub{% endblock %}</title>
   <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/icon-180.png') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="manifest" href="{{ url_for('web_manifest') }}">
+  <script src="{{ url_for('ui_translations', v='20260823-1') }}"></script>
+  <script src="{{ url_for('static', filename='js/i18n.js', v='20260823-1') }}"></script>
   <script src="{{ url_for('static', filename='js/theme.js', v='20260823-1') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css', v='5.15.4') }}">
@@ -25,15 +27,15 @@
         <span class="brand-mark" aria-hidden="true"><i class="fas fa-print"></i></span>
         <strong>Print & Scan Hub</strong>
       </a>
-      <nav class="desktop-nav" aria-label="Main navigation">
-        <a class="{{ 'active' if active_section == 'home' else '' }}" href="{{ url_for('home.index') }}" {% if active_section == 'home' %}aria-current="page"{% endif %}>Home</a>
-        <a class="{{ 'active' if active_section == 'documents' else '' }}" href="{{ url_for('documents.index') }}" {% if active_section == 'documents' %}aria-current="page"{% endif %}>Print</a>
-        <a class="{{ 'active' if active_section == 'labels' else '' }}" href="{{ url_for('labels.index') }}" {% if active_section == 'labels' %}aria-current="page"{% endif %}>Labels</a>
-        <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}>Scan</a>
+      <nav class="desktop-nav" aria-label="{{ t('Main navigation') }}">
+        <a class="{{ 'active' if active_section == 'home' else '' }}" href="{{ url_for('home.index') }}" {% if active_section == 'home' %}aria-current="page"{% endif %}>{{ t("Home") }}</a>
+        <a class="{{ 'active' if active_section == 'documents' else '' }}" href="{{ url_for('documents.index') }}" {% if active_section == 'documents' %}aria-current="page"{% endif %}>{{ t("Print") }}</a>
+        <a class="{{ 'active' if active_section == 'labels' else '' }}" href="{{ url_for('labels.index') }}" {% if active_section == 'labels' %}aria-current="page"{% endif %}>{{ t("Labels") }}</a>
+        <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}>{{ t("Scan") }}</a>
       </nav>
-      <button id="themeToggle" class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Switch to light mode" title="Switch to light mode">
+      <button id="themeToggle" class="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="{{ t('Switch to light mode') }}" title="{{ t('Switch to light mode') }}">
         <i id="themeToggleIcon" class="fas fa-moon" aria-hidden="true"></i>
-        <span class="theme-toggle-label">Light</span>
+        <span class="theme-toggle-label">{{ t("Light") }}</span>
         <span class="theme-toggle-track" aria-hidden="true"><span></span></span>
       </button>
     </div>
@@ -46,11 +48,11 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <nav class="mobile-nav" aria-label="Mobile navigation">
-    <a class="{{ 'active' if active_section == 'home' else '' }}" href="{{ url_for('home.index') }}" {% if active_section == 'home' %}aria-current="page"{% endif %}><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></a>
-    <a class="{{ 'active' if active_section == 'documents' else '' }}" href="{{ url_for('documents.index') }}" {% if active_section == 'documents' %}aria-current="page"{% endif %}><i class="fas fa-print" aria-hidden="true"></i><span>Print</span></a>
-    <a class="{{ 'active' if active_section == 'labels' else '' }}" href="{{ url_for('labels.index') }}" {% if active_section == 'labels' %}aria-current="page"{% endif %}><i class="fas fa-tag" aria-hidden="true"></i><span>Labels</span></a>
-    <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}><i class="fas fa-file-import" aria-hidden="true"></i><span>Scan</span></a>
+  <nav class="mobile-nav" aria-label="{{ t('Mobile navigation') }}">
+    <a class="{{ 'active' if active_section == 'home' else '' }}" href="{{ url_for('home.index') }}" {% if active_section == 'home' %}aria-current="page"{% endif %}><i class="fas fa-home" aria-hidden="true"></i><span>{{ t("Home") }}</span></a>
+    <a class="{{ 'active' if active_section == 'documents' else '' }}" href="{{ url_for('documents.index') }}" {% if active_section == 'documents' %}aria-current="page"{% endif %}><i class="fas fa-print" aria-hidden="true"></i><span>{{ t("Print") }}</span></a>
+    <a class="{{ 'active' if active_section == 'labels' else '' }}" href="{{ url_for('labels.index') }}" {% if active_section == 'labels' %}aria-current="page"{% endif %}><i class="fas fa-tag" aria-hidden="true"></i><span>{{ t("Labels") }}</span></a>
+    <a class="{{ 'active' if active_section == 'scans' else '' }}" href="{{ url_for('scans.index') }}" {% if active_section == 'scans' %}aria-current="page"{% endif %}><i class="fas fa-file-import" aria-hidden="true"></i><span>{{ t("Scan") }}</span></a>
   </nav>
   <script src="{{ url_for('static', filename='vendor/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/drawers.js', v='20260823-1') }}"></script>

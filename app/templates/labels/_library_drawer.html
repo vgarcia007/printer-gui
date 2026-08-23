@@ -1,14 +1,14 @@
-<button class="drawer-scrim" type="button" data-drawer-scrim="labelLibraryDrawer" aria-label="Close saved labels" hidden></button>
+<button class="drawer-scrim" type="button" data-drawer-scrim="labelLibraryDrawer" aria-label="{{ t('Close saved labels') }}" hidden></button>
 <aside id="labelLibraryDrawer" class="file-drawer label-library-drawer" aria-labelledby="labelLibraryTitle" aria-hidden="true">
   <div class="file-drawer-head">
-    <h2 id="labelLibraryTitle">Saved labels</h2>
-    <button class="icon-action" type="button" data-drawer-close aria-label="Close saved labels"><i class="fas fa-times" aria-hidden="true"></i></button>
+    <h2 id="labelLibraryTitle">{{ t("Saved labels") }}</h2>
+    <button class="icon-action" type="button" data-drawer-close aria-label="{{ t('Close saved labels') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
   </div>
   {% if saved_labels %}
     <div class="label-drawer-list">
       {% for saved_label in saved_labels %}
         <article class="label-drawer-item">
-          <a class="label-drawer-preview" href="{{ url_for('labels.preview', label_id=saved_label.id) }}" aria-label="Open {{ saved_label.user_prompt }}">
+          <a class="label-drawer-preview" href="{{ url_for('labels.preview', label_id=saved_label.id) }}" aria-label="{{ t('Open {name}', name=saved_label.user_prompt) }}">
             <img src="{{ url_for('labels.preview_png', label_id=saved_label.id, width=600) }}" alt="{{ saved_label.user_prompt }}">
           </a>
           <div class="label-drawer-info">
@@ -16,18 +16,18 @@
             <small>{{ saved_label.width_mm|int }} × {{ saved_label.height_mm|int }} mm</small>
           </div>
           <div class="label-drawer-actions">
-            <a class="file-icon-button" href="{{ url_for('labels.edit', label_id=saved_label.id) }}" aria-label="Edit label" title="Edit"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
-            <a class="file-icon-button" href="{{ url_for('labels.copy', label_id=saved_label.id) }}" aria-label="Make a copy" title="Make a copy"><i class="far fa-copy fa-fw" aria-hidden="true"></i></a>
+            <a class="file-icon-button" href="{{ url_for('labels.edit', label_id=saved_label.id) }}" aria-label="{{ t('Edit label') }}" title="{{ t('Edit') }}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+            <a class="file-icon-button" href="{{ url_for('labels.copy', label_id=saved_label.id) }}" aria-label="{{ t('Make a copy') }}" title="{{ t('Make a copy') }}"><i class="far fa-copy fa-fw" aria-hidden="true"></i></a>
             <form method="post" action="{{ url_for('labels.delete', label_id=saved_label.id) }}" data-confirm-label-delete>
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="return_to" value="editor">
-              <button class="file-icon-button" type="submit" aria-label="Delete label" title="Delete"><i class="far fa-trash-alt fa-fw" aria-hidden="true"></i></button>
+              <button class="file-icon-button" type="submit" aria-label="{{ t('Delete label') }}" title="{{ t('Delete') }}"><i class="far fa-trash-alt fa-fw" aria-hidden="true"></i></button>
             </form>
           </div>
         </article>
       {% endfor %}
     </div>
   {% else %}
-    <div class="empty-files"><i class="far fa-folder-open" aria-hidden="true"></i>Your saved labels will appear here.</div>
+    <div class="empty-files"><i class="far fa-folder-open" aria-hidden="true"></i>{{ t("Your saved labels will appear here.") }}</div>
   {% endif %}
 </aside>

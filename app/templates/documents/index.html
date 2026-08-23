@@ -1,28 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Print a document · Print & Scan Hub{% endblock %}
+{% block title %}{{ t("Print a document") }} · Print & Scan Hub{% endblock %}
 {% block content %}
 <section class="simple-page document-page">
   <div class="simple-heading centered-heading">
     <span class="page-symbol" aria-hidden="true"><i class="far fa-file-pdf"></i></span>
-    <div><h1>Print a PDF</h1><p>Drop it here. We will send it to the selected printer.</p></div>
+    <div><h1>{{ t("Print a PDF") }}</h1><p>{{ t("Drop it here. We will send it to the selected printer.") }}</p></div>
   </div>
   <div class="document-controls">
   <div class="field-row">
-    <label for="printer">Printer</label>
-    <select id="printer" disabled><option>Loading printers…</option></select>
+    <label for="printer">{{ t("Printer") }}</label>
+    <select id="printer" disabled><option>{{ t("Loading printers…") }}</option></select>
   </div>
   <label id="dropZone" class="drop-zone" for="fileInput">
     <input id="fileInput" type="file" accept="application/pdf,.pdf">
     <i class="fas fa-file-upload drop-zone-icon" aria-hidden="true"></i>
-    <strong>Drop a PDF here</strong>
-    <span>or click to choose one</span>
+    <strong>{{ t("Drop a PDF here") }}</strong>
+    <span>{{ t("or click to choose one") }}</span>
   </label>
   <div id="fileCard" class="file-card" hidden>
     <div><strong id="fileName"></strong><small id="fileSize"></small></div>
-    <button id="removeFile" class="text-button"><i class="fas fa-times button-icon" aria-hidden="true"></i>Remove</button>
+    <button id="removeFile" class="text-button"><i class="fas fa-times button-icon" aria-hidden="true"></i>{{ t("Remove") }}</button>
   </div>
-  <button id="printFile" class="primary wide" disabled><i class="fas fa-print button-icon" aria-hidden="true"></i>Print PDF</button>
-  <div id="documentStatus" class="status-line" role="status" aria-live="polite">Connecting…</div>
+  <button id="printFile" class="primary wide" disabled><i class="fas fa-print button-icon" aria-hidden="true"></i>{{ t("Print PDF") }}</button>
+  <div id="documentStatus" class="status-line" role="status" aria-live="polite">{{ t("Connecting…") }}</div>
   </div>
 </section>
 <div id="toast" class="toast-message" role="status" aria-live="polite" hidden></div>

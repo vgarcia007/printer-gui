@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app, jsonify, render_template, request
 
+from ..i18n import gettext
 from ..services.document_service import DocumentPrintError
 
 
@@ -20,7 +21,7 @@ def status():
     try:
         return jsonify(ok=True, **service().status())
     except DocumentPrintError as exc:
-        return jsonify(ok=False, error=str(exc)), 503
+        return jsonify(ok=False, error=gettext(str(exc))), 503
 
 
 @bp.post("/api/print-pdf")
@@ -32,7 +33,9 @@ def print_pdf():
         try:
             count = service().print_files(request.args.get("printer", ""), [path])
         except Exception as exc:
-            raise DocumentPrintError(f"{exc} The PDF remains in the jobs folder.") from exc
+            raise DocumentPrintError(
+                f"{gettext(str(exc))} {gettext('The PDF remains in the jobs folder.')}"
+            ) from exc
         return jsonify(ok=True, printed=count)
     except DocumentPrintError as exc:
-        return jsonify(ok=False, error=str(exc)), 422
+        return jsonify(ok=False, error=gettext(str(exc))), 422

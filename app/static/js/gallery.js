@@ -1,4 +1,5 @@
 (() => {
+  const t = window.appT || (message => message);
   const modal = document.getElementById("labelActionModal");
   if (!modal) return;
 
@@ -11,7 +12,7 @@
   const copyLink = document.getElementById("modalCopyLink");
 
   deleteForm.addEventListener("submit", event => {
-    if (!window.confirm("Delete this saved label?")) event.preventDefault();
+    if (!window.confirm(t("Delete this saved label?"))) event.preventDefault();
   });
 
   modal.addEventListener("show.bs.modal", event => {

@@ -1,4 +1,3 @@
-import json
 import unittest
 from pathlib import Path
 
@@ -16,6 +15,7 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("-o printer-is-shared=true", entrypoint)
         self.assertNotIn('"631:631"', compose)
         self.assertIn("WEB_PORT:-8081", compose)
+        self.assertIn("UI_LANGUAGE: ${UI_LANGUAGE:-en}", compose)
 
     def test_repository_spool_remains_traversable_by_host_tools(self) -> None:
         entrypoint = (ROOT / "cups" / "entrypoint.sh").read_text()
@@ -120,11 +120,11 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn('fa-brain', scan_javascript)
         self.assertIn('fa-check-circle', scan_javascript)
         self.assertIn('className = "rename-panel"', files_javascript)
-        self.assertIn('iconButton("fa-print", "Print", "fas")', files_javascript)
+        self.assertIn('iconButton("fa-print", t("Print"), "fas")', files_javascript)
         self.assertIn('pendingPrintFile.filename) + "/print"', files_javascript)
-        self.assertIn('["none", "No prefix"]', files_javascript)
-        self.assertIn('["date", "Date prefix"]', files_javascript)
-        self.assertIn('["datetime", "Date & time prefix"]', files_javascript)
+        self.assertIn('["none", t("No prefix")]', files_javascript)
+        self.assertIn('["date", t("Date prefix")]', files_javascript)
+        self.assertIn('["datetime", t("Date & time prefix")]', files_javascript)
         self.assertIn('event.key === "Escape"', drawer_javascript)
 
     def test_libraries_use_page_local_drawers_instead_of_header_navigation(self) -> None:
@@ -154,17 +154,14 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("--app-bg:#212529", css)
 
     def test_pwa_manifest_icons_and_safe_service_worker_strategy(self) -> None:
-        manifest = json.loads((ROOT / "app" / "static" / "manifest.webmanifest").read_text())
         service_worker = (ROOT / "app" / "static" / "service-worker.js").read_text()
         base = (ROOT / "app" / "templates" / "base.html").read_text()
 
-        self.assertEqual(manifest["name"], "Print & Scan Hub")
-        self.assertEqual(manifest["start_url"], "/")
-        self.assertEqual(manifest["scope"], "/")
-        self.assertEqual(manifest["display"], "standalone")
-        self.assertEqual(manifest["theme_color"], "#212529")
         self.assertIn('rel="manifest"', base)
+        self.assertIn("url_for('web_manifest')", base)
         self.assertIn("js/pwa.js", base)
+        self.assertIn('const UI_LANGUAGE = "__UI_LANGUAGE__"', service_worker)
+        self.assertIn("offline-${UI_LANGUAGE}.html", service_worker)
         self.assertIn('request.method !== "GET"', service_worker)
         self.assertIn('url.pathname.includes("/api/")', service_worker)
 

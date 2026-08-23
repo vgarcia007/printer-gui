@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app, jsonify, render_template, request, send_file
 
+from ..i18n import gettext
 from ..services.document_service import DocumentPrintError
 from ..services.scan_file_service import ScanFileError
 from ..services.scanner_client import ScannerClientError
@@ -20,6 +21,12 @@ def document_printer():
     return current_app.extensions["document_print_service"]
 
 
+def translated_scanner_payload(payload):
+    if payload.get("error"):
+        payload["error"] = gettext(str(payload["error"]))
+    return payload
+
+
 @bp.get("")
 def index():
     return render_template("scans/index.html", scanner_model=current_app.config["SCANNER_MODEL"])
@@ -33,9 +40,9 @@ def file_page():
 @bp.get("/api/status")
 def status():
     try:
-        return jsonify(ok=True, **scanner().status())
+        return jsonify(ok=True, **translated_scanner_payload(scanner().status()))
     except ScannerClientError as exc:
-        return jsonify(ok=False, error=str(exc), state="error"), exc.status
+        return jsonify(ok=False, error=gettext(str(exc)), state="error"), exc.status
 
 
 @bp.post("/api/front")
@@ -47,15 +54,17 @@ def front():
 @bp.post("/api/<job_id>/<action>")
 def job_action(job_id, action):
     if action not in {"back", "finish", "cancel", "retry-ocr"}:
-        return jsonify(ok=False, error="Unknown scan action."), 404
+        return jsonify(ok=False, error=gettext("Unknown scan action.")), 404
     return proxy_action(f"/jobs/{job_id}/{action}")
 
 
 def proxy_action(path, payload=None):
     try:
-        return jsonify(ok=True, **scanner().action(path, payload))
+        return jsonify(
+            ok=True, **translated_scanner_payload(scanner().action(path, payload))
+        )
     except ScannerClientError as exc:
-        return jsonify(ok=False, error=str(exc)), exc.status
+        return jsonify(ok=False, error=gettext(str(exc))), exc.status
 
 
 @bp.get("/api/files")
@@ -69,7 +78,7 @@ def download(filename):
         path = files().resolve(filename)
         return send_file(path, mimetype="application/pdf", as_attachment=True, download_name=path.name)
     except ScanFileError as exc:
-        return jsonify(ok=False, error=str(exc)), exc.status
+        return jsonify(ok=False, error=gettext(str(exc))), exc.status
 
 
 @bp.put("/api/files/<path:filename>")
@@ -79,7 +88,7 @@ def rename(filename):
         new_name = files().rename(filename, str(data.get("name", "")), str(data.get("prefix", "date")))
         return jsonify(ok=True, filename=new_name)
     except ScanFileError as exc:
-        return jsonify(ok=False, error=str(exc)), exc.status
+        return jsonify(ok=False, error=gettext(str(exc))), exc.status
 
 
 @bp.delete("/api/files/<path:filename>")
@@ -88,7 +97,7 @@ def delete(filename):
         files().delete(filename)
         return jsonify(ok=True)
     except ScanFileError as exc:
-        return jsonify(ok=False, error=str(exc)), exc.status
+        return jsonify(ok=False, error=gettext(str(exc))), exc.status
 
 
 @bp.post("/api/files/<path:filename>/print")
@@ -99,8 +108,10 @@ def print_file(filename):
         printer = str(payload.get("printer", ""))
         service = document_printer()
         label = service.print_preserved_pdf(printer, path)
-        return jsonify(ok=True, message=f"The PDF was sent to {label}.")
+        return jsonify(
+            ok=True, message=gettext("The PDF was sent to {printer}.", printer=label)
+        )
     except ScanFileError as exc:
-        return jsonify(ok=False, error=str(exc)), exc.status
+        return jsonify(ok=False, error=gettext(str(exc))), exc.status
     except DocumentPrintError as exc:
-        return jsonify(ok=False, error=str(exc)), 422
+        return jsonify(ok=False, error=gettext(str(exc))), 422

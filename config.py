@@ -2,7 +2,11 @@ import os
 from pathlib import Path
 
 
+_ui_language = os.environ.get("UI_LANGUAGE", "en").strip().lower()
+
+
 class Config:
+    UI_LANGUAGE = _ui_language if _ui_language in {"de", "en"} else "en"
     SECRET_KEY = os.environ.get("SECRET_KEY", "development-only-change-me")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL", "sqlite:////data/labels/labels.db"

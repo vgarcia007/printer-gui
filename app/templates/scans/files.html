@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Scanned PDFs · Print & Scan{% endblock %}
+{% block title %}{{ t("Scanned PDFs") }} · Print & Scan{% endblock %}
 {% block content %}
 <section class="library-page">
   <div class="simple-heading">
-    <div><h1>Scanned PDFs</h1><p>Click a name to rename it. Changes are saved with Enter.</p></div>
-    <a class="primary link-button" href="{{ url_for('scans.index') }}"><i class="fas fa-plus" aria-hidden="true"></i>New scan</a>
+    <div><h1>{{ t("Scanned PDFs") }}</h1><p>{{ t("Click a name to rename it. Changes are saved with Enter.") }}</p></div>
+    <a class="primary link-button" href="{{ url_for('scans.index') }}"><i class="fas fa-plus" aria-hidden="true"></i>{{ t("New scan") }}</a>
   </div>
-  <div id="filesMessage" class="file-list-message" role="status">Loading files…</div>
+  <div id="filesMessage" class="file-list-message" role="status">{{ t("Loading files…") }}</div>
   <div id="scanFiles" class="scan-file-list" data-scan-file-list data-message-id="filesMessage"></div>
 </section>
 {% include "scans/_print_modal.html" %}

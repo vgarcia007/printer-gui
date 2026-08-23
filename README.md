@@ -15,6 +15,7 @@ Print & Scan Hub is a self-hosted, beginner-friendly web interface for household
 - Rename and delete scanned PDFs in the browser
 - Print a saved scan on any configured document printer
 - Install the HTTPS interface as a PWA on desktop and mobile devices
+- Choose an English or German interface through one environment setting
 - Switch between the default dark interface and a browser-persisted light mode
 - Recover the original PDF and retry when OCR fails
 - Restart all services automatically after failures and host reboots

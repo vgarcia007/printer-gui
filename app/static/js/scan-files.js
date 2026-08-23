@@ -1,4 +1,6 @@
 (() => {
+  const t = window.appT || (message => message);
+  const locale = document.documentElement.lang === "de" ? "de-DE" : "en";
   const roots = [...document.querySelectorAll("[data-scan-file-list]")];
   if (!roots.length) return;
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
@@ -7,13 +9,13 @@
     if (options.body) options.headers["Content-Type"] = "application/json";
     const response = await fetch(url, options);
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || data.ok === false) throw new Error(data.error || "The request could not be completed.");
+    if (!response.ok || data.ok === false) throw new Error(data.error || t("The request could not be completed."));
     return data;
   };
   const formatSize = bytes => bytes < 1024 * 1024
     ? Math.max(1, Math.ceil(bytes / 1024)) + " KB"
     : (bytes / 1024 / 1024).toFixed(1) + " MB";
-  const weekday = value => new Intl.DateTimeFormat("en", { weekday: "short" }).format(new Date(value));
+  const weekday = value => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(value));
   const icon = (name, style = "far") => {
     const node = document.createElement("i");
     node.className = `${style} ${name} fa-fw`;
@@ -47,15 +49,15 @@
   const selectedPrinter = () => printerChoices?.querySelector('input[type="radio"]:checked')?.value || "";
   const openPrintDialog = async (root, file) => {
     if (!printModal || !printFilename || !printerChoices || !printStatus || !confirmPrint) {
-      messageFor(root).textContent = "The print dialog is unavailable.";
+      messageFor(root).textContent = t("The print dialog is unavailable.");
       return;
     }
     pendingPrintFile = file;
     printFilename.textContent = file.filename;
     printerChoices.replaceChildren();
-    printStatus.textContent = "Loading printers…";
+    printStatus.textContent = t("Loading printers…");
     confirmPrint.disabled = true;
-    setConfirmLabel("Print PDF");
+    setConfirmLabel(t("Print PDF"));
     printModal.show();
     try {
       const data = await request("/documents/api/status");
@@ -73,7 +75,7 @@
         const printerName = document.createElement("strong");
         printerName.textContent = item.label || item.name;
         const printerState = document.createElement("small");
-        printerState.textContent = item.ready ? "Ready" : "Check printer";
+        printerState.textContent = item.ready ? t("Ready") : t("Check printer");
         copy.append(printerName, printerState);
         choice.append(radio, printerIcon, copy);
         const updateSelection = () => {
@@ -88,9 +90,9 @@
         updateSelection();
       });
       if (!data.printers.length) {
-        printStatus.textContent = "No document printer is available.";
+        printStatus.textContent = t("No document printer is available.");
       } else {
-        printStatus.textContent = "Choose a printer, then confirm below.";
+        printStatus.textContent = t("Choose a printer, then confirm below.");
       }
     } catch (error) {
       printStatus.textContent = error.message;
@@ -102,19 +104,19 @@
       const printer = selectedPrinter();
       if (!pendingPrintFile || !printer) return;
       confirmPrint.disabled = true;
-      setConfirmLabel("Sending…", "fa-spinner fa-spin");
-      printStatus.textContent = "Sending the PDF to the printer…";
+      setConfirmLabel(t("Sending…"), "fa-spinner fa-spin");
+      printStatus.textContent = t("Sending the PDF to the printer…");
       try {
         const data = await request(
           "/scans/api/files/" + encodeURIComponent(pendingPrintFile.filename) + "/print",
           { method: "POST", body: JSON.stringify({ printer }) },
         );
         printStatus.textContent = data.message;
-        setConfirmLabel("Sent", "fa-check");
+        setConfirmLabel(t("Sent"), "fa-check");
       } catch (error) {
         printStatus.textContent = error.message;
         confirmPrint.disabled = false;
-        setConfirmLabel("Try again", "fa-print");
+        setConfirmLabel(t("Try again"), "fa-print");
       }
     });
   }
@@ -137,20 +139,20 @@
     headline.append(name, day);
     const meta = document.createElement("div");
     meta.className = "scan-file-meta";
-    meta.textContent = `${formatSize(file.size)}${file.ocrFailed ? " · OCR needs attention" : ""}`;
+    meta.textContent = `${formatSize(file.size)}${file.ocrFailed ? " · " + t("OCR needs attention") : ""}`;
     details.append(headline, meta);
 
     const actions = document.createElement("div");
     actions.className = "scan-file-actions";
-    const print = iconButton("fa-print", "Print", "fas");
+    const print = iconButton("fa-print", t("Print"), "fas");
     const download = document.createElement("a");
     download.className = "file-icon-button";
     download.href = "/scans/api/files/" + encodeURIComponent(file.filename) + "/download";
-    download.setAttribute("aria-label", "Download " + file.filename);
-    download.title = "Download";
+    download.setAttribute("aria-label", t("Download {filename}", {filename: file.filename}));
+    download.title = t("Download");
     download.append(icon("fa-save"));
-    const rename = iconButton("fa-keyboard", "Rename");
-    const remove = iconButton("fa-trash-alt", "Delete");
+    const rename = iconButton("fa-keyboard", t("Rename"));
+    const remove = iconButton("fa-trash-alt", t("Delete"));
     actions.append(print, download, rename, remove);
     const bottom = document.createElement("div");
     bottom.className = "scan-file-bottom";
@@ -169,12 +171,12 @@
       input.required = true;
       input.maxLength = 200;
       input.value = file.name.replace(/^\d{4}-\d{2}-\d{2}(?:-\d{2}-\d{2}-\d{2})?\s*/, "");
-      input.setAttribute("aria-label", "New PDF name");
+      input.setAttribute("aria-label", t("New PDF name"));
       const renameBottom = document.createElement("div");
       renameBottom.className = "rename-bottom";
       const prefixes = document.createElement("div");
       prefixes.className = "rename-prefixes";
-      [["none", "No prefix"], ["date", "Date prefix"], ["datetime", "Date & time prefix"]].forEach(([value, label], index) => {
+      [["none", t("No prefix")], ["date", t("Date prefix")], ["datetime", t("Date & time prefix")]].forEach(([value, label], index) => {
         const holder = document.createElement("label");
         const radio = document.createElement("input");
         radio.type = "radio";
@@ -189,11 +191,11 @@
       const cancel = document.createElement("button");
       cancel.type = "button";
       cancel.className = "rename-cancel";
-      cancel.textContent = "CANCEL";
+      cancel.textContent = t("CANCEL");
       const save = document.createElement("button");
       save.type = "submit";
       save.className = "rename-save";
-      save.textContent = "SAVE";
+      save.textContent = t("SAVE");
       renameActions.append(cancel, save);
       renameBottom.append(prefixes, renameActions);
       form.append(input, renameBottom);
@@ -227,7 +229,7 @@
     print.addEventListener("click", () => openPrintDialog(root, file));
     rename.addEventListener("click", beginRename);
     remove.addEventListener("click", async () => {
-      if (!window.confirm("Permanently delete “" + file.filename + "”?")) return;
+      if (!window.confirm(t("Permanently delete “{filename}”?", {filename: file.filename}))) return;
       try {
         await request("/scans/api/files/" + encodeURIComponent(file.filename), { method: "DELETE" });
         await loadAll();
@@ -238,18 +240,20 @@
 
   const render = (root, files) => {
     root.replaceChildren();
-    messageFor(root).textContent = files.length ? `${files.length} saved ${files.length === 1 ? "PDF" : "PDFs"}` : "No scanned PDFs yet";
+    messageFor(root).textContent = files.length
+      ? t(files.length === 1 ? "{count} saved PDF" : "{count} saved PDFs", {count: files.length})
+      : t("No scanned PDFs yet");
     if (!files.length) {
       const empty = document.createElement("div");
       empty.className = "empty-files";
-      empty.append(icon("fa-file-pdf"), document.createTextNode("Your next scan will appear here."));
+      empty.append(icon("fa-file-pdf"), document.createTextNode(t("Your next scan will appear here.")));
       root.append(empty);
       return;
     }
     files.forEach(file => root.append(renderRow(root, file)));
   };
   const loadAll = async () => {
-    roots.forEach(root => { messageFor(root).textContent = "Loading files…"; });
+    roots.forEach(root => { messageFor(root).textContent = t("Loading files…"); });
     try {
       const data = await request("/scans/api/files");
       roots.forEach(root => render(root, data.files));

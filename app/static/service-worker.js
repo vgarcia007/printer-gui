@@ -1,8 +1,10 @@
-const CACHE_NAME = "print-scan-hub-shell-v1";
+const UI_LANGUAGE = "__UI_LANGUAGE__";
+const CACHE_NAME = `print-scan-hub-shell-v2-${UI_LANGUAGE}`;
 const STATIC_FILES = [
-  "/static/manifest.webmanifest",
+  "/manifest.webmanifest",
   "/static/css/app.css",
   "/static/js/drawers.js",
+  "/static/js/i18n.js",
   "/static/js/pwa.js",
   "/static/js/theme.js",
   "/static/vendor/bootstrap.bundle.min.js",
@@ -10,7 +12,7 @@ const STATIC_FILES = [
   "/static/vendor/fontawesome/css/all.min.css",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png",
-  "/static/offline.html"
+  `/static/offline-${UI_LANGUAGE}.html`
 ];
 
 self.addEventListener("install", (event) => {
@@ -44,7 +46,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/static/offline.html"))
+      fetch(request).catch(() => caches.match(`/static/offline-${UI_LANGUAGE}.html`))
     );
     return;
   }

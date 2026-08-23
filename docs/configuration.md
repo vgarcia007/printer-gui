@@ -24,6 +24,7 @@ Inspect available devices and models with:
 Important .env values:
 
 - WEB_PORT: host port, default 8081
+- UI_LANGUAGE: interface language, `en` or `de`; default `en`
 - SCANNER_IP: Brother scanner address
 - SCANNER_MODEL: brscan4 model identifier; MFC-L2700DW is compatible with the reference device
 - SCANS_HOST_DIR: final PDF directory or NAS mount
@@ -45,3 +46,7 @@ measured test print; a negative offset can clip content at the feed edge and a
 shrink value makes printed text differ from the editor preview.
 
 After changes, run docker compose up -d.
+
+For example, set `UI_LANGUAGE=de` in `.env` for a German interface. The setting
+applies to every user after the web container is recreated. Omitting the value,
+or using an unsupported value, keeps the English default.

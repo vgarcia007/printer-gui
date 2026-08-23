@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, flash, redirect, request, url_for
 
 from ..extensions import db
 from ..forms import PrintLabelForm
+from ..i18n import gettext
 from ..models import Label
 from ..services.label_print_service import PrintError
 
@@ -16,17 +17,19 @@ def print_label(label_id):
     endpoint = "labels.gallery" if request.form.get("return_to") == "gallery" else "labels.preview"
     values = {} if endpoint == "labels.gallery" else {"label_id": label.id}
     if not form.validate_on_submit():
-        flash("Choose between 1 and 100 copies.", "danger")
+        flash(gettext("Choose between 1 and 100 copies."), "danger")
         return redirect(url_for(endpoint, **values))
     try:
         job_id = current_app.extensions["label_print_service"].print_png(
             label.png_content, label.width_mm, label.height_mm, form.copies.data
         )
     except PrintError as exc:
-        flash(str(exc), "danger")
+        flash(gettext(str(exc)), "danger")
     else:
         label.is_saved = True
         db.session.commit()
-        flash(f"The label was sent to the printer ({job_id}).", "success")
+        flash(
+            gettext("The label was sent to the printer ({job_id}).", job_id=job_id),
+            "success",
+        )
     return redirect(url_for(endpoint, **values))
-

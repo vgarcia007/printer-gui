@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from app import create_app
 from app.extensions import db
+from app.i18n import normalize_language
 from app.services.document_hotfolder import DocumentHotfolderService
 from app.services.document_service import (
     DocumentPrintError,
@@ -310,15 +311,61 @@ class PageSmokeTest(unittest.TestCase):
         response = self.client.get("/")
 
         self.assertIn(b'rel="manifest"', response.data)
-        self.assertIn(b'/static/manifest.webmanifest', response.data)
+        self.assertIn(b'/manifest.webmanifest', response.data)
         self.assertIn(b'/static/js/pwa.js', response.data)
+
+        manifest = self.client.get("/manifest.webmanifest")
+        self.assertEqual(manifest.mimetype, "application/manifest+json")
+        self.assertEqual(manifest.json["lang"], "en")
+        self.assertEqual(manifest.json["start_url"], "/")
+        self.assertEqual(manifest.json["scope"], "/")
+        self.assertEqual(manifest.json["display"], "standalone")
 
         service_worker = self.client.get("/service-worker.js")
         self.assertEqual(service_worker.status_code, 200)
         self.assertEqual(service_worker.mimetype, "application/javascript")
         self.assertEqual(service_worker.headers["Cache-Control"], "no-cache")
         self.assertEqual(service_worker.headers["Service-Worker-Allowed"], "/")
+        self.assertIn(b'const UI_LANGUAGE = "en"', service_worker.data)
         service_worker.close()
+
+    def test_german_language_setting_covers_templates_javascript_and_pwa(self):
+        self.app.config["UI_LANGUAGE"] = "de"
+
+        home = self.client.get("/")
+        documents = self.client.get("/documents")
+        labels = self.client.get("/labels")
+        scans = self.client.get("/scans")
+        translations = self.client.get("/ui-translations.js")
+        manifest = self.client.get("/manifest.webmanifest")
+        service_worker = self.client.get("/service-worker.js")
+
+        self.assertIn(b'<html lang="de">', home.data)
+        self.assertIn("Hallo. Was möchten wir machen?".encode(), home.data)
+        self.assertIn(b"PDF hier ablegen", documents.data)
+        self.assertIn(b"Gespeicherte Etiketten", labels.data)
+        self.assertIn(b"Bereit zum Scannen", scans.data)
+        self.assertIn("Drucker werden geladen".encode(), translations.data)
+        self.assertEqual(manifest.json["lang"], "de")
+        self.assertEqual(manifest.json["short_name"], "Drucken & Scannen")
+        self.assertIn(b'const UI_LANGUAGE = "de"', service_worker.data)
+
+        scanner = self.app.extensions["scanner_client"]
+        with patch.object(
+            scanner,
+            "status",
+            return_value={
+                "state": "error",
+                "error": "No pages were scanned. Check the feeder and try again.",
+            },
+        ):
+            status = self.client.get("/scans/api/status")
+        self.assertIn("Es wurden keine Seiten gescannt".encode(), status.data)
+
+    def test_unknown_language_falls_back_to_english(self):
+        self.assertEqual(normalize_language(None), "en")
+        self.assertEqual(normalize_language("fr"), "en")
+        self.assertEqual(normalize_language(" DE "), "de")
 
     def test_scanned_pdf_can_be_sent_to_a_document_printer(self):
         path = self.root / "scans" / "searchable.pdf"

@@ -1,4 +1,5 @@
 (() => {
+  const t = window.appT || (message => message);
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
   const printer = document.getElementById("printer");
   const dropZone = document.getElementById("dropZone");
@@ -15,7 +16,7 @@
     options.headers = { ...(options.headers || {}), "X-CSRFToken": csrf };
     const response = await fetch(url, options);
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok || payload.ok === false) throw new Error(payload.error || "The request could not be completed.");
+    if (!response.ok || payload.ok === false) throw new Error(payload.error || t("The request could not be completed."));
     return payload;
   };
   const busy = value => {
@@ -24,7 +25,7 @@
   };
   const setFile = file => {
     if (file && !file.name.toLowerCase().endsWith(".pdf")) {
-      status.textContent = "Please choose a PDF file.";
+      status.textContent = t("Please choose a PDF file.");
       return;
     }
     selectedFile = file || null;
@@ -43,20 +44,23 @@
       for (const item of data.printers) {
         const option = document.createElement("option");
         option.value = item.name;
-        option.textContent = item.ready ? item.label : item.label + " — check printer";
+        option.textContent = item.ready ? item.label : item.label + " — " + t("check printer");
         option.selected = item.name === data.defaultPrinter;
         printer.append(option);
       }
       if (!data.printers.length) {
         const option = document.createElement("option");
-        option.textContent = "No document printer available";
+        option.textContent = t("No document printer available");
         printer.append(option);
       }
-      status.textContent = data.printers.length ? "Ready." : "No configured document printer is available.";
+      status.textContent = data.printers.length ? t("Ready.") : t("No configured document printer is available.");
       printer.disabled = !data.printers.length;
       busy(false);
     } catch (error) {
-      printer.innerHTML = "<option>Printer service unavailable</option>";
+      printer.replaceChildren();
+      const option = document.createElement("option");
+      option.textContent = t("Printer service unavailable");
+      printer.append(option);
       status.textContent = error.message;
       busy(true);
     }
@@ -70,11 +74,11 @@
 
   printFile.addEventListener("click", async () => {
     if (!selectedFile) return;
-    busy(true); status.textContent = "Uploading and sending the PDF…";
+    busy(true); status.textContent = t("Uploading and sending the PDF…");
     try {
       const url = "/documents/api/print-pdf?printer=" + encodeURIComponent(printer.value) + "&filename=" + encodeURIComponent(selectedFile.name);
       await request(url, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: selectedFile });
-      status.textContent = "The PDF was sent to the printer.";
+      status.textContent = t("The PDF was sent to the printer.");
       input.value = ""; setFile(null);
       await load();
     } catch (error) { status.textContent = error.message; busy(false); }

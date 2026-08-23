@@ -1,4 +1,5 @@
 (() => {
+  const t = window.appT || (message => message);
   const triggers = [...document.querySelectorAll("[data-drawer-trigger]")];
   triggers.forEach(trigger => {
     const drawer = document.getElementById(trigger.getAttribute("aria-controls"));
@@ -33,7 +34,7 @@
   });
   document.querySelectorAll("[data-confirm-label-delete]").forEach(form => {
     form.addEventListener("submit", event => {
-      if (!window.confirm("Delete this saved label?")) event.preventDefault();
+      if (!window.confirm(t("Delete this saved label?"))) event.preventDefault();
     });
   });
 })();

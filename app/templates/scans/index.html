@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Scan a document · Print & Scan Hub{% endblock %}
+{% block title %}{{ t("Scan a document") }} · Print & Scan Hub{% endblock %}
 {% block content %}
 <section class="editor-view scan-view" aria-labelledby="scanPageTitle">
   <div class="editor-heading">
     <div>
-      <h1 id="scanPageTitle">Scan a document</h1>
-      <p>{{ scanner_model }} · Color, OCR and two-sided scanning.</p>
+      <h1 id="scanPageTitle">{{ t("Scan a document") }}</h1>
+      <p>{{ scanner_model }} · {{ t("Color, OCR and two-sided scanning.") }}</p>
     </div>
-    <button id="openScanFiles" class="secondary work-library-trigger" type="button" data-drawer-trigger aria-label="Scanned PDFs" aria-controls="scanFilesDrawer" aria-expanded="false"><i class="far fa-file-pdf" aria-hidden="true"></i>Scanned PDFs</button>
+    <button id="openScanFiles" class="secondary work-library-trigger" type="button" data-drawer-trigger aria-label="{{ t('Scanned PDFs') }}" aria-controls="scanFilesDrawer" aria-expanded="false"><i class="far fa-file-pdf" aria-hidden="true"></i>{{ t("Scanned PDFs") }}</button>
   </div>
 
   <div class="scan-workbench">
@@ -16,56 +16,56 @@
         <i id="scanStatusIcon" class="far fa-smile fa-fw"></i>
       </div>
       <div class="scan-status-copy">
-        <h2 id="scanStateTitle">Ready to scan</h2>
-        <p id="scanStateText">Place the pages face up, top edge first.</p>
+        <h2 id="scanStateTitle">{{ t("Ready to scan") }}</h2>
+        <p id="scanStateText">{{ t("Place the pages face up, top edge first.") }}</p>
       </div>
     </div>
 
     <div class="scan-action-panel">
       <div id="idlePanel" class="scan-controls">
-        <div class="mode-switch" role="radiogroup" aria-label="Scan appearance">
+        <div class="mode-switch" role="radiogroup" aria-label="{{ t('Scan appearance') }}">
           <button class="mode-card selected" data-mode="document" role="radio" aria-checked="true">
-            <i class="fas fa-file-alt" aria-hidden="true"></i><span><strong>Document</strong><small>Clear text</small></span>
+            <i class="fas fa-file-alt" aria-hidden="true"></i><span><strong>{{ t("Document") }}</strong><small>{{ t("Clear text") }}</small></span>
           </button>
           <button class="mode-card" data-mode="color" role="radio" aria-checked="false">
-            <i class="fas fa-palette" aria-hidden="true"></i><span><strong>Color</strong><small>Keep every color</small></span>
+            <i class="fas fa-palette" aria-hidden="true"></i><span><strong>{{ t("Color") }}</strong><small>{{ t("Keep every color") }}</small></span>
           </button>
         </div>
-        <button id="scanFront" class="scan-main-action">Scan front pages</button>
+        <button id="scanFront" class="scan-main-action">{{ t("Scan front pages") }}</button>
       </div>
 
       <div id="progressPanel" class="scan-controls" hidden>
-        <p class="quiet-action"><i class="fas fa-info-circle" aria-hidden="true"></i>Leave the pages in the feeder. This screen updates itself.</p>
+        <p class="quiet-action"><i class="fas fa-info-circle" aria-hidden="true"></i>{{ t("Leave the pages in the feeder. This screen updates itself.") }}</p>
       </div>
 
       <div id="decisionPanel" class="scan-controls" hidden>
-        <p class="turn-hint">Turn the complete stack over. Keep the same page order and place it face up again.</p>
-        <button id="scanBack" class="scan-main-action">Scan rear pages</button>
-        <button id="finishFront" class="scan-secondary-action">Front pages only</button>
-        <button id="cancelScan" class="scan-text-action"><i class="fas fa-times" aria-hidden="true"></i>Cancel</button>
+        <p class="turn-hint">{{ t("Turn the complete stack over. Keep the same page order and place it face up again.") }}</p>
+        <button id="scanBack" class="scan-main-action">{{ t("Scan rear pages") }}</button>
+        <button id="finishFront" class="scan-secondary-action">{{ t("Front pages only") }}</button>
+        <button id="cancelScan" class="scan-text-action"><i class="fas fa-times" aria-hidden="true"></i>{{ t("Cancel") }}</button>
       </div>
 
       <div id="donePanel" class="scan-controls" hidden>
-        <a id="downloadScan" class="scan-main-action link-button" href="#"><i class="fas fa-download" aria-hidden="true"></i>Download PDF</a>
-        <button id="newScan" class="scan-secondary-action">Scan another document</button>
+        <a id="downloadScan" class="scan-main-action link-button" href="#"><i class="fas fa-download" aria-hidden="true"></i>{{ t("Download PDF") }}</a>
+        <button id="newScan" class="scan-secondary-action">{{ t("Scan another document") }}</button>
       </div>
 
       <div id="errorPanel" class="scan-controls" hidden>
         <p id="scanError" class="scan-error"></p>
-        <button id="retryOcr" class="scan-main-action" hidden>Try OCR again</button>
-        <button id="resetScan" class="scan-secondary-action">Start over</button>
+        <button id="retryOcr" class="scan-main-action" hidden>{{ t("Try OCR again") }}</button>
+        <button id="resetScan" class="scan-secondary-action">{{ t("Start over") }}</button>
       </div>
     </div>
   </div>
 </section>
 
-<button id="scanFilesScrim" class="drawer-scrim" type="button" data-drawer-scrim="scanFilesDrawer" aria-label="Close scanned PDFs" hidden></button>
+<button id="scanFilesScrim" class="drawer-scrim" type="button" data-drawer-scrim="scanFilesDrawer" aria-label="{{ t('Close scanned PDFs') }}" hidden></button>
 <aside id="scanFilesDrawer" class="file-drawer" aria-labelledby="scanFilesTitle" aria-hidden="true">
   <div class="file-drawer-head">
-    <div><h2 id="scanFilesTitle">Last scanned</h2></div>
-    <button id="closeScanFiles" class="icon-action" type="button" data-drawer-close aria-label="Close scanned PDFs"><i class="fas fa-times" aria-hidden="true"></i></button>
+    <div><h2 id="scanFilesTitle">{{ t("Last scanned") }}</h2></div>
+    <button id="closeScanFiles" class="icon-action" type="button" data-drawer-close aria-label="{{ t('Close scanned PDFs') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
   </div>
-  <div id="drawerFilesMessage" class="visually-hidden" role="status">Loading files…</div>
+  <div id="drawerFilesMessage" class="visually-hidden" role="status">{{ t("Loading files…") }}</div>
   <div id="drawerScanFiles" class="scan-file-list compact" data-scan-file-list data-message-id="drawerFilesMessage"></div>
 </aside>
 {% include "scans/_print_modal.html" %}

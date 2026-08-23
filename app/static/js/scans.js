@@ -1,4 +1,5 @@
 (() => {
+  const t = window.appT || (message => message);
   const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
   const panels = ["idlePanel", "progressPanel", "decisionPanel", "donePanel", "errorPanel"].map(id => document.getElementById(id));
   const modeButtons = [...document.querySelectorAll(".mode-card")];
@@ -25,7 +26,7 @@
     options.headers = { ...(options.headers || {}), "X-CSRFToken": csrf, "Content-Type": "application/json" };
     const response = await fetch(url, options);
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || data.ok === false) throw new Error(data.error || "The scanner did not respond.");
+    if (!response.ok || data.ok === false) throw new Error(data.error || t("The scanner did not respond."));
     return data;
   };
   const apply = data => {
@@ -33,35 +34,35 @@
     const state = data.state || "idle";
     if (state === "idle" || state === "cancelled") {
       show("idlePanel");
-      showState("idle", "fa-smile", "Ready to scan", "Place the pages face up, top edge first.", false, "far");
+      showState("idle", "fa-smile", t("Ready to scan"), t("Place the pages face up, top edge first."), false, "far");
     } else if (state === "awaiting_decision") {
       show("decisionPanel");
-      showState("waiting", "fa-hourglass-half", "Waiting for rear pages", "Add the rear pages or finish the PDF now.");
+      showState("waiting", "fa-hourglass-half", t("Waiting for rear pages"), t("Add the rear pages or finish the PDF now."));
     } else if (state === "done") {
       show("donePanel");
-      showState("done", "fa-check-circle", "Your PDF is ready", "The document is searchable and saved in your PDF list.", false, "far");
+      showState("done", "fa-check-circle", t("Your PDF is ready"), t("The document is searchable and saved in your PDF list."), false, "far");
       download.href = "/scans/api/files/" + encodeURIComponent(data.filename) + "/download";
-      announcer.textContent = "Your searchable PDF is ready.";
+      announcer.textContent = t("Your searchable PDF is ready.");
       window.ScanFiles?.refresh();
     } else if (state === "error") {
       show("errorPanel");
-      showState("error", "fa-frown-open", "That did not work", "Nothing was lost. Check the message below and try again.", false, "far");
-      errorText.textContent = data.error || "The scan could not be completed.";
+      showState("error", "fa-frown-open", t("That did not work"), t("Nothing was lost. Check the message below and try again."), false, "far");
+      errorText.textContent = data.error || t("The scan could not be completed.");
       retry.hidden = !data.retryAvailable;
     } else if (state === "scanning_front") {
       show("progressPanel");
-      showState("scanning", "fa-spinner", "Scan in progress", "The feeder is taking each page automatically.", true);
+      showState("scanning", "fa-spinner", t("Scan in progress"), t("The feeder is taking each page automatically."), true);
     } else if (state === "scanning_back") {
       show("progressPanel");
-      showState("scanning", "fa-spinner", "Scan in progress", "The feeder is taking each page automatically.", true);
+      showState("scanning", "fa-spinner", t("Scan in progress"), t("The feeder is taking each page automatically."), true);
     } else {
       show("progressPanel");
-      showState("ocr", "fa-brain", "OCR in progress", "OCR can take a moment. Temporary files are removed automatically.");
+      showState("ocr", "fa-brain", t("OCR in progress"), t("OCR can take a moment. Temporary files are removed automatically."));
     }
   };
   const showRequestError = error => {
     show("errorPanel");
-    showState("error", "fa-frown-open", "Scanner unavailable", "The scanner did not answer.", false, "far");
+    showState("error", "fa-frown-open", t("Scanner unavailable"), t("The scanner did not answer."), false, "far");
     errorText.textContent = error.message;
     retry.hidden = true;
   };

@@ -2,6 +2,7 @@ from flask import Blueprint, Response, abort, current_app, flash, jsonify, redir
 
 from ..extensions import db
 from ..forms import ComposeLabelForm, DeleteForm, PrintLabelForm
+from ..i18n import gettext
 from ..models import Label
 from ..services.editor_document import EditorDocumentError, sanitize_editor_document
 from ..services.image_service import ImageValidationError
@@ -64,10 +65,10 @@ def copy(label_id):
 def compose(label_id=None):
     form = ComposeLabelForm()
     if not form.validate_on_submit():
-        return jsonify(error="Please check the label content."), 422
+        return jsonify(error=gettext("Please check the label content.")), 422
     try:
         if form.editor_action.data not in {"preview", "save"}:
-            raise EditorDocumentError("The editor action is invalid.")
+            raise EditorDocumentError(gettext("The editor action is invalid."))
         content = sanitize_editor_document(
             form.editor_content.data,
             max_length=current_app.config["EDITOR_CONTENT_MAX_LENGTH"],
@@ -92,13 +93,13 @@ def compose(label_id=None):
             label = db.get_or_404(Label, label_id)
             if label.source_type != "editor":
                 abort(404)
-        label.user_prompt = form.editor_text.data.strip() or "Image label"
+        label.user_prompt = form.editor_text.data.strip() or gettext("Image label")
         label.png_content = png
         label.editor_content = content
         label.is_saved = form.editor_action.data == "save" or label.is_saved
         db.session.commit()
     except (EditorDocumentError, ImageValidationError) as exc:
-        return jsonify(error=str(exc)), 422
+        return jsonify(error=gettext(str(exc))), 422
     if form.editor_action.data == "save":
         return jsonify(redirect_url=url_for("labels.gallery"))
     return jsonify(redirect_url=url_for("labels.preview", label_id=label.id))
@@ -134,11 +135,11 @@ def preview_png(label_id):
 def delete(label_id):
     label = db.get_or_404(Label, label_id)
     if not DeleteForm().validate_on_submit() or not label.is_saved:
-        flash("The label could not be deleted.", "danger")
+        flash(gettext("The label could not be deleted."), "danger")
     else:
         db.session.delete(label)
         db.session.commit()
-        flash("The label was deleted.", "success")
+        flash(gettext("The label was deleted."), "success")
     if request.form.get("return_to") == "editor":
         return redirect(url_for("labels.index"))
     return redirect(url_for("labels.gallery"))
