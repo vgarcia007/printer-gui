@@ -2,13 +2,18 @@
 
 ## Requirements
 
-- Docker Engine and Docker Compose v2 on an amd64 Linux host
+- Docker Engine and Docker Compose v2 on any modern amd64 Linux distribution
 - Network access to the HP and Brother devices
 - USB access to the DYMO LabelWriter
 - At least 3 GiB RAM available for peak temporary processing
 - A writable scan destination
 
-Follow the README Quick start, then verify:
+The host does not need to run Debian. Debian is used inside the application
+images. The complete stack currently requires amd64 because the included
+Brother `brscan4` scanner package is architecture-specific; see the platform
+and device support notes in the README.
+
+Follow the README installation guide, then verify:
 
     docker compose ps
     curl --fail http://localhost:8081/health

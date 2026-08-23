@@ -2,7 +2,8 @@
 
 Thank you for improving Print & Scan Hub.
 
-- Keep the interface, messages, comments, tests, and documentation in English.
+- Keep source-language interface messages, comments, tests, and documentation
+  in English. Add optional interface translations through the locale catalog.
 - Preserve the four-service boundary; OCR must stay isolated and stateless.
 - Never add credentials, private addresses, scanned documents, or generated databases.
 - Keep the interface understandable without printer or scanner terminology.
