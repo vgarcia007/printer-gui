@@ -152,18 +152,25 @@ button:active,.link-button:active{transform:translateY(1px)}
 .centered{text-align:center}
 
 /* PDF printing */
-.document-page{max-width:700px}
-.document-controls{display:grid;gap:14px}
-.field-row{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:12px;padding:9px 12px;border:1px solid var(--app-border);border-radius:9px;background:var(--app-bg-raised)}
-.field-row label{font-size:14px;font-weight:700}
-.field-row select{width:100%;min-height:42px;padding:0 9px;border:0;color:var(--app-fg);background:transparent}
-.field-row select option{color:var(--ink);background:#fff}
+.document-workbench{display:grid;gap:20px}
+.document-upload-frame{min-height:540px;display:grid;grid-template-rows:minmax(0,1fr) auto;overflow:hidden;border:1px solid var(--app-border);border-radius:10px;background:var(--app-bg-raised);box-shadow:var(--shadow)}
+.document-upload-frame .drop-zone{min-height:0;margin:20px}
 .drop-zone{min-height:250px;display:grid;place-items:center;align-content:center;gap:5px;padding:28px;border:2px dashed var(--nav-muted);border-radius:12px;color:var(--app-fg);background:var(--app-bg-raised);cursor:pointer}
 .drop-zone:hover,.drop-zone.dragging{border-color:var(--app-fg);background:var(--nav-active)}
 .drop-zone input{display:none}.drop-zone strong{font-size:19px}.drop-zone span{color:var(--app-muted)}
 .drop-zone-icon{margin-bottom:10px;color:var(--app-fg);font-size:42px}
 .file-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border:1px solid var(--app-border);border-radius:9px;background:var(--app-bg-raised)}
 .file-card small{display:block;color:var(--app-muted)}
+.document-file-card{align-self:stretch;flex-direction:column;justify-content:center;padding:40px 24px;border:0;border-radius:0;text-align:center}
+.document-file-icon{color:var(--app-fg);font-size:8rem;line-height:1}
+.document-file-copy{max-width:100%;margin:18px 0 8px}.document-file-copy strong{display:block;max-width:560px;overflow:hidden;font-size:1.15rem;text-overflow:ellipsis;white-space:nowrap}
+.document-file-card .text-button{color:var(--app-fg);font-weight:500}
+.document-statusbar{min-height:44px;display:flex;align-items:center;justify-content:center;padding:10px 14px;border-top:1px solid var(--app-border);color:var(--app-muted);font-size:14px;text-align:center}
+.document-action-panel{display:flex;flex-direction:column;gap:10px}
+.document-printer-field{display:grid;gap:7px;padding:12px;border:1px solid var(--app-border);border-radius:.3rem;background:var(--app-bg-raised)}
+.document-printer-field label{color:var(--app-muted);font-size:13px;font-weight:700}
+.document-printer-field select{width:100%;min-height:42px;padding:0 9px;border:1px solid var(--app-border);border-radius:.25rem;color:var(--app-fg);background:var(--app-bg)}
+.document-printer-field select option{color:var(--ink);background:#fff}
 .status-line,.file-list-message{color:var(--app-muted);font-size:14px}
 .status-line{text-align:center}
 .toast-message{padding:13px 16px;margin-top:16px;border-radius:9px;color:var(--ink);background:var(--accent)}
@@ -189,6 +196,7 @@ button:active,.link-button:active{transform:translateY(1px)}
 }
 .scan-main-action{border:1px solid var(--primary-bg);color:var(--primary-fg);background:var(--primary-bg)}
 .scan-main-action:hover{border-color:var(--primary-hover);color:var(--primary-fg);background:var(--primary-hover)}
+.scan-main-action:disabled{cursor:not-allowed;opacity:.42}
 .scan-secondary-action{border:1px solid #c9c6bf;color:var(--ink);background:#fff}
 .scan-secondary-action:hover{color:var(--ink);background:var(--paper-soft)}
 .scan-text-action{min-height:38px;padding:.4rem 1rem;border:0;color:var(--app-fg);background:transparent;font-size:1rem;font-weight:400}
@@ -315,10 +323,10 @@ button:active,.link-button:active{transform:translateY(1px)}
 .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
 @media(min-width:1100px){
-  .label-editor-form,.scan-workbench{grid-template-columns:minmax(0,1fr) 250px;align-items:start}
+  .label-editor-form,.scan-workbench,.document-workbench{grid-template-columns:minmax(0,1fr) 250px;align-items:start}
   .editor-frame{grid-column:1;grid-row:1}
-  .editor-footer,.scan-action-panel{grid-column:2;grid-row:1;position:sticky;top:96px}
-  .scan-status-card{grid-column:1;grid-row:1}
+  .editor-footer,.scan-action-panel,.document-action-panel{grid-column:2;grid-row:1;position:sticky;top:96px}
+  .scan-status-card,.document-upload-frame{grid-column:1;grid-row:1}
   .scan-action-panel .mode-switch{grid-template-columns:1fr}
   .editor-toolbar .toolbar-group:last-child{flex-basis:100%;padding-top:7px;margin-top:3px;border-top:1px solid var(--line);border-right:0}
 }
@@ -339,7 +347,7 @@ button:active,.link-button:active{transform:translateY(1px)}
   .scan-status-card{min-height:360px;padding:36px 20px}.scan-status-visual,.scan-status-visual.state-scanning,.scan-status-visual.state-ocr,.scan-status-visual.state-waiting,.scan-status-visual.state-done,.scan-status-visual.state-error{font-size:8rem}
   .scan-status-copy h2{margin-top:1.75rem;font-size:1.75rem}.scan-status-copy p{font-size:.95rem}
   .scan-file-row{padding:1rem 1.25rem}.rename-bottom{align-items:stretch;flex-direction:column}.rename-actions{align-self:flex-end}
-  .field-row{grid-template-columns:1fr;gap:1px}.drop-zone{min-height:210px}
+  .document-upload-frame{min-height:360px}.document-upload-frame .drop-zone{margin:14px}.drop-zone{min-height:210px}.document-file-icon{font-size:6.5rem}
   .label-workspace{min-height:240px;padding:20px 12px}.editor-toolbar{align-items:stretch}.toolbar-fields{order:5;width:100%;padding:7px 0 0;margin:3px 0 0;border-top:1px solid var(--line);border-right:0}.toolbar-fields .tool-select{flex:1;width:auto}
   .editor-context-bar{align-items:flex-start;flex-wrap:wrap}.image-size-options{width:100%;overflow-x:auto}.context-delete{margin-left:0}.editor-statusbar{align-items:flex-start;flex-direction:column;gap:2px}
   .editor-submit-actions{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)}

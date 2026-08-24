@@ -1,5 +1,5 @@
 const UI_LANGUAGE = "__UI_LANGUAGE__";
-const CACHE_NAME = `print-scan-hub-shell-v3-${UI_LANGUAGE}`;
+const CACHE_NAME = `print-scan-hub-shell-v4-${UI_LANGUAGE}`;
 const STATIC_FILES = [
   "/manifest.webmanifest",
   "/static/css/app.css",

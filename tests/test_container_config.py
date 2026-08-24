@@ -132,6 +132,19 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn('["datetime", t("Date & time prefix")]', files_javascript)
         self.assertIn('event.key === "Escape"', drawer_javascript)
 
+    def test_document_interface_uses_the_shared_workbench_layout(self) -> None:
+        template = (ROOT / "app" / "templates" / "documents" / "index.html").read_text()
+        css = (ROOT / "app" / "static" / "css" / "app.css").read_text()
+
+        self.assertIn('class="editor-view document-view"', template)
+        self.assertIn('class="editor-heading"', template)
+        self.assertIn('class="document-workbench"', template)
+        self.assertIn('class="document-upload-frame"', template)
+        self.assertIn('class="document-action-panel"', template)
+        self.assertLess(template.index("document-upload-frame"), template.index("document-action-panel"))
+        self.assertIn(".label-editor-form,.scan-workbench,.document-workbench", css)
+        self.assertIn(".editor-footer,.scan-action-panel,.document-action-panel", css)
+
     def test_libraries_use_page_local_drawers_instead_of_header_navigation(self) -> None:
         base = (ROOT / "app" / "templates" / "base.html").read_text()
         labels = (ROOT / "app" / "templates" / "labels" / "editor.html").read_text()
@@ -166,7 +179,7 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("url_for('web_manifest')", base)
         self.assertIn("js/pwa.js", base)
         self.assertIn('const UI_LANGUAGE = "__UI_LANGUAGE__"', service_worker)
-        self.assertIn("print-scan-hub-shell-v3", service_worker)
+        self.assertIn("print-scan-hub-shell-v4", service_worker)
         self.assertIn("offline-${UI_LANGUAGE}.html", service_worker)
         self.assertIn('request.method !== "GET"', service_worker)
         self.assertIn('url.pathname.includes("/api/")', service_worker)
