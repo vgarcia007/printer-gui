@@ -14,6 +14,8 @@ import requests
 from flask import Flask, jsonify, request
 from PIL import Image, ImageStat
 
+from page_order import PageCountMismatch, assemble_pages
+
 
 app = Flask(__name__)
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
@@ -82,11 +84,6 @@ def is_blank(path: Path) -> bool:
         return dark_pixels / pixels < BLANK_INK_FRACTION and very_dark / pixels < 0.0004
 
 
-def filtered_pages(paths: list[Path]) -> list[Path]:
-    kept = [path for path in paths if not is_blank(path)]
-    return kept or paths[:1]
-
-
 def run_scan(job_id: str, side: str, mode: str) -> list[Path]:
     root = job_root(job_id)
     root.mkdir(parents=True, exist_ok=True)
@@ -131,16 +128,34 @@ def run_scan(job_id: str, side: str, mode: str) -> list[Path]:
 
 
 def ordered_pages(job_id: str, duplex: bool) -> list[Path]:
-    fronts = filtered_pages(page_files(job_id, "front"))
-    if not duplex:
-        return fronts
-    backs = filtered_pages(page_files(job_id, "back"))
-    if len(fronts) != len(backs):
-        raise RuntimeError("The number of front and back pages does not match. Please start the scan again.")
-    ordered: list[Path] = []
-    for front, back in zip(fronts, reversed(backs)):
-        ordered.extend((front, back))
-    return ordered
+    fronts = page_files(job_id, "front")
+    backs = page_files(job_id, "back") if duplex else None
+    back_count = len(backs) if backs is not None else 0
+    app.logger.info(
+        "Preparing scan %s: %d front page(s), %d back page(s)",
+        job_id,
+        len(fronts),
+        back_count,
+    )
+    try:
+        pages = assemble_pages(fronts, backs, is_blank)
+    except PageCountMismatch as exc:
+        app.logger.warning(
+            "Duplex page count mismatch for scan %s: %d front page(s), %d back page(s)",
+            job_id,
+            exc.front_count,
+            exc.back_count,
+        )
+        raise RuntimeError(
+            "The number of front and back pages does not match. Please start the scan again."
+        ) from exc
+    app.logger.info(
+        "Keeping %d of %d scanned page(s) after blank-page detection for scan %s",
+        len(pages),
+        len(fronts) + back_count,
+        job_id,
+    )
+    return pages
 
 
 def create_pdf(paths: list[Path], target: Path) -> None:

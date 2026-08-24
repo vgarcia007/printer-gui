@@ -14,7 +14,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY scanner/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
-COPY scanner/server.py /app/server.py
+COPY scanner/server.py scanner/page_order.py /app/
 COPY scanner/entrypoint.sh /usr/local/bin/scanner-entrypoint
 RUN chmod 0755 /usr/local/bin/scanner-entrypoint
 
