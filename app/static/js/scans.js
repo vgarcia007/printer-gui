@@ -14,6 +14,7 @@
   let mode = "document";
   let jobId = null;
   let timer = null;
+  let refreshedCompletion = null;
 
   const show = id => panels.forEach(panel => { panel.hidden = panel.id !== id; });
   const showState = (state, iconName, heading, text, spinning = false, iconStyle = "fas") => {
@@ -43,7 +44,11 @@
       showState("done", "fa-check-circle", t("Your PDF is ready"), t("The document is searchable and saved in your PDF list."), false, "far");
       download.href = "/scans/api/files/" + encodeURIComponent(data.filename) + "/download";
       announcer.textContent = t("Your searchable PDF is ready.");
-      window.ScanFiles?.refresh();
+      const completion = `${data.jobId || ""}:${data.filename || ""}`;
+      if (completion !== refreshedCompletion) {
+        refreshedCompletion = completion;
+        window.ScanFiles?.refresh();
+      }
     } else if (state === "error") {
       show("errorPanel");
       showState("error", "fa-frown-open", t("That did not work"), t("Nothing was lost. Check the message below and try again."), false, "far");

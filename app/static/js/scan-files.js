@@ -41,6 +41,7 @@
   const printStatus = document.getElementById("scanPrintStatus");
   const confirmPrint = document.getElementById("confirmScanPrint");
   let pendingPrintFile = null;
+  let refreshPending = false;
 
   const setConfirmLabel = (label, iconName = "fa-print") => {
     if (!confirmPrint) return;
@@ -206,6 +207,7 @@
         form.remove();
         headline.hidden = false;
         bottom.hidden = false;
+        if (refreshPending) loadAll();
       };
       cancel.addEventListener("click", close);
       input.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
@@ -218,7 +220,7 @@
             method: "PUT",
             body: JSON.stringify({ name: input.value, prefix: selected.value }),
           });
-          await loadAll();
+          await loadAll({ force: true });
         } catch (error) {
           messageFor(root).textContent = error.message;
           save.disabled = false;
@@ -252,10 +254,19 @@
     }
     files.forEach(file => root.append(renderRow(root, file)));
   };
-  const loadAll = async () => {
+  const loadAll = async ({ force = false } = {}) => {
+    if (!force && roots.some(root => root.querySelector(".rename-panel"))) {
+      refreshPending = true;
+      return;
+    }
+    refreshPending = false;
     roots.forEach(root => { messageFor(root).textContent = t("Loading files…"); });
     try {
       const data = await request("/scans/api/files");
+      if (!force && roots.some(root => root.querySelector(".rename-panel"))) {
+        refreshPending = true;
+        return;
+      }
       roots.forEach(root => render(root, data.files));
     } catch (error) {
       roots.forEach(root => { messageFor(root).textContent = error.message; });
