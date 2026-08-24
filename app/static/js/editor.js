@@ -161,6 +161,10 @@
   const compactCoordinate = value =>
     value.toFixed(3).replace(/\.?0+$/, "") || "0";
 
+  const canStartPointerDrag = event =>
+    event.isPrimary !== false &&
+    (event.pointerType !== "mouse" || event.button === 0);
+
   const fitImageToLabel = wrapper => {
     const image = wrapper.querySelector(".editor-image");
     if (!image || !image.naturalWidth || !image.naturalHeight || !editor.clientWidth || !editor.clientHeight) {
@@ -210,7 +214,7 @@
   };
 
   const startImageResize = (event, wrapper, corner) => {
-    if (event.button !== 0) return;
+    if (!canStartPointerDrag(event)) return;
     event.preventDefault();
     event.stopPropagation();
     selectImage(wrapper);
@@ -232,6 +236,7 @@
     handle.setPointerCapture(event.pointerId);
 
     const resize = moveEvent => {
+      if (moveEvent.cancelable) moveEvent.preventDefault();
       const pointerX = (moveEvent.clientX - editorRect.left) * scaleX;
       const pointerY = (moveEvent.clientY - editorRect.top) * scaleY;
       const distanceX = Math.abs(pointerX - anchorX);
@@ -297,7 +302,7 @@
     wrapper._positioningReady = true;
 
     wrapper.addEventListener("pointerdown", event => {
-      if (event.button !== 0) return;
+      if (!canStartPointerDrag(event)) return;
       event.preventDefault();
       event.stopPropagation();
       selectImage(wrapper);
@@ -312,6 +317,7 @@
       wrapper.setPointerCapture(event.pointerId);
 
       const move = moveEvent => {
+        if (moveEvent.cancelable) moveEvent.preventDefault();
         const left = startLeft + (moveEvent.clientX - startX) * scaleX;
         const top = startTop + (moveEvent.clientY - startY) * scaleY;
         setImagePosition(
@@ -406,7 +412,7 @@
   };
 
   const startTextMove = (event, wrapper) => {
-    if (event.button !== 0) return;
+    if (!canStartPointerDrag(event)) return;
     event.preventDefault();
     event.stopPropagation();
     selectText(wrapper);
@@ -421,6 +427,7 @@
     handle.setPointerCapture(event.pointerId);
 
     const move = moveEvent => {
+      if (moveEvent.cancelable) moveEvent.preventDefault();
       setTextPosition(
         wrapper,
         (startLeft + (moveEvent.clientX - startX) * scaleX) / editor.clientWidth * 100,
@@ -440,7 +447,7 @@
   };
 
   const startTextResize = (event, wrapper, corner) => {
-    if (event.button !== 0) return;
+    if (!canStartPointerDrag(event)) return;
     event.preventDefault();
     event.stopPropagation();
     selectText(wrapper);
@@ -459,6 +466,7 @@
     handle.setPointerCapture(event.pointerId);
 
     const resize = moveEvent => {
+      if (moveEvent.cancelable) moveEvent.preventDefault();
       const pointerX = (moveEvent.clientX - editorRect.left) * scaleX;
       const pointerY = (moveEvent.clientY - editorRect.top) * scaleY;
       const maximumWidth = corner.includes("w") ? anchorX : editor.clientWidth - anchorX;

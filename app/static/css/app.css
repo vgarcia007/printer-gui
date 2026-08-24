@@ -316,6 +316,13 @@ button:active,.link-button:active{transform:translateY(1px)}
 .text-move-handle{top:-8px;left:50%;width:15px;height:15px;place-items:center;padding:0;border:1px solid #212529;border-radius:50%;font-size:7px;transform:translateX(-50%);cursor:move}
 .text-resize-handle{width:10px;height:10px;border:1px solid #212529;border-radius:2px}
 .text-resize-nw{top:-5px;left:-5px;cursor:nwse-resize}.text-resize-ne{top:-5px;right:-5px;cursor:nesw-resize}.text-resize-sw{bottom:-5px;left:-5px;cursor:nesw-resize}.text-resize-se{right:-5px;bottom:-5px;cursor:nwse-resize}
+@media(pointer:coarse){
+  .image-resize-handle,.text-resize-handle{width:30px;height:30px;border:0;border-radius:0;background:transparent;box-shadow:none}
+  .image-resize-handle::after,.text-resize-handle::after{position:absolute;top:50%;left:50%;width:12px;height:12px;border:1px solid #212529;border-radius:3px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);content:"";transform:translate(-50%,-50%)}
+  .image-resize-nw{top:-9px;left:-9px}.image-resize-ne{top:-9px;right:-9px}.image-resize-sw{bottom:-9px;left:-9px}.image-resize-se{right:-9px;bottom:-9px}
+  .text-resize-nw{top:-15px;left:-15px}.text-resize-ne{top:-15px;right:-15px}.text-resize-sw{bottom:-15px;left:-15px}.text-resize-se{right:-15px;bottom:-15px}
+  .text-move-handle{top:-17px;width:34px;height:34px;font-size:13px}
+}
 .editor-footer{display:flex;flex-direction:column;gap:12px}
 .editor-submit-actions{display:grid;gap:10px}.editor-submit-actions button{width:100%}
 .editor-safe-note{margin:4px 0 0;color:var(--app-muted);font-size:12px}

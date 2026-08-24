@@ -45,7 +45,7 @@ The preview shows the real application in an isolated English demo environment. 
 - Choose from seven font families in a visual font-preview menu, including bundled open-source sans, condensed, serif, and monospaced DejaVu fonts, then apply font size, bold, italic, underline, and alignment controls.
 - Add multiple text boxes, freely position and resize them in both directions, and continue editing and formatting their contents independently. Text boxes automatically grow when new lines are added.
 - Undo, redo, clear, and preview edits.
-- Paste or upload images, then freely position, resize, drag, or move them with the keyboard.
+- Paste or upload images, then freely position, resize, drag, or move them with the keyboard. Larger touch targets make object movement and resizing usable on phones and tablets as well as desktops.
 - Insert useful label symbols such as warning, fragile, this-side-up, keep-dry, recycling, phone, email, and package marks; symbols remain editable and proportionally resizable.
 - Save labels, reopen and edit them later, create a copy, rename them, or delete them.
 - Select the number of label copies before printing.
