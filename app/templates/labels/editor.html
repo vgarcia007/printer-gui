@@ -28,16 +28,23 @@
           </button>
         </div>
         <div class="toolbar-group toolbar-fields" aria-label="{{ t('Font settings') }}">
-          <label class="visually-hidden" for="fontFamily">{{ t("Font family") }}</label>
-          <select id="fontFamily" class="tool-select font-select" aria-label="{{ t('Font family') }}" title="{{ t('Font family') }}">
-            <option value="Arial, sans-serif">Arial</option>
-            <option value="'DejaVu Sans', sans-serif">DejaVu Sans</option>
-            <option value="'DejaVu Sans Condensed', sans-serif">DejaVu Sans Condensed</option>
-            <option value="Georgia, serif">Georgia</option>
-            <option value="'DejaVu Serif', serif">DejaVu Serif</option>
-            <option value="'Courier New', monospace">Courier New</option>
-            <option value="'DejaVu Sans Mono', monospace">DejaVu Sans Mono</option>
-          </select>
+          <div id="fontPicker" class="font-picker">
+            <button id="fontPickerButton" class="tool-select font-select font-picker-button" type="button"
+                    aria-label="{{ t('Font family') }}" title="{{ t('Font family') }}"
+                    aria-haspopup="listbox" aria-controls="fontPickerMenu" aria-expanded="false">
+              <span id="fontPickerLabel" class="font-preview-arial">Arial</span>
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div id="fontPickerMenu" class="font-picker-menu" role="listbox" aria-label="{{ t('Font family') }}" hidden>
+              <button class="font-picker-option font-preview-arial" type="button" role="option" aria-selected="true" data-font-family="Arial, sans-serif" data-font-preview="font-preview-arial">Arial</button>
+              <button class="font-picker-option font-preview-dejavu-sans" type="button" role="option" aria-selected="false" data-font-family="'DejaVu Sans', sans-serif" data-font-preview="font-preview-dejavu-sans">DejaVu Sans</button>
+              <button class="font-picker-option font-preview-dejavu-condensed" type="button" role="option" aria-selected="false" data-font-family="'DejaVu Sans Condensed', sans-serif" data-font-preview="font-preview-dejavu-condensed">DejaVu Sans Condensed</button>
+              <button class="font-picker-option font-preview-georgia" type="button" role="option" aria-selected="false" data-font-family="Georgia, serif" data-font-preview="font-preview-georgia">Georgia</button>
+              <button class="font-picker-option font-preview-dejavu-serif" type="button" role="option" aria-selected="false" data-font-family="'DejaVu Serif', serif" data-font-preview="font-preview-dejavu-serif">DejaVu Serif</button>
+              <button class="font-picker-option font-preview-courier" type="button" role="option" aria-selected="false" data-font-family="'Courier New', monospace" data-font-preview="font-preview-courier">Courier New</button>
+              <button class="font-picker-option font-preview-dejavu-mono" type="button" role="option" aria-selected="false" data-font-family="'DejaVu Sans Mono', monospace" data-font-preview="font-preview-dejavu-mono">DejaVu Sans Mono</button>
+            </div>
+          </div>
           <label class="visually-hidden" for="fontSize">{{ t("Font size") }}</label>
           <select id="fontSize" class="tool-select size-select" aria-label="{{ t('Font size') }}" title="{{ t('Font size') }}">
             <option value="3">{{ t("Small") }}</option>
@@ -64,6 +71,10 @@
           </button>
         </div>
         <div class="toolbar-group" aria-label="{{ t('Insert and clear') }}">
+          <button id="insertText" class="tool-button labeled-tool" type="button" aria-label="{{ t('Insert text box') }}" title="{{ t('Insert a movable text box') }}">
+            <i class="fas fa-font" aria-hidden="true"></i>
+            <span>{{ t("Text") }}</span>
+          </button>
           <button id="insertImage" class="tool-button labeled-tool" type="button" aria-label="{{ t('Insert image') }}" title="{{ t('Insert an image') }}">
             <i class="fas fa-image" aria-hidden="true"></i>
             <span>{{ t("Image") }}</span>
@@ -114,11 +125,16 @@
         </div>
         <button id="imageDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>{{ t("Delete image") }}</button>
       </div>
+      <div id="textTools" class="editor-context-bar" aria-label="{{ t('Selected text box tools') }}" hidden>
+        <strong>{{ t("Selected text box") }}</strong>
+        <span>{{ t("Drag the handle to position it") }}</span>
+        <button id="textDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>{{ t("Delete text box") }}</button>
+      </div>
       <div class="label-workspace">
         <div id="labelViewport" class="label-viewport">
           <div id="labelStage" class="label-stage label-sheet">
-            <div id="labelEditor" class="label-canvas" contenteditable="true" role="textbox"
-                 aria-multiline="true" aria-label="{{ t('Label content') }}" data-placeholder="{{ t('Start typing your label…') }}" spellcheck="true"></div>
+            <div id="labelEditor" class="label-canvas" role="group"
+                 aria-label="{{ t('Label content') }}" data-placeholder="{{ t('Add a text box to start typing…') }}"></div>
           </div>
         </div>
       </div>
@@ -141,5 +157,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='vendor/html2canvas.min.js', v='1.4.1') }}"></script>
-<script src="{{ url_for('static', filename='js/editor.js', v='20260824-2') }}"></script>
+<script src="{{ url_for('static', filename='js/editor.js', v='20260824-3') }}"></script>
 {% endblock %}

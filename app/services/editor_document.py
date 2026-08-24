@@ -33,6 +33,7 @@ _FONT_FACES = {
     "DejaVu Serif, serif",
     "'Courier New', monospace",
     '"Courier New", monospace',
+    "Courier New, monospace",
     "'DejaVu Sans Mono', monospace",
     '"DejaVu Sans Mono", monospace',
     "DejaVu Sans Mono, monospace",
@@ -57,6 +58,24 @@ class _EditorDocumentSanitizer(HTMLParser):
         clean_attributes: list[tuple[str, str]] = []
 
         if tag in {"div", "p"}:
+            element_class = attributes.get("class", "")
+            if tag == "div" and element_class == "editor-text-wrap":
+                clean_attributes.append(("class", "editor-text-wrap"))
+                for coordinate in ("x", "y"):
+                    value = attributes.get(f"data-text-{coordinate}", "")
+                    if _IMAGE_COORDINATE_RE.fullmatch(value):
+                        clean_attributes.append((f"data-text-{coordinate}", value))
+                width = attributes.get("data-text-width", "")
+                if _IMAGE_COORDINATE_RE.fullmatch(width) and 15 <= float(width) <= 100:
+                    clean_attributes.append(("data-text-width", width))
+                clean_attributes.append(("contenteditable", "false"))
+            elif tag == "div" and element_class == "editor-text-box":
+                clean_attributes.extend(
+                    [
+                        ("class", "editor-text-box"),
+                        ("contenteditable", "true"),
+                    ]
+                )
             style = attributes.get("style", "")
             match = _ALIGN_STYLE_RE.fullmatch(style)
             if match:

@@ -234,6 +234,23 @@ class EditorDocumentTest(unittest.TestCase):
         self.assertIn('data-image-width="31.75"', content)
         self.assertNotIn("style=", content)
 
+    def test_positioned_text_box_coordinates_and_formatting_are_preserved(self):
+        content = sanitize_editor_document(
+            '<div class="editor-text-wrap" data-text-x="17.5" '
+            'data-text-y="22.25" data-text-width="48.75" style="left:999px">'
+            '<div class="editor-text-box" contenteditable="true">'
+            '<font face="Georgia, serif" size="5"><u>Movable text</u></font>'
+            '</div></div>'
+        )
+
+        self.assertIn('class="editor-text-wrap"', content)
+        self.assertIn('data-text-x="17.5"', content)
+        self.assertIn('data-text-y="22.25"', content)
+        self.assertIn('data-text-width="48.75"', content)
+        self.assertIn('class="editor-text-box" contenteditable="true"', content)
+        self.assertIn('<font face="Georgia, serif" size="5"><u>Movable text</u></font>', content)
+        self.assertNotIn("style=", content)
+
 
 class ScanFileServiceTest(unittest.TestCase):
     def setUp(self):
