@@ -62,6 +62,9 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
 
         self.assertLess(template.index("editor-toolbar"), template.index("label-stage"))
         self.assertIn('id="insertImage"', template)
+        self.assertIn('id="insertSymbol"', template)
+        self.assertIn('id="symbolPalette"', template)
+        self.assertEqual(template.count('class="symbol-choice"'), 16)
         self.assertIn("Image size", template)
         self.assertIn("editor-statusbar", template)
         self.assertIn("const fitImageToLabel = wrapper =>", javascript)
@@ -69,9 +72,12 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("refreshImageLayout(selectedImage)", javascript)
         self.assertIn('["nw", "ne", "sw", "se"]', javascript)
         self.assertIn("const startImageResize = (event, wrapper, corner) =>", javascript)
+        self.assertIn("const renderSymbolImage = async glyphCode =>", javascript)
+        self.assertIn('insertImage(await renderSymbolImage(button.dataset.symbolGlyph), "small")', javascript)
         self.assertIn("wrapper.dataset.imageWidth", javascript)
         self.assertIn('querySelectorAll(".image-resize-handle")', javascript)
         self.assertIn(".editor-image-wrap.is-selected .image-resize-handle{display:block}", css)
+        self.assertIn('@font-face{font-family:"DejaVu Sans Condensed"', css)
         self.assertIn("window.html2canvas(editor", javascript)
         self.assertIn("normalizedDocument(content)", javascript)
         self.assertNotIn("context.fillText", javascript)
@@ -107,6 +113,15 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertNotIn("<svg", templates)
         for replaced_symbol in ("▤", "▰", "▱", "→"):
             self.assertNotIn(replaced_symbol, templates)
+
+    def test_label_fonts_are_bundled_in_the_web_container(self) -> None:
+        dockerfile = (ROOT / "app" / "Dockerfile").read_text()
+        template = (ROOT / "app" / "templates" / "labels" / "editor.html").read_text()
+
+        self.assertIn("fonts-dejavu-core fonts-dejavu-extra", dockerfile)
+        self.assertIn("/static/vendor/fonts/dejavu", dockerfile)
+        for family in ("DejaVu Sans", "DejaVu Sans Condensed", "DejaVu Serif", "DejaVu Sans Mono"):
+            self.assertIn(family, template)
 
     def test_scan_interface_has_clear_states_and_inline_pdf_management(self) -> None:
         template = (ROOT / "app" / "templates" / "scans" / "index.html").read_text()
@@ -190,7 +205,7 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("url_for('web_manifest')", base)
         self.assertIn("js/pwa.js", base)
         self.assertIn('const UI_LANGUAGE = "__UI_LANGUAGE__"', service_worker)
-        self.assertIn("print-scan-hub-shell-v5", service_worker)
+        self.assertIn("print-scan-hub-shell-v6", service_worker)
         self.assertIn("offline-${UI_LANGUAGE}.html", service_worker)
         self.assertIn('request.method !== "GET"', service_worker)
         self.assertIn('url.pathname.includes("/api/")', service_worker)

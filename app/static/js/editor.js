@@ -15,6 +15,10 @@
   const clearButton = document.getElementById("clearEditor");
   const insertImageButton = document.getElementById("insertImage");
   const imageFile = document.getElementById("imageFile");
+  const insertSymbolButton = document.getElementById("insertSymbol");
+  const symbolPalette = document.getElementById("symbolPalette");
+  const closeSymbolPaletteButton = document.getElementById("closeSymbolPalette");
+  const symbolChoices = document.querySelectorAll("[data-symbol-glyph]");
   const imageTools = document.getElementById("imageTools");
   const imageSizeButtons = document.querySelectorAll("[data-image-size-choice]");
   const imageDelete = document.getElementById("imageDelete");
@@ -434,10 +438,10 @@
     }
   };
 
-  const insertImage = source => {
+  const insertImage = (source, size = "medium") => {
     const wrapper = document.createElement("span");
     wrapper.className = "editor-image-wrap";
-    wrapper.dataset.imageSize = "medium";
+    wrapper.dataset.imageSize = size;
     wrapper.dataset.imageX = "2.273";
     wrapper.dataset.imageY = "5.882";
     wrapper.contentEditable = "false";
@@ -459,6 +463,68 @@
     saveDraft();
     updateOverflowState();
   };
+
+  const setSymbolPaletteOpen = open => {
+    symbolPalette.hidden = !open;
+    insertSymbolButton.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  const renderSymbolImage = async glyphCode => {
+    const glyph = String.fromCodePoint(Number.parseInt(glyphCode, 16));
+    const font = '900 176px "Font Awesome 5 Free"';
+    if (document.fonts) await document.fonts.load(font, glyph);
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+    const symbolContext = canvas.getContext("2d");
+    symbolContext.clearRect(0, 0, canvas.width, canvas.height);
+    symbolContext.fillStyle = "#000";
+    symbolContext.font = font;
+    symbolContext.textAlign = "left";
+    symbolContext.textBaseline = "alphabetic";
+    const metrics = symbolContext.measureText(glyph);
+    const left = metrics.actualBoundingBoxLeft || 0;
+    const right = metrics.actualBoundingBoxRight || metrics.width;
+    const ascent = metrics.actualBoundingBoxAscent || 176;
+    const descent = metrics.actualBoundingBoxDescent || 0;
+    const x = (canvas.width - left - right) / 2 + left;
+    const y = (canvas.height - ascent - descent) / 2 + ascent;
+    symbolContext.fillText(glyph, x, y);
+    return canvas.toDataURL("image/png");
+  };
+
+  insertSymbolButton.addEventListener("click", () => {
+    setSymbolPaletteOpen(symbolPalette.hidden);
+  });
+  closeSymbolPaletteButton.addEventListener("click", () => setSymbolPaletteOpen(false));
+  symbolChoices.forEach(button => {
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      try {
+        insertImage(await renderSymbolImage(button.dataset.symbolGlyph), "small");
+        setSymbolPaletteOpen(false);
+      } catch (_error) {
+        showError(t("The symbol could not be inserted."));
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+  document.addEventListener("click", event => {
+    if (
+      !symbolPalette.hidden &&
+      !symbolPalette.contains(event.target) &&
+      !insertSymbolButton.contains(event.target)
+    ) {
+      setSymbolPaletteOpen(false);
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !symbolPalette.hidden) {
+      setSymbolPaletteOpen(false);
+      insertSymbolButton.focus();
+    }
+  });
 
   editor.addEventListener("paste", async event => {
     const imageItem = Array.from(event.clipboardData.items || []).find(item =>
@@ -531,6 +597,7 @@
 
   clearButton.addEventListener("click", () => {
     if (hasContent() && !window.confirm(t("Clear the current label?"))) return;
+    setSymbolPaletteOpen(false);
     editor.replaceChildren();
     savedRange = null;
     selectImage(null);

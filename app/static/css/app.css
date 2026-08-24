@@ -1,3 +1,12 @@
+@font-face{font-family:"DejaVu Sans";src:url("../vendor/fonts/dejavu/DejaVuSans.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"DejaVu Sans";src:url("../vendor/fonts/dejavu/DejaVuSans-Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:"DejaVu Sans Condensed";src:url("../vendor/fonts/dejavu/DejaVuSansCondensed.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"DejaVu Sans Condensed";src:url("../vendor/fonts/dejavu/DejaVuSansCondensed-Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:"DejaVu Serif";src:url("../vendor/fonts/dejavu/DejaVuSerif.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"DejaVu Serif";src:url("../vendor/fonts/dejavu/DejaVuSerif-Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:"DejaVu Sans Mono";src:url("../vendor/fonts/dejavu/DejaVuSansMono.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:"DejaVu Sans Mono";src:url("../vendor/fonts/dejavu/DejaVuSansMono-Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
+
 :root{
   color-scheme:dark;
   --app-bg:#212529;
@@ -265,11 +274,18 @@ button:active,.link-button:active{transform:translateY(1px)}
 .icon-button{width:38px;padding:0}.tool-button>.fas{font-size:16px}
 .labeled-tool{gap:7px;white-space:nowrap}.tool-clear{color:#8a3535}
 .tool-select{padding:0 28px 0 9px;border-color:#c8c4bc;background:#fff;font-weight:500}
-.font-select{width:124px}.size-select{width:116px}
+.font-select{width:178px}.size-select{width:116px}
 .editor-context-bar{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #ced4da;color:#343a40;background:#f5f5f5;font-size:13px}
 .image-size-options{display:flex;gap:3px}.context-button{padding:0 11px;border-color:#ced4da;background:#fff}
 .context-button.is-active,.context-button[aria-pressed=true]{color:var(--accent-ink);background:var(--accent)}
 .context-delete{margin-left:auto;color:var(--danger)}
+.editor-symbol-palette{padding:10px 12px 12px;border-bottom:1px solid #ced4da;color:#343a40;background:#f5f5f5}
+.symbol-palette-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;font-size:13px}
+.symbol-palette-close{width:30px;height:30px;display:grid;place-items:center;padding:0;border:0;border-radius:5px;color:#6c757d;background:transparent}
+.symbol-palette-close:hover{color:#212529;background:#e2e3e5}
+.symbol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:5px}
+.symbol-choice{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 5px;border:1px solid #ced4da;border-radius:6px;color:#343a40;background:#fff;font-size:11px;font-weight:600;line-height:1.1;text-align:center}
+.symbol-choice i{font-size:18px}.symbol-choice:hover{border-color:#6c757d;background:#e9ecef}.symbol-choice:disabled{cursor:wait;opacity:.45}
 .label-workspace{min-height:390px;display:flex;align-items:center;justify-content:center;padding:clamp(28px,5vw,62px);background-color:#d8d6d1;background-image:radial-gradient(#aaa69f .8px,transparent .8px);background-size:18px 18px}
 .label-viewport{position:relative;width:100%;max-width:780px;aspect-ratio:88/34;overflow:hidden;border:1px solid #bbb;border-radius:3px;background:#fff;box-shadow:0 10px 28px rgba(0,0,0,.16)}
 .label-sheet{position:relative;box-sizing:border-box;overflow:hidden;page:dymo-30321}

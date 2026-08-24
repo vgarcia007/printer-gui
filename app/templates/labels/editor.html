@@ -31,8 +31,12 @@
           <label class="visually-hidden" for="fontFamily">{{ t("Font family") }}</label>
           <select id="fontFamily" class="tool-select font-select" aria-label="{{ t('Font family') }}" title="{{ t('Font family') }}">
             <option value="Arial, sans-serif">Arial</option>
+            <option value="'DejaVu Sans', sans-serif">DejaVu Sans</option>
+            <option value="'DejaVu Sans Condensed', sans-serif">DejaVu Sans Condensed</option>
             <option value="Georgia, serif">Georgia</option>
+            <option value="'DejaVu Serif', serif">DejaVu Serif</option>
             <option value="'Courier New', monospace">Courier New</option>
+            <option value="'DejaVu Sans Mono', monospace">DejaVu Sans Mono</option>
           </select>
           <label class="visually-hidden" for="fontSize">{{ t("Font size") }}</label>
           <select id="fontSize" class="tool-select size-select" aria-label="{{ t('Font size') }}" title="{{ t('Font size') }}">
@@ -65,10 +69,38 @@
             <span>{{ t("Image") }}</span>
           </button>
           <input id="imageFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif" tabindex="-1">
+          <button id="insertSymbol" class="tool-button labeled-tool" type="button" aria-label="{{ t('Insert symbol') }}" title="{{ t('Insert a symbol') }}" aria-controls="symbolPalette" aria-expanded="false">
+            <i class="fas fa-icons" aria-hidden="true"></i>
+            <span>{{ t("Symbols") }}</span>
+          </button>
           <button class="tool-button icon-button" type="button" data-command="removeFormat" aria-label="{{ t('Clear formatting') }}" title="{{ t('Clear formatting') }}">
             <i class="fas fa-eraser" aria-hidden="true"></i>
           </button>
           <button id="clearEditor" class="tool-button labeled-tool tool-clear" type="button" title="{{ t('Clear the entire label') }}"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>{{ t("Clear all") }}</span></button>
+        </div>
+      </div>
+      <div id="symbolPalette" class="editor-symbol-palette" aria-label="{{ t('Useful label symbols') }}" hidden>
+        <div class="symbol-palette-head">
+          <strong>{{ t("Useful label symbols") }}</strong>
+          <button id="closeSymbolPalette" class="symbol-palette-close" type="button" aria-label="{{ t('Close symbols') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
+        </div>
+        <div class="symbol-grid">
+          <button type="button" class="symbol-choice" data-symbol-glyph="f071" title="{{ t('Warning') }}"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i><span>{{ t("Warning") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f4e3" title="{{ t('Fragile') }}"><i class="fas fa-wine-glass" aria-hidden="true"></i><span>{{ t("Fragile") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f062" title="{{ t('This side up') }}"><i class="fas fa-arrow-up" aria-hidden="true"></i><span>{{ t("This side up") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f0e9" title="{{ t('Keep dry') }}"><i class="fas fa-umbrella" aria-hidden="true"></i><span>{{ t("Keep dry") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f1b8" title="{{ t('Recycle') }}"><i class="fas fa-recycle" aria-hidden="true"></i><span>{{ t("Recycle") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f2dc" title="{{ t('Keep frozen') }}"><i class="fas fa-snowflake" aria-hidden="true"></i><span>{{ t("Keep frozen") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f095" title="{{ t('Phone') }}"><i class="fas fa-phone" aria-hidden="true"></i><span>{{ t("Phone") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f0e0" title="{{ t('Email') }}"><i class="fas fa-envelope" aria-hidden="true"></i><span>{{ t("Email") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f015" title="{{ t('House') }}"><i class="fas fa-home" aria-hidden="true"></i><span>{{ t("House") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f3c5" title="{{ t('Location') }}"><i class="fas fa-map-marker-alt" aria-hidden="true"></i><span>{{ t("Location") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f05a" title="{{ t('Information') }}"><i class="fas fa-info-circle" aria-hidden="true"></i><span>{{ t("Information") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f058" title="{{ t('Approved') }}"><i class="fas fa-check-circle" aria-hidden="true"></i><span>{{ t("Approved") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f057" title="{{ t('Not allowed') }}"><i class="fas fa-times-circle" aria-hidden="true"></i><span>{{ t("Not allowed") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f004" title="{{ t('Heart') }}"><i class="fas fa-heart" aria-hidden="true"></i><span>{{ t("Heart") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f005" title="{{ t('Star') }}"><i class="fas fa-star" aria-hidden="true"></i><span>{{ t("Star") }}</span></button>
+          <button type="button" class="symbol-choice" data-symbol-glyph="f49e" title="{{ t('Package') }}"><i class="fas fa-box-open" aria-hidden="true"></i><span>{{ t("Package") }}</span></button>
         </div>
       </div>
       <div id="imageTools" class="editor-context-bar" aria-label="{{ t('Selected image tools') }}" hidden>
@@ -109,5 +141,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='vendor/html2canvas.min.js', v='1.4.1') }}"></script>
-<script src="{{ url_for('static', filename='js/editor.js', v='20260824-1') }}"></script>
+<script src="{{ url_for('static', filename='js/editor.js', v='20260824-2') }}"></script>
 {% endblock %}

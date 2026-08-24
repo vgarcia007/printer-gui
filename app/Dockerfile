@@ -1,7 +1,18 @@
 FROM python:3.13-slim-bookworm
 
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends cups-client gosu \
+    && apt-get install --yes --no-install-recommends cups-client fonts-dejavu-core fonts-dejavu-extra gosu \
+    && mkdir -p /opt/label-fonts \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf /opt/label-fonts/ \
+    && cp /usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf /opt/label-fonts/ \
+    && cp /usr/share/doc/fonts-dejavu-core/copyright /opt/label-fonts/LICENSE \
+    && apt-get purge --yes --auto-remove fonts-dejavu-core fonts-dejavu-extra \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -10,6 +21,9 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY config.py run.py /app/
 COPY app /app/app
+RUN mkdir -p /app/app/static/vendor/fonts/dejavu \
+    && cp /opt/label-fonts/* /app/app/static/vendor/fonts/dejavu/ \
+    && chmod 0644 /app/app/static/vendor/fonts/dejavu/*
 ADD --checksum=sha256:e87e550794322e574a1fda0c1549a3c70dae5a93d9113417a429016838eab8cb https://github.com/niklasvh/html2canvas/releases/download/v1.4.1/html2canvas.min.js /app/app/static/vendor/html2canvas.min.js
 ADD --checksum=sha256:99464ceb71bc9bbdcc72275faefe44f98eb5cbb6b5d8ee665b87b35376f1a96e https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/css/all.min.css /app/app/static/vendor/fontawesome/css/all.min.css
 ADD --checksum=sha256:f82c17b6cba4ae53d18f40ab8066eea83ffabe9e73ce61df4034403fbcd65265 https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/webfonts/fa-regular-400.woff2 /app/app/static/vendor/fontawesome/webfonts/fa-regular-400.woff2

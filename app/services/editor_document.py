@@ -21,9 +21,21 @@ _ALIGN_STYLE_RE = re.compile(
 _ALLOWED_TAGS = {"b", "strong", "i", "em", "u", "div", "p", "br", "font", "span", "img"}
 _FONT_FACES = {
     "Arial, sans-serif",
+    "'DejaVu Sans', sans-serif",
+    '"DejaVu Sans", sans-serif',
+    "DejaVu Sans, sans-serif",
+    "'DejaVu Sans Condensed', sans-serif",
+    '"DejaVu Sans Condensed", sans-serif',
+    "DejaVu Sans Condensed, sans-serif",
     "Georgia, serif",
+    "'DejaVu Serif', serif",
+    '"DejaVu Serif", serif',
+    "DejaVu Serif, serif",
     "'Courier New', monospace",
     '"Courier New", monospace',
+    "'DejaVu Sans Mono', monospace",
+    '"DejaVu Sans Mono", monospace',
+    "DejaVu Sans Mono, monospace",
 }
 _IMAGE_SIZES = {"small", "medium", "large", "full"}
 _IMAGE_COORDINATE_RE = re.compile(r"^(?:100(?:\.0{1,3})?|\d{1,2}(?:\.\d{1,3})?)$")

@@ -211,6 +211,16 @@ class EditorDocumentTest(unittest.TestCase):
             '<u><font face="Arial, sans-serif" size="3"><b>Formatted</b></font></u>',
         )
 
+    def test_bundled_label_font_is_preserved(self):
+        content = sanitize_editor_document(
+            '<font face="\'DejaVu Sans Condensed\', sans-serif" size="5">Narrow label</font>'
+        )
+
+        self.assertEqual(
+            content,
+            '<font face="&#x27;DejaVu Sans Condensed&#x27;, sans-serif" size="5">Narrow label</font>',
+        )
+
     def test_positioned_image_coordinates_are_validated(self):
         tiny_png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
         content = sanitize_editor_document(
@@ -347,6 +357,8 @@ class PageSmokeTest(unittest.TestCase):
         self.assertIn("Wähle eine Funktion aus.".encode(), home.data)
         self.assertIn(b"PDF hier ablegen", documents.data)
         self.assertIn(b"Gespeicherte Etiketten", labels.data)
+        self.assertIn(b"Symbole", labels.data)
+        self.assertIn("Zerbrechlich".encode(), labels.data)
         self.assertIn(b"Bereit zum Scannen", scans.data)
         self.assertIn("Drucker werden geladen".encode(), translations.data)
         self.assertEqual(manifest.json["lang"], "de")
