@@ -43,7 +43,7 @@ The preview shows the real application in an isolated English demo environment. 
 - Design DYMO 30321 Large Address labels on an exact 88 x 34 mm WYSIWYG canvas.
 - Print the rendered 300 dpi artwork at 1:1 scale on a DYMO LabelWriter 450.
 - Choose from seven font families in a visual font-preview menu, including bundled open-source sans, condensed, serif, and monospaced DejaVu fonts, then apply font size, bold, italic, underline, and alignment controls.
-- Add multiple text boxes, freely position them, adjust their width, and continue editing and formatting their contents independently.
+- Add multiple text boxes, freely position and resize them in both directions, and continue editing and formatting their contents independently. Text boxes automatically grow when new lines are added.
 - Undo, redo, clear, and preview edits.
 - Paste or upload images, then freely position, resize, drag, or move them with the keyboard.
 - Insert useful label symbols such as warning, fragile, this-side-up, keep-dry, recycling, phone, email, and package marks; symbols remain editable and proportionally resizable.

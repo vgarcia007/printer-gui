@@ -24,11 +24,7 @@
   const symbolPalette = document.getElementById("symbolPalette");
   const closeSymbolPaletteButton = document.getElementById("closeSymbolPalette");
   const symbolChoices = document.querySelectorAll("[data-symbol-glyph]");
-  const imageTools = document.getElementById("imageTools");
-  const imageSizeButtons = document.querySelectorAll("[data-image-size-choice]");
-  const imageDelete = document.getElementById("imageDelete");
-  const textTools = document.getElementById("textTools");
-  const textDelete = document.getElementById("textDelete");
+  const deleteSelectedButton = document.getElementById("deleteSelected");
   const editorStatus = document.getElementById("editorStatus");
   if (!form || !editor || !submitButton || !saveButton) return;
 
@@ -143,29 +139,18 @@
     if (selectedImage) selectedImage.classList.remove("is-selected");
     if (selectedText) selectedText.classList.remove("is-selected");
     selectedText = null;
-    textTools.hidden = true;
     selectedImage = wrapper;
     if (selectedImage) selectedImage.classList.add("is-selected");
-    imageTools.hidden = !selectedImage;
-    imageSizeButtons.forEach(button => {
-      const active = Boolean(
-        selectedImage &&
-        !selectedImage.dataset.imageWidth &&
-        button.dataset.imageSizeChoice === selectedImage.dataset.imageSize
-      );
-      button.classList.toggle("is-active", active);
-      button.setAttribute("aria-pressed", active ? "true" : "false");
-    });
+    deleteSelectedButton.disabled = !selectedImage;
   };
 
   const selectText = wrapper => {
     if (selectedImage) selectedImage.classList.remove("is-selected");
     selectedImage = null;
-    imageTools.hidden = true;
     if (selectedText) selectedText.classList.remove("is-selected");
     selectedText = wrapper;
     if (selectedText) selectedText.classList.add("is-selected");
-    textTools.hidden = !selectedText;
+    deleteSelectedButton.disabled = !selectedText;
   };
 
   const coordinate = value => {
@@ -385,15 +370,38 @@
 
   const applyTextLayout = wrapper => {
     const requestedWidth = coordinate(wrapper.dataset.textWidth || "55");
+    const requestedHeight = coordinate(wrapper.dataset.textHeight || "18");
     const x = coordinate(wrapper.dataset.textX || "2.273");
+    const y = coordinate(wrapper.dataset.textY || "5.882");
     const maximumWidth = Math.max(15, 100 - x);
+    const maximumHeight = Math.max(8, 100 - y);
     const width = Math.max(15, Math.min(maximumWidth, requestedWidth));
+    const height = Math.max(8, Math.min(maximumHeight, requestedHeight));
     wrapper.dataset.textWidth = compactCoordinate(width);
+    wrapper.dataset.textHeight = compactCoordinate(height);
     wrapper.style.width = `${width}%`;
+    wrapper.style.height = `${height}%`;
     setTextPosition(
       wrapper,
       x,
-      coordinate(wrapper.dataset.textY || "5.882")
+      y
+    );
+  };
+
+  const growTextBoxToContent = wrapper => {
+    const textBox = wrapper.querySelector(".editor-text-box");
+    if (!textBox || !editor.clientHeight) return;
+    const requiredHeight = textBox.scrollHeight + 1;
+    if (requiredHeight <= wrapper.clientHeight + 1) return;
+    const maximumHeight = editor.clientHeight - wrapper.offsetTop;
+    const height = Math.min(maximumHeight, requiredHeight);
+    const heightPercent = height / editor.clientHeight * 100;
+    wrapper.dataset.textHeight = compactCoordinate(heightPercent);
+    wrapper.style.height = `${heightPercent}%`;
+    setTextPosition(
+      wrapper,
+      coordinate(wrapper.dataset.textX),
+      coordinate(wrapper.dataset.textY)
     );
   };
 
@@ -431,7 +439,7 @@
     handle.addEventListener("pointercancel", finish);
   };
 
-  const startTextResize = (event, wrapper) => {
+  const startTextResize = (event, wrapper, corner) => {
     if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
@@ -439,30 +447,50 @@
     const handle = event.currentTarget;
     const editorRect = editor.getBoundingClientRect();
     const scaleX = editor.clientWidth / editorRect.width;
-    const startX = event.clientX;
+    const scaleY = editor.clientHeight / editorRect.height;
+    const startLeft = wrapper.offsetLeft;
+    const startTop = wrapper.offsetTop;
     const startWidth = wrapper.offsetWidth;
-    const maximumWidth = editor.clientWidth - wrapper.offsetLeft;
+    const startHeight = wrapper.offsetHeight;
+    const anchorX = corner.includes("w") ? startLeft + startWidth : startLeft;
+    const anchorY = corner.includes("n") ? startTop + startHeight : startTop;
     const minimumWidth = editor.clientWidth * 0.15;
+    const minimumHeight = editor.clientHeight * 0.08;
     handle.setPointerCapture(event.pointerId);
 
     const resize = moveEvent => {
+      const pointerX = (moveEvent.clientX - editorRect.left) * scaleX;
+      const pointerY = (moveEvent.clientY - editorRect.top) * scaleY;
+      const maximumWidth = corner.includes("w") ? anchorX : editor.clientWidth - anchorX;
+      const maximumHeight = corner.includes("n") ? anchorY : editor.clientHeight - anchorY;
       const width = Math.max(
-        minimumWidth,
-        Math.min(maximumWidth, startWidth + (moveEvent.clientX - startX) * scaleX)
+        Math.min(minimumWidth, maximumWidth),
+        Math.min(maximumWidth, Math.abs(pointerX - anchorX))
       );
+      const height = Math.max(
+        Math.min(minimumHeight, maximumHeight),
+        Math.min(maximumHeight, Math.abs(pointerY - anchorY))
+      );
+      const left = corner.includes("w") ? anchorX - width : anchorX;
+      const top = corner.includes("n") ? anchorY - height : anchorY;
       const widthPercent = width / editor.clientWidth * 100;
+      const heightPercent = height / editor.clientHeight * 100;
       wrapper.dataset.textWidth = compactCoordinate(widthPercent);
+      wrapper.dataset.textHeight = compactCoordinate(heightPercent);
       wrapper.style.width = `${widthPercent}%`;
+      wrapper.style.height = `${heightPercent}%`;
       setTextPosition(
         wrapper,
-        coordinate(wrapper.dataset.textX),
-        coordinate(wrapper.dataset.textY)
+        left / editor.clientWidth * 100,
+        top / editor.clientHeight * 100
       );
+      growTextBoxToContent(wrapper);
     };
     const finish = () => {
       handle.removeEventListener("pointermove", resize);
       handle.removeEventListener("pointerup", finish);
       handle.removeEventListener("pointercancel", finish);
+      growTextBoxToContent(wrapper);
       saveDraft();
       updateOverflowState();
     };
@@ -501,18 +529,23 @@
       saveDraft();
     });
 
-    const resizeHandle = document.createElement("span");
-    resizeHandle.className = "text-box-control text-resize-handle";
-    resizeHandle.contentEditable = "false";
-    resizeHandle.setAttribute("aria-hidden", "true");
-    resizeHandle.addEventListener("pointerdown", event => startTextResize(event, wrapper));
-    wrapper.append(moveHandle, resizeHandle);
+    wrapper.append(moveHandle);
+    ["nw", "ne", "sw", "se"].forEach(corner => {
+      const resizeHandle = document.createElement("span");
+      resizeHandle.className = `text-box-control text-resize-handle text-resize-${corner}`;
+      resizeHandle.dataset.resizeCorner = corner;
+      resizeHandle.contentEditable = "false";
+      resizeHandle.setAttribute("aria-hidden", "true");
+      resizeHandle.addEventListener("pointerdown", event => startTextResize(event, wrapper, corner));
+      wrapper.append(resizeHandle);
+    });
   };
 
   const prepareTextWrapper = wrapper => {
     if (!wrapper.dataset.textX) wrapper.dataset.textX = "2.273";
     if (!wrapper.dataset.textY) wrapper.dataset.textY = "5.882";
     if (!wrapper.dataset.textWidth) wrapper.dataset.textWidth = "55";
+    if (!wrapper.dataset.textHeight) wrapper.dataset.textHeight = "18";
     wrapper.contentEditable = "false";
     let textBox = wrapper.querySelector(":scope > .editor-text-box");
     if (!textBox) {
@@ -527,6 +560,7 @@
     textBox.setAttribute("aria-label", t("Label text box"));
     addTextControls(wrapper);
     applyTextLayout(wrapper);
+    requestAnimationFrame(() => growTextBoxToContent(wrapper));
     if (wrapper._textPositioningReady) return;
     wrapper._textPositioningReady = true;
     wrapper.addEventListener("pointerdown", event => {
@@ -549,13 +583,14 @@
     savedRange = range.cloneRange();
   };
 
-  const createTextBox = ({ x, y, width = 55, focus = true } = {}) => {
+  const createTextBox = ({ x, y, width = 55, height = 18, focus = true } = {}) => {
     const count = editor.querySelectorAll(".editor-text-wrap").length;
     const wrapper = document.createElement("div");
     wrapper.className = "editor-text-wrap";
     wrapper.dataset.textX = String(x !== undefined ? x : (2.273 + (count * 4) % 28));
     wrapper.dataset.textY = String(y !== undefined ? y : (5.882 + (count * 13) % 62));
     wrapper.dataset.textWidth = String(width);
+    wrapper.dataset.textHeight = String(height);
     const textBox = document.createElement("div");
     textBox.className = "editor-text-box";
     wrapper.append(textBox);
@@ -660,11 +695,7 @@
     hideError();
     const wrapper = document.activeElement.closest && document.activeElement.closest(".editor-text-wrap");
     if (wrapper) {
-      setTextPosition(
-        wrapper,
-        coordinate(wrapper.dataset.textX),
-        coordinate(wrapper.dataset.textY)
-      );
+      growTextBoxToContent(wrapper);
     }
     updateOverflowState();
     saveDraft();
@@ -931,43 +962,27 @@
     focusTextBox(wrapper);
   });
 
-  const setSelectedImageSize = size => {
-    if (!selectedImage) return;
-    selectedImage.dataset.imageSize = size;
-    delete selectedImage.dataset.imageWidth;
-    selectImage(selectedImage);
-    requestAnimationFrame(() => {
-      refreshImageLayout(selectedImage);
-      saveDraft();
-      updateOverflowState();
-    });
-  };
-
-  imageSizeButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      setSelectedImageSize(button.dataset.imageSizeChoice);
-    });
-  });
-  imageDelete.addEventListener("click", () => {
-    if (!selectedImage) return;
-    const wrapper = selectedImage;
-    selectImage(null);
-    wrapper.remove();
-    if (!editor.querySelector(".editor-text-wrap") && !hasImage()) createTextBox({ focus: false });
+  deleteSelectedButton.addEventListener("click", () => {
+    if (selectedImage) {
+      const wrapper = selectedImage;
+      selectImage(null);
+      wrapper.remove();
+      if (!editor.querySelector(".editor-text-wrap") && !hasImage()) {
+        createTextBox({ focus: false });
+      }
+    } else if (selectedText) {
+      const wrapper = selectedText;
+      savedRange = null;
+      selectText(null);
+      wrapper.remove();
+      let nextText = editor.querySelector(".editor-text-wrap");
+      if (!nextText && !hasImage()) nextText = createTextBox({ focus: false });
+      if (nextText) focusTextBox(nextText);
+    } else {
+      return;
+    }
     saveDraft();
     updateOverflowState();
-  });
-  textDelete.addEventListener("click", () => {
-    if (!selectedText) return;
-    const wrapper = selectedText;
-    savedRange = null;
-    selectText(null);
-    wrapper.remove();
-    let nextText = editor.querySelector(".editor-text-wrap");
-    if (!nextText && !hasImage()) nextText = createTextBox({ focus: false });
-    saveDraft();
-    updateOverflowState();
-    if (nextText) focusTextBox(nextText);
   });
 
   const renderToCanvas = async () => {

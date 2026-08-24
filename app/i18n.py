@@ -117,6 +117,8 @@ GERMAN_TRANSLATIONS = {
     "Package": "Paket",
     "The symbol could not be inserted.": "Das Symbol konnte nicht eingefügt werden.",
     "Clear formatting": "Formatierung entfernen",
+    "Delete selected object": "Ausgewähltes Objekt löschen",
+    "Delete selected": "Auswahl löschen",
     "Clear the entire label": "Gesamtes Etikett leeren",
     "Clear all": "Alles leeren",
     "Selected image tools": "Werkzeuge für das ausgewählte Bild",

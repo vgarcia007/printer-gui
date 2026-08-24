@@ -68,6 +68,9 @@ class _EditorDocumentSanitizer(HTMLParser):
                 width = attributes.get("data-text-width", "")
                 if _IMAGE_COORDINATE_RE.fullmatch(width) and 15 <= float(width) <= 100:
                     clean_attributes.append(("data-text-width", width))
+                height = attributes.get("data-text-height", "")
+                if _IMAGE_COORDINATE_RE.fullmatch(height) and 5 <= float(height) <= 100:
+                    clean_attributes.append(("data-text-height", height))
                 clean_attributes.append(("contenteditable", "false"))
             elif tag == "div" and element_class == "editor-text-box":
                 clean_attributes.extend(

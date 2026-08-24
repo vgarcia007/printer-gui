@@ -87,6 +87,9 @@
           <button class="tool-button icon-button" type="button" data-command="removeFormat" aria-label="{{ t('Clear formatting') }}" title="{{ t('Clear formatting') }}">
             <i class="fas fa-eraser" aria-hidden="true"></i>
           </button>
+          <button id="deleteSelected" class="tool-button labeled-tool tool-delete-selected" type="button" disabled title="{{ t('Delete selected object') }}">
+            <i class="fas fa-times-circle" aria-hidden="true"></i><span>{{ t("Delete selected") }}</span>
+          </button>
           <button id="clearEditor" class="tool-button labeled-tool tool-clear" type="button" title="{{ t('Clear the entire label') }}"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>{{ t("Clear all") }}</span></button>
         </div>
       </div>
@@ -113,22 +116,6 @@
           <button type="button" class="symbol-choice" data-symbol-glyph="f005" title="{{ t('Star') }}"><i class="fas fa-star" aria-hidden="true"></i><span>{{ t("Star") }}</span></button>
           <button type="button" class="symbol-choice" data-symbol-glyph="f49e" title="{{ t('Package') }}"><i class="fas fa-box-open" aria-hidden="true"></i><span>{{ t("Package") }}</span></button>
         </div>
-      </div>
-      <div id="imageTools" class="editor-context-bar" aria-label="{{ t('Selected image tools') }}" hidden>
-        <strong>{{ t("Selected image") }}</strong>
-        <span>{{ t("Drag it to position") }}</span>
-        <div class="image-size-options" role="group" aria-label="{{ t('Image size') }}">
-          <button class="context-button" type="button" data-image-size-choice="small">{{ t("Small") }}</button>
-          <button class="context-button" type="button" data-image-size-choice="medium">{{ t("Medium") }}</button>
-          <button class="context-button" type="button" data-image-size-choice="large">{{ t("Large") }}</button>
-          <button class="context-button" type="button" data-image-size-choice="full">{{ t("Full width") }}</button>
-        </div>
-        <button id="imageDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>{{ t("Delete image") }}</button>
-      </div>
-      <div id="textTools" class="editor-context-bar" aria-label="{{ t('Selected text box tools') }}" hidden>
-        <strong>{{ t("Selected text box") }}</strong>
-        <span>{{ t("Drag the handle to position it") }}</span>
-        <button id="textDelete" class="context-button context-delete" type="button"><i class="fas fa-trash-alt button-icon" aria-hidden="true"></i>{{ t("Delete text box") }}</button>
       </div>
       <div class="label-workspace">
         <div id="labelViewport" class="label-viewport">
@@ -157,5 +144,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='vendor/html2canvas.min.js', v='1.4.1') }}"></script>
-<script src="{{ url_for('static', filename='js/editor.js', v='20260824-3') }}"></script>
+<script src="{{ url_for('static', filename='js/editor.js', v='20260824-4') }}"></script>
 {% endblock %}
