@@ -12,10 +12,11 @@
     if (!response.ok || data.ok === false) throw new Error(data.error || t("The request could not be completed."));
     return data;
   };
-  const formatSize = bytes => bytes < 1024 * 1024
-    ? Math.max(1, Math.ceil(bytes / 1024)) + " KB"
-    : (bytes / 1024 / 1024).toFixed(1) + " MB";
   const weekday = value => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(value));
+  const dateTime = value => new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
   const icon = (name, style = "far") => {
     const node = document.createElement("i");
     node.className = `${style} ${name} fa-fw`;
@@ -140,7 +141,7 @@
     headline.append(name, day);
     const meta = document.createElement("div");
     meta.className = "scan-file-meta";
-    meta.textContent = `${formatSize(file.size)}${file.ocrFailed ? " · " + t("OCR needs attention") : ""}`;
+    meta.textContent = `${dateTime(file.modified)}${file.ocrFailed ? " · " + t("OCR needs attention") : ""}`;
     details.append(headline, meta);
 
     const actions = document.createElement("div");

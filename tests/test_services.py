@@ -215,12 +215,13 @@ class EditorDocumentTest(unittest.TestCase):
         tiny_png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
         content = sanitize_editor_document(
             '<span class="editor-image-wrap" data-image-size="small" '
-            'data-image-x="12.5" data-image-y="8.25" style="left:999px">'
+            'data-image-x="12.5" data-image-y="8.25" data-image-width="31.75" style="left:999px">'
             f'<img src="data:image/png;base64,{tiny_png}"></span>'
         )
 
         self.assertIn('data-image-x="12.5"', content)
         self.assertIn('data-image-y="8.25"', content)
+        self.assertIn('data-image-width="31.75"', content)
         self.assertNotIn("style=", content)
 
 

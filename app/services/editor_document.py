@@ -70,6 +70,9 @@ class _EditorDocumentSanitizer(HTMLParser):
                     value = attributes.get(f"data-image-{coordinate}", "")
                     if _IMAGE_COORDINATE_RE.fullmatch(value):
                         clean_attributes.append((f"data-image-{coordinate}", value))
+                width = attributes.get("data-image-width", "")
+                if _IMAGE_COORDINATE_RE.fullmatch(width) and 1 <= float(width) <= 84:
+                    clean_attributes.append(("data-image-width", width))
                 clean_attributes.append(("contenteditable", "false"))
         elif tag == "img":
             source = attributes.get("src", "")

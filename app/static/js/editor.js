@@ -29,6 +29,12 @@
   let savedRange = null;
   let submitting = false;
   let selectedImage = null;
+  const imageSizeLimits = {
+    small: { width: 24, height: 36 },
+    medium: { width: 42, height: 56 },
+    large: { width: 62, height: 72 },
+    full: { width: 84, height: 88 },
+  };
 
   const selectionInsideEditor = () => {
     const selection = window.getSelection();
@@ -102,6 +108,7 @@
 
   const serializedDocument = () => {
     const documentClone = editor.cloneNode(true);
+    documentClone.querySelectorAll(".image-resize-handle").forEach(node => node.remove());
     documentClone.querySelectorAll(".is-selected").forEach(node =>
       node.classList.remove("is-selected")
     );
@@ -116,6 +123,7 @@
     imageSizeButtons.forEach(button => {
       const active = Boolean(
         selectedImage &&
+        !selectedImage.dataset.imageWidth &&
         button.dataset.imageSizeChoice === selectedImage.dataset.imageSize
       );
       button.classList.toggle("is-active", active);
@@ -128,6 +136,26 @@
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
+  const fitImageToLabel = wrapper => {
+    const image = wrapper.querySelector(".editor-image");
+    if (!image || !image.naturalWidth || !image.naturalHeight || !editor.clientWidth || !editor.clientHeight) {
+      return false;
+    }
+    const limits = imageSizeLimits[wrapper.dataset.imageSize] || imageSizeLimits.medium;
+    const requestedWidth = coordinate(wrapper.dataset.imageWidth);
+    const customWidth = requestedWidth > 0;
+    const maximumWidth = editor.clientWidth * Math.min(customWidth ? requestedWidth : limits.width, 84) / 100;
+    const maximumHeight = editor.clientHeight * (customWidth ? 88 : limits.height) / 100;
+    const aspectRatio = image.naturalWidth / image.naturalHeight;
+    const fittedWidth = Math.min(maximumWidth, maximumHeight * aspectRatio);
+    const fittedPercent = fittedWidth / editor.clientWidth * 100;
+    wrapper.style.width = `${fittedPercent}%`;
+    if (customWidth) {
+      wrapper.dataset.imageWidth = fittedPercent.toFixed(3).replace(/\.?0+$/, "");
+    }
+    return true;
+  };
+
   const setImagePosition = (wrapper, xPercent, yPercent) => {
     const widthPercent = editor.clientWidth
       ? wrapper.offsetWidth / editor.clientWidth * 100
@@ -135,8 +163,8 @@
     const heightPercent = editor.clientHeight
       ? wrapper.offsetHeight / editor.clientHeight * 100
       : 0;
-    const x = Math.max(0, Math.min(100 - widthPercent, xPercent));
-    const y = Math.max(0, Math.min(100 - heightPercent, yPercent));
+    const x = Math.max(0, Math.min(Math.max(0, 100 - widthPercent), xPercent));
+    const y = Math.max(0, Math.min(Math.max(0, 100 - heightPercent), yPercent));
     wrapper.dataset.imageX = x.toFixed(3).replace(/\.?0+$/, "");
     wrapper.dataset.imageY = y.toFixed(3).replace(/\.?0+$/, "");
     wrapper.style.left = `${x}%`;
@@ -151,6 +179,86 @@
     );
   };
 
+  const refreshImageLayout = wrapper => {
+    fitImageToLabel(wrapper);
+    applyImagePosition(wrapper);
+  };
+
+  const startImageResize = (event, wrapper, corner) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    selectImage(wrapper);
+    wrapper.focus({ preventScroll: true });
+
+    const image = wrapper.querySelector(".editor-image");
+    if (!image || !image.naturalWidth || !image.naturalHeight) return;
+    const editorRect = editor.getBoundingClientRect();
+    const scaleX = editor.clientWidth / editorRect.width;
+    const scaleY = editor.clientHeight / editorRect.height;
+    const startLeft = wrapper.offsetLeft;
+    const startTop = wrapper.offsetTop;
+    const startWidth = wrapper.offsetWidth;
+    const startHeight = wrapper.offsetHeight;
+    const anchorX = corner.includes("w") ? startLeft + startWidth : startLeft;
+    const anchorY = corner.includes("n") ? startTop + startHeight : startTop;
+    const aspectRatio = image.naturalWidth / image.naturalHeight;
+    const handle = event.currentTarget;
+    handle.setPointerCapture(event.pointerId);
+
+    const resize = moveEvent => {
+      const pointerX = (moveEvent.clientX - editorRect.left) * scaleX;
+      const pointerY = (moveEvent.clientY - editorRect.top) * scaleY;
+      const distanceX = Math.abs(pointerX - anchorX);
+      const distanceY = Math.abs(pointerY - anchorY);
+      const projectedHeight = (distanceX * aspectRatio + distanceY) / (aspectRatio * aspectRatio + 1);
+      const horizontalSpace = corner.includes("w") ? anchorX : editor.clientWidth - anchorX;
+      const verticalSpace = corner.includes("n") ? anchorY : editor.clientHeight - anchorY;
+      const maximumWidth = Math.max(1, Math.min(
+        editor.clientWidth * 0.84,
+        editor.clientHeight * 0.88 * aspectRatio,
+        horizontalSpace,
+        verticalSpace * aspectRatio
+      ));
+      const minimumWidth = Math.min(maximumWidth, Math.max(12, editor.clientWidth * 0.05));
+      const width = Math.max(minimumWidth, Math.min(maximumWidth, projectedHeight * aspectRatio));
+      const left = corner.includes("w") ? anchorX - width : anchorX;
+      const top = corner.includes("n") ? anchorY - width / aspectRatio : anchorY;
+      const widthPercent = width / editor.clientWidth * 100;
+
+      wrapper.style.width = `${widthPercent}%`;
+      wrapper.dataset.imageWidth = widthPercent.toFixed(3).replace(/\.?0+$/, "");
+      setImagePosition(
+        wrapper,
+        left / editor.clientWidth * 100,
+        top / editor.clientHeight * 100
+      );
+    };
+    const finish = () => {
+      handle.removeEventListener("pointermove", resize);
+      handle.removeEventListener("pointerup", finish);
+      handle.removeEventListener("pointercancel", finish);
+      selectImage(wrapper);
+      saveDraft();
+      updateOverflowState();
+    };
+    handle.addEventListener("pointermove", resize);
+    handle.addEventListener("pointerup", finish);
+    handle.addEventListener("pointercancel", finish);
+  };
+
+  const addImageResizeHandles = wrapper => {
+    if (wrapper.querySelector(".image-resize-handle")) return;
+    ["nw", "ne", "sw", "se"].forEach(corner => {
+      const handle = document.createElement("span");
+      handle.className = `image-resize-handle image-resize-${corner}`;
+      handle.dataset.resizeCorner = corner;
+      handle.setAttribute("aria-hidden", "true");
+      handle.addEventListener("pointerdown", event => startImageResize(event, wrapper, corner));
+      wrapper.append(handle);
+    });
+  };
+
   const prepareImageWrapper = wrapper => {
     if (!wrapper.dataset.imageSize) wrapper.dataset.imageSize = "medium";
     if (!wrapper.dataset.imageX) wrapper.dataset.imageX = "2.273";
@@ -158,7 +266,8 @@
     wrapper.contentEditable = "false";
     wrapper.tabIndex = 0;
     wrapper.setAttribute("aria-label", t("Positioned image. Drag it or use the arrow keys to move it."));
-    applyImagePosition(wrapper);
+    addImageResizeHandles(wrapper);
+    refreshImageLayout(wrapper);
     if (wrapper._positioningReady) return;
     wrapper._positioningReady = true;
 
@@ -256,10 +365,12 @@
       editor.querySelectorAll(".is-selected").forEach(node => node.classList.remove("is-selected"));
       editor.querySelectorAll(".editor-image-wrap").forEach(prepareImageWrapper);
       editor.querySelectorAll(".editor-image").forEach(image => {
-        image.addEventListener("load", () => {
-          applyImagePosition(image.closest(".editor-image-wrap"));
+        const refreshLoadedImage = () => {
+          refreshImageLayout(image.closest(".editor-image-wrap"));
           updateOverflowState();
-        }, { once: true });
+        };
+        if (image.complete && image.naturalWidth) refreshLoadedImage();
+        else image.addEventListener("load", refreshLoadedImage, { once: true });
       });
     }
   } catch (_error) {
@@ -333,16 +444,16 @@
 
     const image = document.createElement("img");
     image.className = "editor-image";
-    image.src = source;
     image.alt = t("Pasted image");
     image.draggable = false;
     image.addEventListener("load", () => {
-      applyImagePosition(wrapper);
+      refreshImageLayout(wrapper);
       updateOverflowState();
     }, { once: true });
+    image.src = source;
     wrapper.append(image);
-    prepareImageWrapper(wrapper);
     editor.append(wrapper);
+    prepareImageWrapper(wrapper);
     selectImage(wrapper);
     hideError();
     saveDraft();
@@ -432,9 +543,10 @@
   const setSelectedImageSize = size => {
     if (!selectedImage) return;
     selectedImage.dataset.imageSize = size;
+    delete selectedImage.dataset.imageWidth;
     selectImage(selectedImage);
     requestAnimationFrame(() => {
-      applyImagePosition(selectedImage);
+      refreshImageLayout(selectedImage);
       saveDraft();
       updateOverflowState();
     });
@@ -479,6 +591,7 @@
         clonedViewport.style.overflow = "visible";
         clonedStage.style.transform = "none";
         clonedEditor.removeAttribute("contenteditable");
+        clonedEditor.querySelectorAll(".image-resize-handle").forEach(node => node.remove());
         clonedEditor.querySelectorAll(".is-selected").forEach(node => {
           node.classList.remove("is-selected");
         });
