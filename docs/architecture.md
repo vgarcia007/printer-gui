@@ -18,7 +18,15 @@ Only web publishes a port. CUPS, scanner, and OCR communicate on the private Com
 ## Data lifecycle
 
 Print uploads are atomically stored in data/jobs and removed only after CUPS
-accepts them. The same directory is a print hotfolder: visible PDF files are
+accepts them. When several PDFs are selected in the browser, the browser keeps
+their displayed order and waits for one submission response before starting
+the next. A failure is marked on that file and does not prevent later files
+from being submitted. The progress view remains visible for at least 20 seconds
+per started browser queue; this presentation delay does not delay CUPS itself.
+
+The browser-side selection is not persisted. Keep the page open until its
+result list appears. Files already accepted by CUPS remain accepted if the page
+is closed. The same data/jobs directory is also a print hotfolder: visible PDF files are
 submitted to the configured default document printer only after their size and
 modification time have remained unchanged for the configured interval, their
 header identifies a PDF, and their final bytes contain a PDF end marker. Failed

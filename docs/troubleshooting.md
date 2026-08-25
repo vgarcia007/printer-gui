@@ -15,6 +15,23 @@ Check config/printers.local.json, then inspect queues with docker compose exec c
 
 For DYMO problems, confirm the USB device is visible with docker compose exec cups lsusb and that its URI is correct.
 
+## A multi-PDF queue reports an error
+
+The browser submits the displayed PDFs sequentially. A failed file is marked,
+but later files are still submitted. Do not immediately submit the complete
+selection again: files already marked as sent may print twice.
+
+If an upload reached the server but CUPS rejected it, its error states that the
+PDF remains in the jobs folder. The hotfolder retries that file automatically.
+Check the marked result, the CUPS queue, and the logs before deciding whether a
+manual retry is necessary:
+
+    docker compose exec cups lpstat -W all -o
+    docker compose logs --tail=100 web cups
+
+The animated progress screen intentionally remains visible for at least 20
+seconds. This is not a printing delay and does not mean that CUPS is still busy.
+
 ## The scanner is unavailable
 
 Check SCANNER_IP, then run:

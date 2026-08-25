@@ -17,21 +17,27 @@ Many thanks to their authors and contributors for sharing their work. Print & Sc
 
 [![Animated walkthrough of Print & Scan Hub](docs/media/walkthrough.gif)](docs/media/walkthrough.mp4)
 
-The preview shows the real application in an isolated English demo environment. Select it to open the [10-second MP4 walkthrough](docs/media/walkthrough.mp4).
+The preview shows the real application with neutral sample data in an isolated English demo environment. Select it to open the [MP4 walkthrough](docs/media/walkthrough.mp4).
 
-| PDF printing | Exact label editor |
+| Multi-PDF queue | Sequential print progress |
 | --- | --- |
-| [![PDF printing screen](docs/media/document-printing.png)](docs/media/document-printing.png) | [![DYMO WYSIWYG label editor](docs/media/label-editor.png)](docs/media/label-editor.png) |
+| [![Multiple PDFs ready to print](docs/media/document-printing.png)](docs/media/document-printing.png) | [![Sequential PDF printing progress](docs/media/document-printing-progress.png)](docs/media/document-printing-progress.png) |
 
-| Guided scanning | Scanned-PDF sidebar |
+| Exact label editor | Guided scanning |
 | --- | --- |
-| [![Guided document scanning screen](docs/media/scanner.png)](docs/media/scanner.png) | [![Scanned PDF sidebar](docs/media/scanner-library.png)](docs/media/scanner-library.png) |
+| [![DYMO WYSIWYG label editor](docs/media/label-editor.png)](docs/media/label-editor.png) | [![Guided document scanning screen](docs/media/scanner.png)](docs/media/scanner.png) |
+
+| Scanned-PDF sidebar |
+| --- |
+| [![Scanned PDF sidebar](docs/media/scanner-library.png)](docs/media/scanner-library.png) |
 
 ## Features
 
 ### Document printing
 
-- Add one or more PDFs through the file chooser or drag and drop, review their order, and send them to a configured document printer one after another with visible progress.
+- Add one or more PDFs through the file chooser or drag and drop, review their order, add more files, or remove individual entries before printing.
+- Submit PDFs to the selected printer strictly one after another and show the current file and queue position while they are processed.
+- Keep the friendly printing animation visible for at least 20 seconds per started queue, then show a per-file success or error result.
 - Print a stored scan directly from its sidebar entry, with a printer chooser before submission.
 - Automatically print PDFs copied into the configurable hotfolder.
 - Wait until a hotfolder file is unchanged and has a valid PDF header and end marker before printing it. This prevents incomplete network copies from being submitted.
