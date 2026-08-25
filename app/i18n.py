@@ -48,6 +48,7 @@ GERMAN_TRANSLATIONS = {
     "Printing documents": "Dokumente werden gedruckt",
     "PDF {current} of {total}": "PDF {current} von {total}",
     "Uploading and sending {filename}…": "{filename} wird hochgeladen und gesendet…",
+    "Finishing the print queue…": "Druckaufträge werden abgeschlossen…",
     "All PDFs were sent": "Alle PDFs wurden gesendet",
     "{count} PDFs were sent to the printer.": "{count} PDFs wurden an den Drucker gesendet.",
     "Some PDFs need attention": "Einige PDFs benötigen Aufmerksamkeit",

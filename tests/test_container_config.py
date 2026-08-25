@@ -195,6 +195,8 @@ class CUPSContainerConfigTestCase(unittest.TestCase):
         self.assertIn("files.push(...pdfs.map", javascript)
         self.assertIn("for (let index = 0; index < completedFiles.length; index += 1)", javascript)
         self.assertIn("await request(url", javascript)
+        self.assertIn("MINIMUM_PRINT_ANIMATION_MS = 20_000", javascript)
+        self.assertIn("await wait(remainingAnimationTime)", javascript)
         self.assertLess(javascript.index("for (let index = 0"), javascript.index("renderResult(completedFiles)"))
 
     def test_libraries_use_page_local_drawers_instead_of_header_navigation(self) -> None:

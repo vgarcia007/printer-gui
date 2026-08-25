@@ -24,6 +24,7 @@
   const resetQueue = document.getElementById("resetQueue");
   const printFile = document.getElementById("printFile");
   const status = document.getElementById("documentStatus");
+  const MINIMUM_PRINT_ANIMATION_MS = 20_000;
   let files = [];
   let nextFileId = 1;
   let processing = false;
@@ -48,6 +49,7 @@
   const selectedMessage = count => count === 1
     ? t("1 PDF selected")
     : t("{count} PDFs selected", { count });
+  const wait = duration => new Promise(resolve => window.setTimeout(resolve, duration));
 
   const showView = view => {
     dropZone.hidden = view !== "drop";
@@ -217,6 +219,7 @@
     if (processing || !files.length || !printer.value) return;
     processing = true;
     const completedFiles = [...files];
+    const animationStarted = performance.now();
     showView("progress");
     updateControls();
 
@@ -233,6 +236,13 @@
         entry.state = "error";
         entry.error = error.message;
       }
+    }
+
+    const remainingAnimationTime = MINIMUM_PRINT_ANIMATION_MS - (performance.now() - animationStarted);
+    if (remainingAnimationTime > 0) {
+      progressFile.textContent = t("Finishing the print queue…");
+      status.textContent = t("Finishing the print queue…");
+      await wait(remainingAnimationTime);
     }
 
     processing = false;
