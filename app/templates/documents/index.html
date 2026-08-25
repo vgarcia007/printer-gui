@@ -10,17 +10,47 @@
   </div>
 
   <div class="document-workbench">
-    <div class="document-upload-frame">
+    <div id="documentUploadFrame" class="document-upload-frame">
+      <input id="fileInput" class="visually-hidden" type="file" accept="application/pdf,.pdf" multiple>
       <label id="dropZone" class="drop-zone" for="fileInput">
-        <input id="fileInput" type="file" accept="application/pdf,.pdf">
         <i class="fas fa-file-upload drop-zone-icon" aria-hidden="true"></i>
-        <strong>{{ t("Drop a PDF here") }}</strong>
-        <span>{{ t("or click to choose one") }}</span>
+        <strong>{{ t("Drop PDFs here") }}</strong>
+        <span>{{ t("or click to choose files") }}</span>
       </label>
-      <div id="fileCard" class="file-card document-file-card" hidden>
-        <i class="far fa-file-pdf document-file-icon" aria-hidden="true"></i>
-        <div class="document-file-copy"><strong id="fileName"></strong><small id="fileSize"></small></div>
-        <button id="removeFile" class="text-button" type="button"><i class="fas fa-times button-icon" aria-hidden="true"></i>{{ t("Remove") }}</button>
+
+      <section id="queueView" class="document-queue-view" aria-labelledby="queueTitle" hidden>
+        <div class="document-queue-head">
+          <div><h2 id="queueTitle">{{ t("Selected PDFs") }}</h2><p id="queueSummary"></p></div>
+          <label id="addFiles" class="document-add-files text-button" for="fileInput"><i class="fas fa-plus button-icon" aria-hidden="true"></i>{{ t("Add PDFs") }}</label>
+        </div>
+        <ol id="fileQueue" class="document-file-list"></ol>
+      </section>
+
+      <section id="progressView" class="document-progress-view" role="status" aria-live="polite" hidden>
+        <div class="document-print-animation" aria-hidden="true">
+          <i class="fas fa-print document-printer-icon"></i>
+          <i class="far fa-file-pdf document-paper-icon"></i>
+        </div>
+        <div class="scan-status-copy">
+          <h2>{{ t("Printing documents") }}</h2>
+          <p id="progressFile"></p>
+          <strong id="progressCount" class="document-progress-count"></strong>
+        </div>
+      </section>
+
+      <section id="resultView" class="document-result-view" role="status" aria-live="polite" hidden>
+        <div id="resultVisual" class="document-result-visual" aria-hidden="true"><i id="resultIcon" class="far fa-check-circle"></i></div>
+        <div class="scan-status-copy">
+          <h2 id="resultTitle"></h2>
+          <p id="resultText"></p>
+        </div>
+        <ol id="resultList" class="document-file-list document-result-list"></ol>
+        <button id="resetQueue" class="text-button" type="button"><i class="fas fa-plus button-icon" aria-hidden="true"></i>{{ t("Print more PDFs") }}</button>
+      </section>
+
+      <div id="dropOverlay" class="document-drop-overlay" aria-hidden="true" hidden>
+        <i class="fas fa-file-import" aria-hidden="true"></i>
+        <strong>{{ t("Drop PDFs to add them") }}</strong>
       </div>
       <div id="documentStatus" class="document-statusbar" role="status" aria-live="polite">{{ t("Connecting…") }}</div>
     </div>
@@ -36,4 +66,4 @@
 </section>
 <div id="toast" class="toast-message" role="status" aria-live="polite" hidden></div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/documents.js', v='20260822-2') }}"></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/documents.js', v='20260825-1') }}"></script>{% endblock %}

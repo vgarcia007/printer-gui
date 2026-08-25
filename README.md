@@ -31,7 +31,7 @@ The preview shows the real application in an isolated English demo environment. 
 
 ### Document printing
 
-- Upload a PDF in the browser and choose a configured document printer.
+- Add one or more PDFs through the file chooser or drag and drop, review their order, and send them to a configured document printer one after another with visible progress.
 - Print a stored scan directly from its sidebar entry, with a printer chooser before submission.
 - Automatically print PDFs copied into the configurable hotfolder.
 - Wait until a hotfolder file is unchanged and has a valid PDF header and end marker before printing it. This prevents incomplete network copies from being submitted.
