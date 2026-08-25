@@ -97,8 +97,12 @@ class DocumentPrintService:
             result = subprocess.run(
                 args, capture_output=True, text=True, timeout=timeout, check=False
             )
-        except (OSError, subprocess.TimeoutExpired) as exc:
+        except FileNotFoundError as exc:
+            raise DocumentPrintError("The print client is not installed.") from exc
+        except subprocess.TimeoutExpired as exc:
             raise DocumentPrintError("The print service did not respond in time.") from exc
+        except OSError as exc:
+            raise DocumentPrintError("The print service could not be contacted.") from exc
         if result.returncode:
             detail = (result.stderr or result.stdout).strip()
             raise DocumentPrintError(detail or "The print service rejected the job.")
@@ -169,7 +173,7 @@ class DocumentPrintService:
                 if resolved.parent != self.jobs_dir or path.is_symlink() or resolved.suffix.lower() != ".pdf":
                     continue
                 self._run(
-                    ["lpr", "-H", self.cups_server, "-P", printer, str(resolved)]
+                    ["lp", "-h", self.cups_server, "-d", printer, str(resolved)]
                 )
                 resolved.unlink()
                 printed += 1
@@ -197,7 +201,7 @@ class DocumentPrintService:
                 raise DocumentPrintError("The PDF could not be read.") from exc
             if b"%PDF-" not in header:
                 raise DocumentPrintError("The selected file is not a valid PDF.")
-            self._run(["lpr", "-H", self.cups_server, "-P", printer, str(resolved)])
+            self._run(["lp", "-h", self.cups_server, "-d", printer, str(resolved)])
             return str(selected["label"] or printer)
 
     def save_upload(self, filename: str, content: bytes) -> Path:

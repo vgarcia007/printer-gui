@@ -117,7 +117,7 @@ class DocumentServiceTest(unittest.TestCase):
         def reject(args, **_kwargs):
             nonlocal calls
             calls += 1
-            if args[0] == "lpr":
+            if args[0] == "lp":
                 return subprocess.CompletedProcess(args, 1, "", "printer unavailable")
             return self.lpstat(args)
 
@@ -138,8 +138,8 @@ class DocumentServiceTest(unittest.TestCase):
 
         self.assertTrue(path.exists())
         self.assertEqual(label, "Brother MFC-L2710DW")
-        lpr_calls = [call.args[0] for call in run.call_args_list if call.args[0][0] == "lpr"]
-        self.assertEqual(lpr_calls, [["lpr", "-H", "cups:631", "-P", "mfc", str(path)]])
+        lp_calls = [call.args[0] for call in run.call_args_list if call.args[0][0] == "lp"]
+        self.assertEqual(lp_calls, [["lp", "-h", "cups:631", "-d", "mfc", str(path)]])
 
     @patch("app.services.document_service.subprocess.run")
     def test_hotfolder_waits_for_a_complete_stable_pdf(self, run):
@@ -162,13 +162,13 @@ class DocumentServiceTest(unittest.TestCase):
         self.assertEqual(worker.poll_once(now=134.9), 0)
         self.assertEqual(worker.poll_once(now=135), 1)
         self.assertFalse(path.exists())
-        lpr_calls = [call.args[0] for call in run.call_args_list if call.args[0][0] == "lpr"]
-        self.assertEqual(lpr_calls[0][4], "hp-color")
+        lp_calls = [call.args[0] for call in run.call_args_list if call.args[0][0] == "lp"]
+        self.assertEqual(lp_calls[0][4], "hp-color")
 
     @patch("app.services.document_service.subprocess.run")
     def test_hotfolder_keeps_a_complete_pdf_when_cups_rejects_it(self, run):
         def reject(args, **_kwargs):
-            if args[0] == "lpr":
+            if args[0] == "lp":
                 return subprocess.CompletedProcess(args, 1, "", "printer unavailable")
             return self.lpstat(args)
 
@@ -187,9 +187,30 @@ class DocumentServiceTest(unittest.TestCase):
         self.assertTrue(path.exists())
         self.assertEqual(worker.poll_once(now=20), 0)
         self.assertEqual(
-            len([call for call in run.call_args_list if call.args[0][0] == "lpr"]),
+            len([call for call in run.call_args_list if call.args[0][0] == "lp"]),
             1,
         )
+
+    @patch("app.services.document_service.subprocess.run")
+    def test_missing_print_client_is_not_reported_as_timeout(self, run):
+        run.side_effect = FileNotFoundError("lp")
+
+        with self.assertRaisesRegex(DocumentPrintError, "print client is not installed"):
+            self.service._run(["lp"])
+
+    @patch("app.services.document_service.subprocess.run")
+    def test_print_timeout_is_reported_as_timeout(self, run):
+        run.side_effect = subprocess.TimeoutExpired(["lp"], 60)
+
+        with self.assertRaisesRegex(DocumentPrintError, "did not respond in time"):
+            self.service._run(["lp"])
+
+    @patch("app.services.document_service.subprocess.run")
+    def test_print_client_os_error_is_reported_as_connection_error(self, run):
+        run.side_effect = PermissionError("not permitted")
+
+        with self.assertRaisesRegex(DocumentPrintError, "could not be contacted"):
+            self.service._run(["lp"])
 
 
 class EditorDocumentTest(unittest.TestCase):
